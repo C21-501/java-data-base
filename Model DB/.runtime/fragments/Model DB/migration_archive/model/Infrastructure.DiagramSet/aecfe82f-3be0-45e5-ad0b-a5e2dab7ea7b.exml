@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="Model DB" version="4">
+  <OBJECT>
+    <ID name="Model DB" mc="Infrastructure.DiagramSet" uid="aecfe82f-3be0-45e5-ad0b-a5e2dab7ea7b"/>
+    <PID name="Model DB" mc="Standard.Project" uid="05ca2b8c-91b6-409d-a8f5-964db506971c"/>
+    <ATTRIBUTES>
+      <ATT name="Name"><![CDATA[Model DB]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES></DEPENDENCIES>
+  </OBJECT>
+</EXT>

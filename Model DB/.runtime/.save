@@ -1,0 +1,5 @@
+#Mon Mar 25 21:18:23 MSK 2024
+org.modelio.app.diagram.editor.OpenedDiagrams0='model db Use Case diagram' {3c366025-6fce-4d4c-be91-ba3d80c0b124} Standard.UseCaseDiagram
+org.modelio.app.diagram.editor.OpenedDiagrams3='Interaction Sequence diagram' {09d7ab04-8c03-4c44-8fd7-250abac70980} Standard.SequenceDiagram
+org.modelio.app.diagram.editor.OpenedDiagrams1='Model Class diagram' {86e4713f-e669-46fc-8d1f-a608cc6358bd} Standard.ClassDiagram
+org.modelio.app.diagram.editor.OpenedDiagrams2='CreateTableCommand' {49e52a88-1e03-4f2a-b4b3-8d06d47048a3} Standard.SequenceDiagram
