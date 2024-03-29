@@ -14,7 +14,6 @@
     </ATTRIBUTES>
     <DEPENDENCIES>
       <COMP relation="OwnedElement">
-        <COMPID name="BackEnd" mc="Standard.Class" uid="5478cd36-8e3b-4c6c-9997-f549427083f4"/>
         <COMPID name="BaseCommand" mc="Standard.Class" uid="0432acda-afea-44d9-96dc-f4fa12cb578a"/>
         <COMPID name="LoadDBCommand" mc="Standard.Class" uid="1b754ebc-5347-470e-bf96-0c02b4fce817"/>
         <COMPID name="CommandException" mc="Standard.Class" uid="185f2afe-e4e0-4e0c-814a-a4b44336e457"/>
@@ -22,7 +21,7 @@
         <COMPID name="InitDBCommand" mc="Standard.Class" uid="d8318607-ba3e-4f50-a8bb-33ec1475ecd7"/>
         <COMPID name="CommandFactory" mc="Standard.Class" uid="4495af22-b7c0-4003-b1d3-3694f1ca30f4"/>
         <COMPID name="UpdateTableCommand" mc="Standard.Class" uid="1c7437a7-ae81-46ef-b90d-c2b73234298a"/>
-        <COMPID name="CommandParser" mc="Standard.Class" uid="2c7f586f-9868-44be-8c92-7a9e5342fb98"/>
+        <COMPID name="AnalyserResponse" mc="Standard.Class" uid="2c7f586f-9868-44be-8c92-7a9e5342fb98"/>
         <COMPID name="SyntaxAnalyser" mc="Standard.Class" uid="fc14c3a6-3905-44a9-a734-80a724124b0b"/>
         <COMPID name="DataAnalyser" mc="Standard.Class" uid="5addb77e-9784-4154-844a-c4c24a77b55f"/>
         <COMPID name="AbstractTableCommand" mc="Standard.Class" uid="5e92838a-11c0-4e66-a742-efa7ac668578"/>
@@ -32,6 +31,9 @@
         <COMPID name="ProcessUnit" mc="Standard.Class" uid="83bccf3b-70f8-4da0-834d-0077329b426b"/>
         <COMPID name="Monitor" mc="Standard.Class" uid="db7c0348-b80a-411a-b66d-f87e753293ba"/>
         <COMPID name="AbstractDBCommand" mc="Standard.Class" uid="99dc8fde-3e3f-495d-916d-ef3c84b88335"/>
+        <COMPID name="Scanner" mc="Standard.Class" uid="e1415e15-716c-4c04-8031-91ff913146ce"/>
+        <COMPID name="OutputFormatter" mc="Standard.Class" uid="5987511a-ece8-492d-ad7a-6e2e895dfe22"/>
+        <COMPID name="BackEndConnector" mc="Standard.Class" uid="c036072d-3da8-4241-9783-25509c94b0d9"/>
       </COMP>
       <COMP relation="Product">
         <COMPID name="Model Class diagram" mc="Standard.ClassDiagram" uid="86e4713f-e669-46fc-8d1f-a608cc6358bd"/>
