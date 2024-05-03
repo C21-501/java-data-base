@@ -1,4 +1,4 @@
-package database.api.tcl;
+package database.api.tcl.commands;
 
 public class RollBackCommand extends AbstractTCLCommand{
     @Override

@@ -1,4 +1,4 @@
-package database.api.ddl;
+package database.api.ddl.commands;
 
 public class CreateCommand extends AbstractDDLCommand {
 

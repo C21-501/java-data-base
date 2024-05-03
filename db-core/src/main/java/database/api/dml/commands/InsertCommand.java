@@ -1,4 +1,4 @@
-package database.api.dml;
+package database.api.dml.commands;
 
 public class InsertCommand extends AbstractDMLCommand {
 
