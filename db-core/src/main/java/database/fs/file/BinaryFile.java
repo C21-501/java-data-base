@@ -1,7 +1,9 @@
-package database.fs;
+package database.fs.file;
 
 import database.types.AbstractDataType;
 import lombok.Data;
+import lombok.Setter;
+
 import java.io.Serializable;
 
 /**
@@ -19,6 +21,19 @@ public class BinaryFile implements Serializable {
     private Page[] pages;
 
     /**
+     * Constructs a BinaryFile object with the specified header, metadata, and pages.
+     *
+     * @param header   the header of the binary file
+     * @param metaData the metadata of the binary file
+     * @param pages    the array of pages containing data blocks
+     */
+    public BinaryFile(Header header, MetaData metaData, Page[] pages) {
+        this.header = header;
+        this.metaData = metaData;
+        this.pages = pages;
+    }
+
+    /**
      * Represents metadata associated with the binary file.
      *
      * @param metadata the metadata information
@@ -34,6 +49,7 @@ public class BinaryFile implements Serializable {
      * @param numberOfBlocks the total number of blocks
      * @param metadataSize   the size of the metadata
      */
+
     public record Header(
             byte[] magicNumber,
             short version,
@@ -53,6 +69,7 @@ public class BinaryFile implements Serializable {
         /** The array of data blocks within the page. */
         private DataBlock<AbstractDataType>[] dataBlocks;
 
+        @SuppressWarnings("unchecked")
         public Page(PageHeader pageHeader, Object[] o) {
             this.pageHeader = pageHeader;
             if (o != null) {
@@ -74,6 +91,7 @@ public class BinaryFile implements Serializable {
          * @param pageSize    the size of the page
          * @param addressSize the size of the address
          */
+
         public record PageHeader(int pageSize, int addressSize) implements Serializable{}
 
         /**
