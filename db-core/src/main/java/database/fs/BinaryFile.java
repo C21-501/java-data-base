@@ -1,12 +1,14 @@
 package database.fs;
 
+import database.types.AbstractDataType;
 import lombok.Data;
+import java.io.Serializable;
 
 /**
  * Represents a binary file containing header, metadata, and data pages.
  */
 @Data
-public class BinaryFile {
+public class BinaryFile implements Serializable {
     /** The header of the binary file. */
     private Header header;
 
@@ -21,7 +23,7 @@ public class BinaryFile {
      *
      * @param metadata the metadata information
      */
-    public record MetaData(String metadata){}
+    public record MetaData(String metadata) implements Serializable{}
 
     /**
      * Represents the header of the binary file.
@@ -38,18 +40,33 @@ public class BinaryFile {
             int blockSize,
             int numberOfBlocks,
             int metadataSize
-    ) {}
+    ) implements Serializable {}
 
     /**
      * Represents a page containing data blocks.
      */
     @Data
-    public static class Page {
+    public static class Page implements Serializable {
         /** The header of the page. */
         private PageHeader pageHeader;
 
         /** The array of data blocks within the page. */
-        private DataBlock[] dataBlocks;
+        private DataBlock<AbstractDataType>[] dataBlocks;
+
+        public Page(PageHeader pageHeader, Object[] o) {
+            this.pageHeader = pageHeader;
+            if (o != null) {
+                for (Object obj : o) {
+                    if (!(obj instanceof DataBlock)) {
+                        throw new IllegalArgumentException("Invalid object type in dataBlocks array.");
+                    }
+                }
+                this.dataBlocks = (DataBlock<AbstractDataType>[]) o;
+            } else {
+                this.dataBlocks = null;
+            }
+        }
+
 
         /**
          * Represents the header of a page.
@@ -57,14 +74,22 @@ public class BinaryFile {
          * @param pageSize    the size of the page
          * @param addressSize the size of the address
          */
-        public record PageHeader(int pageSize, int addressSize) {}
+        public record PageHeader(int pageSize, int addressSize) implements Serializable{}
 
         /**
          * Represents a block of data within a page.
          *
-         * @param data     the data contained within the block
-         * @param dataSize the size of the data
+         * @param <T>       the type of data contained within the block
          */
-        public record DataBlock(Object data, int dataSize) {}
+        @Data
+        public static class DataBlock<T extends AbstractDataType> implements Serializable {
+            private final T data;
+            private final int dataSize;
+
+            public DataBlock(T data) {
+                this.data = data;
+                this.dataSize = data.getByteLength();
+            }
+        }
     }
 }
