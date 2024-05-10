@@ -1,5 +1,9 @@
 package database.fs.file;
 
+import database.system.fs.file.BinaryFile;
+import database.system.fs.file.BinaryFileBuilder;
+import database.system.fs.file.BinaryFileBuilderInterface;
+import database.system.fs.file.BinaryFileDirector;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
