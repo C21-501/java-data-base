@@ -1,4 +1,4 @@
-package database.types;
+package database.system.core.types;
 
 public class Integer extends AbstractDataType {
 

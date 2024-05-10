@@ -1,8 +1,7 @@
-package database.fs.file;
+package database.system.fs.file;
 
-import database.types.AbstractDataType;
+import database.system.core.types.AbstractDataType;
 import lombok.Data;
-import lombok.Setter;
 
 import java.io.Serializable;
 

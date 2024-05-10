@@ -1,11 +1,10 @@
-package database.types;
+package database.system.core.constraints;
 
-import lombok.Data;
 
 /**
  * Enumeration for column constraints types in a relational database.
  */
-public enum ColumnConstraint {
+public enum ConstraintEnum {
     /**
      * Constraint indicating that the column is a primary key.
      * The primary key uniquely identifies each record in the table.
@@ -42,4 +41,5 @@ public enum ColumnConstraint {
      */
     FOREIGN_KEY
 }
+
 

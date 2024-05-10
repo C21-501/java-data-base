@@ -1,4 +1,4 @@
-package database.fs.file;
+package database.system.fs.file;
 
 /**
  * Interface for building BinaryFile objects.
