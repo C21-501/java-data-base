@@ -1,7 +1,6 @@
 package database.system.core.constraints.listeners;
 
 import database.system.core.constraints.ConstraintEnum;
-import database.system.core.constraints.interfaces.Constraint;
 import database.system.core.structures.Field;
 import database.system.core.types.DataType;
 import org.junit.jupiter.api.Test;
@@ -37,7 +36,7 @@ public class CheckConstraintTest {
         Field field = new Field(DataType.STRING);
         Predicate<Object> predicate = (value) -> value instanceof String;
         CheckConstraint checkConstraint = new CheckConstraint(field, predicate);
-        assertEquals(ConstraintEnum.CHECK, checkConstraint.get());
+        assertEquals(CheckConstraint.class, checkConstraint.getClass());
     }
 
     // The update method updates the Field object's data if the check method returns true.
@@ -56,7 +55,7 @@ public class CheckConstraintTest {
         Field field = new Field(DataType.STRING);
         Predicate<Object> predicate = (value) -> value instanceof String;
         field.addConstraint(new CheckConstraint(field, predicate));
-        assertTrue(field.getConstraintEnumSet().contains(ConstraintEnum.CHECK));
+        assertTrue(field.getConstraintSet().contains(ConstraintEnum.CHECK));
     }
 
     // The removeConstraint method removes the CHECK ConstraintEnum from the Field object's constraintEnumSet.
@@ -66,9 +65,9 @@ public class CheckConstraintTest {
         Predicate<Object> predicate = (value) -> value instanceof String;
         CheckConstraint constraint = new CheckConstraint(field, predicate);
         field.addConstraint(constraint);
-        assertTrue(field.getConstraintEnumSet().contains(ConstraintEnum.CHECK));
+        assertTrue(field.getConstraintSet().contains(ConstraintEnum.CHECK));
         field.removeConstraint(constraint);
-        assertFalse(field.getConstraintEnumSet().contains(ConstraintEnum.CHECK));
+        assertFalse(field.getConstraintSet().contains(ConstraintEnum.CHECK));
     }
 
     // CheckConstraint throws a NullPointerException if the Field object is null.

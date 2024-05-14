@@ -2,9 +2,12 @@ package database.system.core.managers;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import database.system.core.constraints.ConstraintEnum;
 import database.system.core.constraints.interfaces.Constraint;
+import database.system.core.constraints.listeners.ForeignKeyConstraint;
+import database.system.core.constraints.listeners.PrimaryKeyConstraint;
+import database.system.core.constraints.listeners.UniqueConstraint;
 import database.system.core.structures.Field;
+import database.system.core.structures.Table;
 import database.system.core.types.DataType;
 import org.junit.jupiter.api.Test;
 
@@ -28,20 +31,10 @@ public class FieldManagerTest {
     public void test_add_constraint_existing_column() {
         ColumnManager columnManager = new ColumnManager();
         columnManager.createColumn("column1", DataType.INTEGER);
-        columnManager.addConstraint("column1", new Constraint() {
-            @Override
-            public boolean check(Object value) {
-                return true;
-            }
-
-            @Override
-            public ConstraintEnum get() {
-                return ConstraintEnum.PRIMARY_KEY;
-            }
-        });
+        columnManager.addConstraint("column1",);
         Map<String, Field> columns = columnManager.getColumns();
-        Set<ConstraintEnum> constraints = columns.get("column1").getConstraintEnumSet();
-        assertTrue(constraints.contains(ConstraintEnum.PRIMARY_KEY));
+        Set<Constraint> constraints = columns.get("column1").getConstraintSet();
+        assertEquals(true, constraints.contains(UniqueConstraint.class));
     }
 
     // creating a column with a null name throws a NullPointerException

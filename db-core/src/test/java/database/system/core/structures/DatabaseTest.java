@@ -397,7 +397,7 @@ public class DatabaseTest {
         table.addField("column1", field);
         database.createTable("table1", table);
 
-        assertTrue(table.getField("column1").getConstraintEnumSet().contains(ConstraintEnum.NOT_NULL));
+        assertTrue(table.getField("column1").getConstraintSet().contains(ConstraintEnum.NOT_NULL));
     }
 
     // Checking if a null table name exists should throw a NullPointerException.

@@ -1,12 +1,14 @@
 package database.system.core.structures;
 
 import database.system.core.constraints.interfaces.Constraint;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
 
 
 public record Table(String tableName) {
+    @Getter
     private static final Map<String, Field> columnHashMap = new HashMap<>();
 
     public boolean contains(String columnName) {
@@ -74,5 +76,13 @@ public record Table(String tableName) {
         if (field == null)
             throw new RuntimeException(STR."column \{columnName} does not exist");
         field.removeConstraint(constraint);
+    }
+
+    public boolean containsKey(Object key) {
+        return columnHashMap.containsKey(key.toString());
+    }
+
+    public boolean containsValues(Object value) {
+        return columnHashMap.containsValue((Field) value);
     }
 }

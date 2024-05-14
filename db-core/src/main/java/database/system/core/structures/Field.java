@@ -1,6 +1,5 @@
 package database.system.core.structures;
 
-import database.system.core.constraints.ConstraintEnum;
 import database.system.core.constraints.interfaces.Constraint;
 import database.system.core.constraints.ConstraintManager;
 import database.system.core.types.DataType;
@@ -14,14 +13,14 @@ public class Field {
     private ConstraintManager constraints;
     private DataType type;
     private Object data;
-    private Set<ConstraintEnum> constraintEnumSet;
+    private Set<Constraint> constraintSet;
 
     public Field(DataType type) {
         if (type == null)
             throw new NullPointerException("`type` is null");
         this.type = type;
         constraints = new ConstraintManager();
-        constraintEnumSet = new HashSet<>();
+        constraintSet = new HashSet<>();
     }
 
     public void setUpData(Object data){
@@ -42,12 +41,12 @@ public class Field {
     public void addConstraint(Constraint constraint){
         if (constraint == null)
             throw new NullPointerException("parameter `constraint` is null");
-        constraintEnumSet.add(constraint.get());
+        constraintSet.add(constraint);
     }
 
     public void removeConstraint(Constraint constraint){
         if (constraint == null)
             throw new NullPointerException("parameter `constraint` is null");
-        constraintEnumSet.remove(constraint.get());
+        constraintSet.remove(constraint);
     }
 }

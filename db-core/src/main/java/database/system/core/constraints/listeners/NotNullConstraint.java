@@ -7,8 +7,6 @@ import database.system.core.structures.Field;
 
 
 public record NotNullConstraint() implements Constraint, Listener {
-    public static final ConstraintEnum CONSTRAINTS_ENUM = ConstraintEnum.NOT_NULL;
-
     @Override
     public boolean check(Object value) {
         if (!(value instanceof Field))
@@ -21,9 +19,5 @@ public record NotNullConstraint() implements Constraint, Listener {
         if (check(value)) {
             throw new RuntimeException(STR."NotNull constraint violation: \{value.getClass()}: \{value.toString()} cannot be null.");
         }
-    }
-    @Override
-    public ConstraintEnum get() {
-        return CONSTRAINTS_ENUM;
     }
 }
