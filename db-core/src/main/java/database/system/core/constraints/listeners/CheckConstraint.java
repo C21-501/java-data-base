@@ -8,10 +8,10 @@ import database.system.core.structures.Field;
 import java.util.function.Predicate;
 
 
-public record CheckConstraint(Predicate<Object> predicate) implements Constraint {
+public record CheckConstraint(String constraintName, Predicate<Object> predicate) implements Constraint {
     public CheckConstraint {
-        if (predicate == null)
-            throw new NullPointerException("`predicate` is null");
+        if (predicate == null || constraintName == null)
+            throw new NullPointerException("`predicate` or `constraintName` is null");
     }
 
     @Override

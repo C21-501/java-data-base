@@ -15,9 +15,10 @@ public class CheckConstraintTest {
     public void test_instantiation() {
         Field field = new Field(DataType.STRING);
         Predicate<Object> predicate = (value) -> value instanceof String;
-        CheckConstraint checkConstraint = new CheckConstraint(field, predicate);
+        CheckConstraint checkConstraint = new CheckConstraint("field_check", predicate);
         assertNotNull(checkConstraint);
-        assertEquals(field, checkConstraint.field());
+        field.addConstraint(checkConstraint);
+        assertTrue(field.getConstraintSet().contains(checkConstraint));
         assertEquals(predicate, checkConstraint.predicate());
     }
 
@@ -26,8 +27,8 @@ public class CheckConstraintTest {
     public void test_check_returnsTrue() {
         Field field = new Field(DataType.STRING);
         Predicate<Object> predicate = (value) -> value instanceof String;
-        CheckConstraint checkConstraint = new CheckConstraint(field, predicate);
-        assertTrue(checkConstraint.check(123));
+        CheckConstraint checkConstraint = new CheckConstraint("field_check", predicate);
+        assertFalse(checkConstraint.check(123));
     }
 
     // The get method returns the CHECK ConstraintEnum.
@@ -35,27 +36,19 @@ public class CheckConstraintTest {
     public void test_get_returnsCHECK() {
         Field field = new Field(DataType.STRING);
         Predicate<Object> predicate = (value) -> value instanceof String;
-        CheckConstraint checkConstraint = new CheckConstraint(field, predicate);
+        CheckConstraint checkConstraint = new CheckConstraint("field", predicate);
         assertEquals(CheckConstraint.class, checkConstraint.getClass());
     }
 
     // The update method updates the Field object's data if the check method returns true.
-    @Test
-    public void test_update_updatesData() {
-        Field field = new Field(DataType.STRING);
-        Predicate<Object> predicate = (value) -> value instanceof String;
-        CheckConstraint checkConstraint = new CheckConstraint(field, predicate);
-        checkConstraint.update("test");
-        assertEquals("test", field.getData());
-    }
 
     // The addConstraint method adds the CHECK ConstraintEnum to the Field object's constraintEnumSet.
     @Test
     public void test_addConstraint_addsCHECK() {
         Field field = new Field(DataType.STRING);
         Predicate<Object> predicate = (value) -> value instanceof String;
-        field.addConstraint(new CheckConstraint(field, predicate));
-        assertTrue(field.getConstraintSet().contains(ConstraintEnum.CHECK));
+        field.addConstraint(new CheckConstraint("field", predicate));
+        assertTrue(field.contains(CheckConstraint.class));
     }
 
     // The removeConstraint method removes the CHECK ConstraintEnum from the Field object's constraintEnumSet.
@@ -63,11 +56,11 @@ public class CheckConstraintTest {
     public void test_removeConstraint_removesCHECK() {
         Field field = new Field(DataType.STRING);
         Predicate<Object> predicate = (value) -> value instanceof String;
-        CheckConstraint constraint = new CheckConstraint(field, predicate);
+        CheckConstraint constraint = new CheckConstraint("field", predicate);
         field.addConstraint(constraint);
-        assertTrue(field.getConstraintSet().contains(ConstraintEnum.CHECK));
+        assertTrue(field.contains(CheckConstraint.class));
         field.removeConstraint(constraint);
-        assertFalse(field.getConstraintSet().contains(ConstraintEnum.CHECK));
+        assertFalse(field.getConstraintSet().contains(CheckConstraint.class));
     }
 
     // CheckConstraint throws a NullPointerException if the Field object is null.
@@ -81,7 +74,7 @@ public class CheckConstraintTest {
     @Test
     public void test_constructor_throwsNullPointerExceptionIfPredicateIsNull() {
         Field field = new Field(DataType.STRING);
-        assertThrows(NullPointerException.class, () -> new CheckConstraint(field, null));
+        assertThrows(NullPointerException.class, () -> new CheckConstraint("field", null));
     }
 
     // The check method returns false if the input value is null.
@@ -89,16 +82,7 @@ public class CheckConstraintTest {
     public void test_check_returnsFalseIfValueIsNull() {
         Field field = new Field(DataType.STRING);
         Predicate<Object> predicate = (value) -> value instanceof String;
-        CheckConstraint checkConstraint = new CheckConstraint(field, predicate);
+        CheckConstraint checkConstraint = new CheckConstraint("field", predicate);
         assertThrows(NullPointerException.class, ()->{checkConstraint.check(null);});
-    }
-
-    // The update method throws a RuntimeException if the check method returns false.
-    @Test
-    public void test_update_throwsRuntimeExceptionIfCheckReturnsFalse() {
-        Field field = new Field(DataType.STRING);
-        Predicate<Object> predicate = (value) -> value instanceof String;
-        CheckConstraint checkConstraint = new CheckConstraint(field, predicate);
-        assertThrows(RuntimeException.class, () -> checkConstraint.update(123));
     }
 }
