@@ -11,6 +11,11 @@ public record Table(String tableName) {
     @Getter
     private static final Map<String, Field> columnHashMap = new HashMap<>();
 
+    public Table{
+        if (tableName == null)
+            throw new NullPointerException("`tableName` parameter is null");
+    }
+
     public boolean contains(String columnName) {
         return columnHashMap.containsKey(columnName);
     }
