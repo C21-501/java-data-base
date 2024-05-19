@@ -6,11 +6,12 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 public class Scanner {
+
+    private static final java.util.Scanner in = new java.util.Scanner(System.in);
+
     public static void readCommandsFromFile(String fileName) throws IOException {
         CharStream stream = CharStreams.fromFileName(fileName);
         SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
@@ -19,8 +20,16 @@ public class Scanner {
         parser.start();
     }
 
-    public static void readCommandsFromCommandLine() throws IOException {
-        CharStream stream = CharStreams.fromStream(System.in);
+    public static void readCommandsFromCommandLine() {
+        StringBuilder commands = new StringBuilder();
+        String line = in.next();
+        while(!line.equals(":q")){
+            commands.append(line).append(" ");
+            line = in.next();
+        }
+
+        CharStream stream = CharStreams.fromString(commands.toString());
+        //CharStream stream = CharStreams.fromStream(System.in);
         SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
         SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
         parser.addParseListener(new SQLListener());
@@ -28,9 +37,27 @@ public class Scanner {
     }
 
     public static void main(String[] args) throws IOException {
-        java.util.Scanner in = new java.util.Scanner(System.in);
-        readCommandsFromCommandLine();
-        int x = in.nextInt();
-        System.out.println(x);
+        boolean flag = true;
+        while(flag){
+            System.out.println("Введите номер:");
+            System.out.println("0. Выход");
+            System.out.println("1. Ввод из консоли");
+            System.out.println("2. Ввод из файла");
+            int i = in.nextInt();
+            switch (i){
+                case 0:
+                    flag = false;
+                    break;
+                case 1:
+                    System.out.println("Введите команды, по завершении введите :q");
+                    readCommandsFromCommandLine();
+                    break;
+                case 2:
+                    System.out.println("Введите название файла:");
+                    String fileName = in.next();
+                    readCommandsFromFile(fileName);
+                    break;
+            }
+        }
     }
 }

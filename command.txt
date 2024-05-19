@@ -1,0 +1,30 @@
+ALTER DATABASE lol RENAME TO kek;
+CREATE DATABASE lol;
+DROP DATABASE lol;
+
+ALTER TABLE lol1 RENAME TO kek;
+ALTER TABLE lol2 ADD COLUMN kek text;
+ALTER TABLE lol3 DROP COLUMN kek;
+
+CREATE TABLE lol (
+    kek1 text NOT NULL,
+    kek2 bigint PRIMARY KEY,
+    kek3 numeric
+);
+
+DROP TABLE lol;
+
+DELETE FROM lol;
+DELETE FROM lol WHERE kek = 5 AND aza = 'kekString';
+
+INSERT INTO lol (kek1,kek2, kek3) VALUES (4,3.05, 'kekString');
+
+SELECT * FROM lol;
+SELECT kek1,kek2, kek3 FROM lol;
+SELECT kek1,kek2, kek3 FROM lol WHERE kek = 5 AND aza = 'kekString';
+
+UPDATE lol SET kek1 = 5,kek2 =2.5, kek3 = 'KEK3';
+UPDATE lol SET kek1 = 5,kek2 =2.5, kek3 = 'KEK3' WHERE kek = 5 AND aza = 'kekString';
+
+
+

@@ -22,13 +22,6 @@ public class SQLListener extends SQLGrammarBaseListener {
     ){
     }
 
-    private String currentTableName;
-
-    @Override
-    public void enterStart(SQLGrammarParser.StartContext ctx) {
-        currentTableName = null;
-    }
-
     @Override
     public void exitAlterDbCommand(SQLGrammarParser.AlterDbCommandContext ctx) {
         String dbName = ctx.dbName.getText();
@@ -36,6 +29,8 @@ public class SQLListener extends SQLGrammarBaseListener {
 
         //вызов функции
         System.out.println("ALTER DB command");
+        System.out.println(dbName);
+        System.out.println(newDbName);
     }
 
     @Override
@@ -44,6 +39,7 @@ public class SQLListener extends SQLGrammarBaseListener {
 
         //вызов функции
         System.out.println("CREATE DB command");
+        System.out.println(dbName);
     }
 
     @Override
@@ -52,42 +48,40 @@ public class SQLListener extends SQLGrammarBaseListener {
 
         //вызов функции
         System.out.println("DROP DB command");
+        System.out.println(dbName);
     }
 
     @Override
-    public void enterAlterTableCommand(SQLGrammarParser.AlterTableCommandContext ctx) {
-        currentTableName = ctx.tableName.getText();
-    }
+    public void exitAlterTableCommand(SQLGrammarParser.AlterTableCommandContext ctx) {
+        String tableName = ctx.tableName.getText();
+        var alterCtx = ctx.alterTableStatement();
 
-    @Override
-    public void exitAlterTableCommand(SQLGrammarParser.AlterTableCommandContext ctx) { //??? и нужна ли проверка на null
-        currentTableName = null;
-    }
+        if(alterCtx.renameTableStatement() != null){
+            String newTableName = alterCtx.renameTableStatement().newName.getText();
 
-    @Override
-    public void exitRenameTableStatement(SQLGrammarParser.RenameTableStatementContext ctx) {
-        String tableName = currentTableName;
-        String newTableName = ctx.newName.getText();
+            //вызов функции
+            System.out.println("RENAME TABLE command");
+            System.out.println(tableName);
+            System.out.println(newTableName);
 
-        //вызов функции
-        System.out.println("RENAME TABLE command");
-    }
+        } else if(alterCtx.addColumnStatement() != null){
+            String columnName = alterCtx.addColumnStatement().columnName.getText();
+            String columnType = alterCtx.addColumnStatement().dataType().getText();
 
-    @Override public void exitAddColumnStatement(SQLGrammarParser.AddColumnStatementContext ctx) {
-        String tableName = currentTableName;
-        String columnName = ctx.columnName.getText();
-        String columnType = ctx.dataType().getText();
+            //вызов функции
+            System.out.println("ADD COLUMN command");
+            System.out.println(tableName);
+            System.out.println(columnName);
+            System.out.println(columnType);
 
-        //вызов функции
-        System.out.println("ADD COLUMN command");
-    }
+        } else if(alterCtx.dropColumnStatement() != null){
+            String columnName = alterCtx.dropColumnStatement().columnName.getText();
 
-    @Override public void exitDropColumnStatement(SQLGrammarParser.DropColumnStatementContext ctx) {
-        String tableName = currentTableName;
-        String columnName = ctx.columnName.getText();
-
-        //вызов функции
-        System.out.println("DROP COLUMN command");
+            //вызов функции
+            System.out.println("DROP COLUMN command");
+            System.out.println(tableName);
+            System.out.println(columnName);
+        }
     }
 
     @Override
@@ -97,11 +91,19 @@ public class SQLListener extends SQLGrammarBaseListener {
         List<ColumnDefinition> columnsToAdd = new ArrayList<>();
 
         for(var i : ctx.createTableStatement().columnDefinition()){
-            columnsToAdd.add(new ColumnDefinition(i.columnName.getText(),i.dataType().getText(),i.columnConstraint().getText()));
+            String constraint = null;
+            if(i.columnConstraint() != null){
+                constraint = i.columnConstraint().getText();
+            }
+            columnsToAdd.add(new ColumnDefinition(i.columnName.getText(),i.dataType().getText(),constraint));
         }
 
         //вызов функции
         System.out.println("CREATE TABLE command");
+        System.out.println(tableName);
+        for(ColumnDefinition o : columnsToAdd){
+            System.out.println(o.name +" "+ o.dataType +" "+ o.constraint);
+        }
     }
 
 
@@ -111,6 +113,7 @@ public class SQLListener extends SQLGrammarBaseListener {
 
         //вызов функции
         System.out.println("DROP TABLE command");
+        System.out.println(tableName);
     }
 
 
@@ -129,30 +132,46 @@ public class SQLListener extends SQLGrammarBaseListener {
 
         //вызов функции
         System.out.println("INSERT command");
+        System.out.println(tableName);
+        for (int i = 0; i < columnsToAdd.size(); i++) {
+            System.out.println(columnsToAdd.get(i) +" = "+ valuesToAdd.get(i));
+        }
     }
 
     @Override
     public void exitDeleteCommand(SQLGrammarParser.DeleteCommandContext ctx) {
         String tableName = ctx.tableName.getText();
 
-        List<Expression> expressions = new ArrayList<>();
-        List<String> logicalOperator = new ArrayList<>();
+        if(ctx.condition() != null){
+            List<Expression> expressions = new ArrayList<>();
+            List<String> logicalOperator = new ArrayList<>();
 
-        for(var i : ctx.condition().expression()){
-            expressions.add(new Expression(i.columnName.getText(),i.comparisonOperator().getText(),i.value.getText()));
-        }
+            for(var i : ctx.condition().expression()){
+                expressions.add(new Expression(i.columnName.getText(),i.comparisonOperator().getText(),i.value.getText()));
+            }
 
-        for(var i : ctx.condition().logicalOperator()){
-            logicalOperator.add(i.getText());
+            for(var i : ctx.condition().logicalOperator()){
+                logicalOperator.add(i.getText());
+            }
+
+            //-------------------------------------------------
+            for (Expression o : expressions){
+                System.out.println(o.columnName +" "+ o.operator +" "+ o.value);
+            }
+            for(String s : logicalOperator){
+                System.out.println(s);
+            }
+            //-------------------------------------------------
         }
 
         //вызов функции
         System.out.println("DELETE command");
+        System.out.println(tableName);
     }
 
 
     @Override
-    public void exitSelectCommand(SQLGrammarParser.SelectCommandContext ctx) { //* не будет работать скорее всего
+    public void exitSelectCommand(SQLGrammarParser.SelectCommandContext ctx) { //если *, то columnsToSelect пустой массив
         String tableName = ctx.tableName.getText();
         List<String> columnsToSelect = new ArrayList<>();
 
@@ -160,19 +179,34 @@ public class SQLListener extends SQLGrammarBaseListener {
             columnsToSelect.add(i.columnName.getText());
         }
 
-        List<Expression> expressions = new ArrayList<>();
-        List<String> logicalOperator = new ArrayList<>();
+        if(ctx.condition() != null){
+            List<Expression> expressions = new ArrayList<>();
+            List<String> logicalOperator = new ArrayList<>();
 
-        for(var i : ctx.condition().expression()){
-            expressions.add(new Expression(i.columnName.getText(),i.comparisonOperator().getText(),i.value.getText()));
-        }
+            for(var i : ctx.condition().expression()){
+                expressions.add(new Expression(i.columnName.getText(),i.comparisonOperator().getText(),i.value.getText()));
+            }
 
-        for(var i : ctx.condition().logicalOperator()){
-            logicalOperator.add(i.getText());
+            for(var i : ctx.condition().logicalOperator()){
+                logicalOperator.add(i.getText());
+            }
+
+            //-------------------------------------------------
+            for (Expression o : expressions){
+                System.out.println(o.columnName +" "+ o.operator +" "+ o.value);
+            }
+            for(String s : logicalOperator){
+                System.out.println(s);
+            }
+            //-------------------------------------------------
         }
 
         //вызов функции
         System.out.println("SELECT command");
+        System.out.println(tableName);
+        for(String s : columnsToSelect){
+            System.out.println(s);
+        }
     }
 
     @Override
@@ -189,19 +223,34 @@ public class SQLListener extends SQLGrammarBaseListener {
             values.add(i.getText());
         }
 
-        List<Expression> expressions = new ArrayList<>();
-        List<String> logicalOperator = new ArrayList<>();
+        if(ctx.condition() != null){
+            List<Expression> expressions = new ArrayList<>();
+            List<String> logicalOperator = new ArrayList<>();
 
-        for(var i : ctx.condition().expression()){
-            expressions.add(new Expression(i.columnName.getText(),i.comparisonOperator().getText(),i.value.getText()));
-        }
+            for(var i : ctx.condition().expression()){
+                expressions.add(new Expression(i.columnName.getText(),i.comparisonOperator().getText(),i.value.getText()));
+            }
 
-        for(var i : ctx.condition().logicalOperator()){
-            logicalOperator.add(i.getText());
+            for(var i : ctx.condition().logicalOperator()){
+                logicalOperator.add(i.getText());
+            }
+
+            //-------------------------------------------------
+            for (Expression o : expressions){
+                System.out.println(o.columnName +" "+ o.operator +" "+ o.value);
+            }
+            for(String s : logicalOperator){
+                System.out.println(s);
+            }
+            //-------------------------------------------------
         }
 
         //вызов функции
         System.out.println("UPDATE command");
+        System.out.println(tableName);
+        for (int i = 0; i < columnsToUpdate.size(); i++) {
+            System.out.println(columnsToUpdate.get(i) +" = "+ values.get(i));
+        }
     }
 
 
