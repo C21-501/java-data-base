@@ -12,6 +12,6 @@ public record PrimaryKeyConstraint(Table parentTable) implements Constraint {
     @Override
     public boolean check(Object value) {
         // Check if the value is already present in the set of unique values
-        return !parentTable.containsKey((String) value);
+        return parentTable.containsKey((String) value);
     }
 }

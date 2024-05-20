@@ -279,7 +279,7 @@ public class DatabaseTest {
         Database.getInstance().createTable("table1", table);
 
         // Add the field to the table
-        Database.getInstance().getTable("table1").addField("column1", field);
+        Database.getInstance().getTable("table1").createField("column1", field);
 
         // Check if the column exists in the table's columnHashMap
         assertTrue(Database.getInstance().getTable("table1").contains("column1"));
@@ -294,8 +294,8 @@ public class DatabaseTest {
         // Add columns to the table
         Field field1 = new Field(DataType.STRING);
         Field field2 = new Field(DataType.STRING);
-        table.addField("column1", field1);
-        table.addField("column2", field2);
+        table.createField("column1", field1);
+        table.createField("column2", field2);
 
         // Drop an existing column
         table.dropField("column1");
@@ -335,8 +335,8 @@ public class DatabaseTest {
         // Add columns to the table
         Field field1 = new Field(DataType.STRING);
         Field field2 = new Field(DataType.STRING);
-        table.addField("column1", field1);
-        table.addField("column2", field2);
+        table.createField("column1", field1);
+        table.createField("column2", field2);
 
         // Rename an existing column
         table.renameField("column1", "newColumn");
@@ -355,8 +355,8 @@ public class DatabaseTest {
         // Add columns to the table
         Field field1 = new Field(DataType.STRING);
         Field field2 = new Field(DataType.STRING);
-        table.addField("column1", field1);
-        table.addField("column2", field2);
+        table.createField("column1", field1);
+        table.createField("column2", field2);
 
         // Update an existing column
         Field updatedField = new Field(DataType.INTEGER);
@@ -394,7 +394,7 @@ public class DatabaseTest {
         Field field = new Field(DataType.STRING);
 
         field.addConstraint(constraint);
-        table.addField("column1", field);
+        table.createField("column1", field);
         database.createTable("table1", table);
 
         assertTrue(table.getField("column1").getConstraintSet().contains(ConstraintEnum.NOT_NULL));

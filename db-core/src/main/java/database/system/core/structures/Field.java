@@ -3,16 +3,15 @@ package database.system.core.structures;
 import database.system.core.constraints.interfaces.Constraint;
 import database.system.core.constraints.ConstraintManager;
 import database.system.core.types.DataType;
+import database.system.core.types.Integer;
 import lombok.Data;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Data
-public class Field {
+public final class Field {
     private ConstraintManager constraints;
     private DataType type;
-    private Object data;
     private Set<Constraint> constraintSet;
 
     public Field(DataType type) {
@@ -21,21 +20,6 @@ public class Field {
         this.type = type;
         constraints = new ConstraintManager();
         constraintSet = new HashSet<>();
-    }
-
-    public void setUpData(Object data){
-        this.data = data;
-        constraints.notify(data);
-    }
-
-    public void deleteData(){
-        this.data = null;
-        constraints.notify(null);
-    }
-
-    public void updateData(Object newData){
-        this.data = newData;
-        constraints.notify(newData);
     }
 
     public void addConstraint(Constraint constraint){
@@ -48,5 +32,15 @@ public class Field {
         if (constraint == null)
             throw new NullPointerException("parameter `constraint` is null");
         constraintSet.remove(constraint);
+    }
+
+    public boolean contains(Constraint constraintClass) {
+        return constraintSet.contains(constraintClass);
+    }
+
+    public boolean contains(Class<?> constraintClass) {
+        return Arrays.stream(constraintSet.toArray()).anyMatch(
+                (object) -> object.getClass().equals(constraintClass)
+        );
     }
 }

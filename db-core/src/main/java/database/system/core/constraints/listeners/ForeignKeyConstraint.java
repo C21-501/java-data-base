@@ -1,8 +1,6 @@
 package database.system.core.constraints.listeners;
 
-import database.system.core.constraints.ConstraintEnum;
 import database.system.core.constraints.interfaces.Constraint;
-import database.system.core.constraints.interfaces.Listener;
 import database.system.core.structures.Table;
 
 

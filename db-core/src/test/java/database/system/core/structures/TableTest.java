@@ -21,7 +21,7 @@ public class TableTest {
     public void test_adding_new_field_should_add_field_to_columnHashMap() {
         Table table = new Table("table1");
         Field field = new Field(DataType.STRING);
-        table.addField("column1", field);
+        table.createField("column1", field);
         assertTrue(table.containsKey("column1"));
         assertEquals(field, table.getField("column1"));
     }
@@ -31,7 +31,7 @@ public class TableTest {
     public void test_dropping_existing_field_should_remove_field_from_columnHashMap() {
         Table table = new Table("table1");
         Field field = new Field(DataType.STRING);
-        table.addField("column1", field);
+        table.createField("column1", field);
         table.dropField("column1");
         assertFalse(table.containsKey("column1"));
     }
@@ -41,7 +41,7 @@ public class TableTest {
     public void test_renaming_existing_field_should_update_columnHashMap_with_new_name() {
         Table table = new Table("table1");
         Field field = new Field(DataType.STRING);
-        table.addField("column1", field);
+        table.createField("column1", field);
         table.renameField("column1", "newColumn");
         assertFalse(table.containsKey("column1"));
         assertTrue(table.containsKey("newColumn"));
@@ -54,7 +54,7 @@ public class TableTest {
         Table table = new Table("table1");
         Field field1 = new Field(DataType.STRING);
         Field field2 = new Field(DataType.INTEGER);
-        table.addField("column1", field1);
+        table.createField("column1", field1);
         table.updateField("column1", field2);
         assertEquals(field2, table.getField("column1"));
     }
@@ -70,7 +70,7 @@ public class TableTest {
                 return false;
             }
         };
-        table.addField("column1", field);
+        table.createField("column1", field);
         table.addConstraint("column1", constraint);
         assertTrue(field.getConstraintSet().contains(constraint));
     }

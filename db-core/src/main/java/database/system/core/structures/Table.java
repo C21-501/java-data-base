@@ -1,15 +1,13 @@
 package database.system.core.structures;
 
 import database.system.core.constraints.interfaces.Constraint;
-import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
 
 
 public record Table(String tableName) {
-    @Getter
-    private static final Map<String, Field> columnHashMap = new HashMap<>();
+    private static final Map<String, Field> fields = new HashMap<>();
 
     public Table{
         if (tableName == null)
@@ -17,27 +15,27 @@ public record Table(String tableName) {
     }
 
     public boolean contains(String columnName) {
-        return columnHashMap.containsKey(columnName);
+        return fields.containsKey(columnName);
     }
 
     public Field getField(String columnName) {
         if (columnName == null)
             throw new NullPointerException("parameter `columnName` is null");
-        return columnHashMap.get(columnName);
+        return fields.get(columnName);
     }
 
-    public void addField(String columnName, Field field) {
+    public void createField(String columnName, Field field) {
         if (columnName == null)
             throw new NullPointerException("parameter `columnName` is null");
         if (field == null)
             throw new NullPointerException("parameter `field` is null");
-        columnHashMap.put(columnName,field);
+        fields.put(columnName,field);
     }
 
     public void dropField(String columnName) {
         if (columnName == null)
             throw new NullPointerException("parameter `columnName` is null");
-        if (columnHashMap.remove(columnName) == null)
+        if (fields.remove(columnName) == null)
             throw new RuntimeException(STR."column with name \{columnName} not found");
     }
 
@@ -46,10 +44,10 @@ public record Table(String tableName) {
             throw new NullPointerException("parameter `oldColumnName` is null");
         if (newColumnName == null)
             throw new NullPointerException("parameter `newColumnName` is null");
-        Field removedField = columnHashMap.remove(oldColumnName);
+        Field removedField = fields.remove(oldColumnName);
         if (removedField == null)
             throw new RuntimeException(STR."column \{oldColumnName} not found");
-        columnHashMap.put(newColumnName,removedField);
+        fields.put(newColumnName,removedField);
     }
 
     public void updateField(String columnName, Field newField) {
@@ -57,7 +55,7 @@ public record Table(String tableName) {
             throw new NullPointerException("parameter `columnName` is null");
         if (newField == null)
             throw new NullPointerException("parameter `newField` is null");
-        if (columnHashMap.replace(columnName, newField) == null)
+        if (fields.replace(columnName, newField) == null)
             throw new RuntimeException(STR."column \{columnName} does not exist");
     }
 
@@ -66,9 +64,9 @@ public record Table(String tableName) {
             throw new NullPointerException("parameter `columnName` is null");
         if (constraint == null)
             throw new NullPointerException("parameter `constraint` is null");
-        Field field = columnHashMap.get(columnName);
+        Field field = fields.get(columnName);
         if (field == null)
-            throw new RuntimeException(STR."column \{columnName} does not exist");
+            throw new RuntimeException(STR."column '\{columnName}' does not exist");
         field.addConstraint(constraint);
     }
 
@@ -77,17 +75,21 @@ public record Table(String tableName) {
             throw new NullPointerException("parameter `columnName` is null");
         if (constraint == null)
             throw new NullPointerException("parameter `constraint` is null");
-        Field field = columnHashMap.get(columnName);
+        Field field = fields.get(columnName);
         if (field == null)
             throw new RuntimeException(STR."column \{columnName} does not exist");
         field.removeConstraint(constraint);
     }
 
     public boolean containsKey(Object key) {
-        return columnHashMap.containsKey(key.toString());
+        return fields.containsKey(key.toString());
     }
 
     public boolean containsValues(Object value) {
-        return columnHashMap.containsValue((Field) value);
+        return fields.containsValue((Field) value);
+    }
+
+    public Iterable<? extends Field> getFields() {
+        return fields.values();
     }
 }
