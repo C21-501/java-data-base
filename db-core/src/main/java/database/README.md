@@ -6,7 +6,7 @@ DatabaseProject/
 ├── src/
 │   ├── main/
 │   │   ├── java/
-│   │   │   ├── database/
+│   │   │   ├── databaseScheme/
 │   │   │   │   ├── core/
 │   │   │   │   │   ├── Database.java        // Singleton для управления экземпляром базы данных
 │   │   │   │   │   ├── Table.java          // Composite для управления структурой таблиц
@@ -44,7 +44,7 @@ DatabaseProject/
 │   │   │
 │   ├── test/
 │   │   ├── java/
-│   │   │   ├── database/
+│   │   │   ├── databaseScheme/
 │   │   │   │   ├── core/
 │   │   │   │   │   ├── DatabaseTest.java
 │   │   │   │   │   ├── TableTest.java

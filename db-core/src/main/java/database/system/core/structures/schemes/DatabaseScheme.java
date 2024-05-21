@@ -1,39 +1,37 @@
-package database.system.core.structures;
+package database.system.core.structures.schemes;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Getter
 @EqualsAndHashCode
-public class Database {
-    private static volatile Database instance;
+public class DatabaseScheme {
+    private static volatile DatabaseScheme instance;
 
-    private final Map<String, Table> tables = new HashMap<>();
+    private final Map<String, TableScheme> tables = new HashMap<>();
 
-    private Database() {}
+    private DatabaseScheme() {}
 
-    public static Database getInstance() {
+    public static DatabaseScheme getInstance() {
         if (instance == null) {
-            synchronized (Database.class) {
+            synchronized (DatabaseScheme.class) {
                 if (instance == null) {
-                    instance = new Database();
+                    instance = new DatabaseScheme();
                 }
             }
         }
         return instance;
     }
 
-    public void createTable(String tableName, Table table) {
-        if (tableName == null || table == null)
-            throw new NullPointerException("parameter `tableName` or `table` is null");
+    public void createTable(String tableName, TableScheme tableScheme) {
+        if (tableName == null || tableScheme == null)
+            throw new NullPointerException("parameter `tableName` or `tableScheme` is null");
         if (tables.containsKey(tableName))
             throw new IllegalArgumentException(STR."Table already exists with name: \{tableName}");
-        tables.put(tableName, table);
+        tables.put(tableName, tableScheme);
     }
 
     public void dropTable(String tableName) {
@@ -44,13 +42,13 @@ public class Database {
         tables.remove(tableName);
     }
 
-    public Table getTable(String tableName) {
+    public TableScheme getTable(String tableName) {
         if (tableName == null)
             throw new NullPointerException("parameter `tableName` is null");
-        Table table = tables.get(tableName);
-        if (table == null)
+        TableScheme tableScheme = tables.get(tableName);
+        if (tableScheme == null)
             throw new RuntimeException(STR."Table does not exist: \{tableName}");
-        return table;
+        return tableScheme;
     }
 
     public boolean containsTable(String tableName) {

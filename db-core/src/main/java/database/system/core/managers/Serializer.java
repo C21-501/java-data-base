@@ -1,9 +1,9 @@
 package database.system.core.managers;
 
-import database.system.core.structures.Field;
-import database.system.core.structures.Table;
-import database.system.core.structures.records.FieldRecord;
-import database.system.core.structures.records.TableRecord;
+import database.system.core.structures.schemes.FieldScheme;
+import database.system.core.structures.schemes.TableScheme;
+import database.system.core.structures.bodies.FieldBody;
+import database.system.core.structures.bodies.TableBody;
 import database.system.core.types.DataType;
 
 import java.io.*;
@@ -14,16 +14,18 @@ public class Serializer {
 
     public static void main(String[] args) {
 
-        Table table = new Table("test_table");
-        table.createField("1st_column",new Field(DataType.INTEGER));
-        table.createField("2nd_column",new Field(DataType.STRING));
-        table.createField("3rd_column",new Field(DataType.STRING));
+        TableScheme tableScheme = new TableScheme("test_table");
+        tableScheme.createField("1st_column",new FieldScheme(DataType.INTEGER));
+        tableScheme.createField("2nd_column",new FieldScheme(DataType.STRING));
+        tableScheme.createField("3rd_column",new FieldScheme(DataType.STRING));
 
 
-        TableRecord tableRecord = new TableRecord(table);
-        tableRecord.setFields(0, "test", "test");
+        TableBody tableBody = new TableBody(tableScheme);
+        tableBody.setFieldValues(0, "test", "test");
+        tableBody.setFieldValues(1, "test1", "test1");
+        tableBody.setFieldValues(2, "test2", "test2");
         // Создаем пример записи поля
-        Map<Integer, TableRecord> fieldMap = new TreeMap<>();
+        Map<Integer, TableBody> fieldMap = new TreeMap<>();
 
 
 
@@ -31,11 +33,12 @@ public class Serializer {
         // Записываем FieldRecord в файл
         String filePath = "db-core/src/test/resources/fieldRecord.ser";
         try {
+            FieldBody record = null;
             writeToFile(record, filePath);
             System.out.println("FieldRecord записан в файл");
 
             // Читаем FieldRecord из файла
-            FieldRecord readRecord = readFromFile(filePath);
+            FieldBody readRecord = readFromFile(filePath);
             System.out.println(STR."FieldRecord считан из файла: \{readRecord}");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace(System.err);
@@ -43,16 +46,16 @@ public class Serializer {
     }
 
     // Метод для записи FieldRecord в файл
-    private static void writeToFile(FieldRecord record, String filePath) throws IOException {
+    private static void writeToFile(FieldBody record, String filePath) throws IOException {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))) {
             oos.writeObject(record);
         }
     }
 
     // Метод для чтения FieldRecord из файла
-    private static FieldRecord readFromFile(String filePath) throws IOException, ClassNotFoundException {
+    private static FieldBody readFromFile(String filePath) throws IOException, ClassNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) {
-            return (FieldRecord) ois.readObject();
+            return (FieldBody) ois.readObject();
         }
     }
 }

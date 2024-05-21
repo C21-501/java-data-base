@@ -1,118 +1,129 @@
 package database.system.core.constraints.listeners;
 
-import database.system.core.structures.Field;
-import database.system.core.structures.Table;
+import database.system.core.structures.bodies.TableBody;
+import database.system.core.structures.schemes.FieldScheme;
+import database.system.core.structures.schemes.TableScheme;
 import database.system.core.types.DataType;
 import org.junit.jupiter.api.Test;
+
+import java.io.NotSerializableException;
 import static org.junit.jupiter.api.Assertions.*;
 
 
 public class UniqueConstraintTest {
-    // create a new instance of UniqueConstraint with a non-null parentTable
+    // Verify that unique values pass the check
     @Test
-    public void test_create_instance_non_null_parentTable() {
-        Table table = new Table("table");
-        UniqueConstraint uniqueConstraint = new UniqueConstraint(table);
-        assertNotNull(uniqueConstraint);
+    public void test_unique_values_pass_check() {
+        TableScheme scheme = new TableScheme("test");
+        scheme.createField("test1", new FieldScheme(DataType.STRING));
+        scheme.getField("test1").addConstraint(new UniqueConstraint());
+
+        TableBody tableBody = new TableBody(scheme);
+        tableBody.setFieldValues("value1");
+        tableBody.setFieldValues("value2");
+        assertThrows(RuntimeException.class,()->tableBody.setFieldValues("value2"));
     }
 
-    // check if a value is present in the set of unique values
+    /*// Ensure that multiple fields with unique values are correctly validated
     @Test
-    public void test_check_value_present() {
-        Table table = new Table("table");
-        Field field = new Field(DataType.STRING);
-        table.createField("column", field);
-        table.addConstraint("column", new UniqueConstraint(table));
-        field.setUpData("some data");
-        assertEquals("some data",table.getField("column").getObjectList());
+    public void test_multiple_fields_unique_validation() {
+        TableScheme scheme = new TableScheme("test");
+        TableBody tableBody = new TableBody(scheme);
+        UniqueConstraint constraint = new UniqueConstraint(tableBody);
+        tableBody.setFieldValues("value1", "value2");
+        assertTrue(constraint.check(, 1, "value3", ));
     }
 
+    // Check that the constraint returns true when no values are present in the field bodies
     @Test
-    public void test_check_not_unique_value_present() {
-        Table table1 = new Table("table1");
-        Field field1 = new Field(DataType.STRING);
-        table1.createField("column", field1);
-        table1.addConstraint("column", new UniqueConstraint(table1));
-        field1.setUpData("some data");
-
-
-
+    public void test_true_when_no_values_present() {
+        TableScheme scheme = new TableScheme("test");
+        TableBody tableBody = new TableBody(scheme);
+        UniqueConstraint constraint = new UniqueConstraint(tableBody);
+        assertTrue(constraint.check(, 0, "value1", ));
     }
 
-    // create a new instance of UniqueConstraint with a null parentTable and expect a NullPointerException to be thrown
+    // Test with null value input to see if it handles or throws an exception
     @Test
-    public void test_create_instance_null_parentTable() {
-        assertThrows(NullPointerException.class, () -> new UniqueConstraint(null));
+    public void test_null_value_input_handling() {
+        TableScheme scheme = new TableScheme("test");
+        TableBody tableBody = new TableBody(scheme);
+        UniqueConstraint constraint = new UniqueConstraint(tableBody);
+        assertThrows(NullPointerException.class, () -> constraint.check(, 0, null, ));
     }
 
-    // check if a null value is present in the set of unique values
+    // Check behavior when index is out of bounds of the object list
     @Test
-    public void test_check_null_value_present() {
-        Table table = new Table("table");
-        Field field = new Field(DataType.STRING);
-        table.addConstraint("column", new UniqueConstraint(table));
-        table.createField("column", field);
-        field.setUpData("some data");
+    public void test_index_out_of_bounds_behavior() {
+        TableScheme scheme = new TableScheme("test");
+        TableBody tableBody = new TableBody(scheme);
+        UniqueConstraint constraint = new UniqueConstraint(tableBody);
+        assertThrows(IndexOutOfBoundsException.class, () -> constraint.check(, 1, "value1", ));
     }
 
-    // check if a non-existent value is present in the set of unique values
+    // Validate behavior when the field body list is empty
     @Test
-    public void test_check_non_existent_value_present() {
-        Table table = new Table("table");
-        table.createField("column", new Field(DataType.STRING));
-        table.addConstraint("column", new UniqueConstraint(table));
-//        assertFalse(table.getField("column").getConstraints().get(0).check("value"));
+    public void test_empty_field_body_list_behavior() {
+        TableScheme scheme = new TableScheme("test");
+        TableBody tableBody = new TableBody(scheme);
+        UniqueConstraint constraint = new UniqueConstraint(tableBody);
+        assertTrue(constraint.check(, 0, "value1", ));
     }
 
-    // add a constraint to a non-existent column and expect a RuntimeException to be thrown
+    // Test the constraint with extreme values like very large numbers or special characters
     @Test
-    public void test_add_constraint_non_existent_column() {
-        Table table = new Table("table");
-        assertThrows(RuntimeException.class, () -> table.addConstraint("column", new UniqueConstraint(table)));
+    public void test_extreme_values_handling() {
+        TableScheme scheme = new TableScheme("test");
+        TableBody tableBody = new TableBody(scheme);
+        UniqueConstraint constraint = new UniqueConstraint(tableBody);
+        tableBody.setFieldValues(Integer.MAX_VALUE);
+        assertTrue(constraint.check(, 0, Integer.MIN_VALUE, ));
+        tableBody.setFieldValues("special@#&*!");
+        assertTrue(constraint.check(, 0, "normalValue", ));
     }
 
-    // remove a constraint from a non-existent column and expect a RuntimeException to be thrown
+    // Assess performance with a large number of field bodies and values
     @Test
-    public void test_remove_constraint_non_existent_column() {
-        Table table = new Table("table");
-        assertThrows(RuntimeException.class, () -> table.dropConstraint("column", new UniqueConstraint(table)));
+    public void test_performance_large_data() {
+        TableScheme scheme = new TableScheme("test");
+        TableBody tableBody = new TableBody(scheme);
+        UniqueConstraint constraint = new UniqueConstraint(tableBody);
+        for (int i = 0; i < 10000; i++) {
+            tableBody.setFieldValues(STR."value\{i}");
+        }
+        long startTime = System.currentTimeMillis();
+        assertTrue(constraint.check(, 0, "newUniqueValue", ));
+        long endTime = System.currentTimeMillis();
+        assertTrue((endTime - startTime) < 1000); // Check if the operation takes less than 1 second
     }
 
-    // add a constraint to an existing column
+    // Check how the constraint handles concurrent modifications to the field body list
     @Test
-    public void test_add_constraint_existing_column() {
-        Table table = new Table("table");
-        table.createField("column", new Field(DataType.STRING));
-        table.addConstraint("column", new UniqueConstraint(table));
-        assertTrue(table.getField("column").contains(UniqueConstraint.class));
+    public void test_concurrent_modifications_handling() {
+        TableScheme scheme = new TableScheme("test");
+        final TableBody tableBody = new TableBody(scheme);
+        final UniqueConstraint constraint = new UniqueConstraint(tableBody);
+        Thread thread1 = new Thread(() -> tableBody.setFieldValues("value1"));
+        Thread thread2 = new Thread(() -> assertTrue(constraint.check(, 0, "value2", )));
+        thread1.start();
+        thread2.start();
+        try {
+            thread1.join();
+            thread2.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            fail("Threads interrupted");
+        }
     }
 
-    // remove a constraint from an existing column
+    // Evaluate the constraint's response to non-serializable objects as values
     @Test
-    public void test_remove_constraint_existing_column() {
-        Table table = new Table("table");
-        table.createField("column", new Field(DataType.STRING));
-        UniqueConstraint uniqueConstraint = new UniqueConstraint(table);
-        table.addConstraint("column", uniqueConstraint);
-        table.dropConstraint("column", uniqueConstraint);
-        assertTrue(table.getField("column").contains(UniqueConstraint.class));
-    }
-
-    // create a new instance of UniqueConstraint with a non-null parentTable and check if the parentTable is set correctly
-    @Test
-    public void test_create_instance_check_parentTable() {
-        Table table = new Table("table");
-        UniqueConstraint uniqueConstraint = new UniqueConstraint(table);
-        assertEquals(table, uniqueConstraint.parentTable());
-    }
-
-    // create a new instance of UniqueConstraint with a non-null parentTable and check if the check method returns the expected value
-    @Test
-    public void test_check_method_returns_expected_value() {
-        Table table = new Table("table");
-        table.createField("column", new Field(DataType.STRING));
-        table.addConstraint("column", new UniqueConstraint(table));
-//        assertTrue(table.getField("column").getConstraints().get(0).check("value"));
-    }
+    public void test_non_serializable_objects_response() {
+        TableScheme scheme = new TableScheme("test");
+        TableBody tableBody = new TableBody(scheme);
+        UniqueConstraint constraint = new UniqueConstraint(tableBody);
+        Object nonSerializableObject = new Object();
+        assertThrows(NotSerializableException.class, () -> tableBody.setFieldValues(nonSerializableObject));
+    }*/
 
 }

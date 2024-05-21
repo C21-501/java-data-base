@@ -1,15 +1,16 @@
-package database.system.core.structures;
+package database.system.core.structures.schemes;
 
 import database.system.core.constraints.interfaces.Constraint;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
-public record Table(String tableName) {
-    private static final Map<String, Field> fields = new HashMap<>();
+public record TableScheme(String tableName) {
+    private static final Map<String, FieldScheme> fields = new HashMap<>();
 
-    public Table{
+    public TableScheme {
         if (tableName == null)
             throw new NullPointerException("`tableName` parameter is null");
     }
@@ -18,18 +19,18 @@ public record Table(String tableName) {
         return fields.containsKey(columnName);
     }
 
-    public Field getField(String columnName) {
+    public FieldScheme getField(String columnName) {
         if (columnName == null)
             throw new NullPointerException("parameter `columnName` is null");
         return fields.get(columnName);
     }
 
-    public void createField(String columnName, Field field) {
+    public void createField(String columnName, FieldScheme fieldScheme) {
         if (columnName == null)
             throw new NullPointerException("parameter `columnName` is null");
-        if (field == null)
+        if (fieldScheme == null)
             throw new NullPointerException("parameter `field` is null");
-        fields.put(columnName,field);
+        fields.put(columnName, fieldScheme);
     }
 
     public void dropField(String columnName) {
@@ -44,18 +45,18 @@ public record Table(String tableName) {
             throw new NullPointerException("parameter `oldColumnName` is null");
         if (newColumnName == null)
             throw new NullPointerException("parameter `newColumnName` is null");
-        Field removedField = fields.remove(oldColumnName);
-        if (removedField == null)
+        FieldScheme removedFieldScheme = fields.remove(oldColumnName);
+        if (removedFieldScheme == null)
             throw new RuntimeException(STR."column \{oldColumnName} not found");
-        fields.put(newColumnName,removedField);
+        fields.put(newColumnName, removedFieldScheme);
     }
 
-    public void updateField(String columnName, Field newField) {
+    public void updateField(String columnName, FieldScheme newFieldScheme) {
         if (columnName == null)
             throw new NullPointerException("parameter `columnName` is null");
-        if (newField == null)
+        if (newFieldScheme == null)
             throw new NullPointerException("parameter `newField` is null");
-        if (fields.replace(columnName, newField) == null)
+        if (fields.replace(columnName, newFieldScheme) == null)
             throw new RuntimeException(STR."column \{columnName} does not exist");
     }
 
@@ -64,10 +65,10 @@ public record Table(String tableName) {
             throw new NullPointerException("parameter `columnName` is null");
         if (constraint == null)
             throw new NullPointerException("parameter `constraint` is null");
-        Field field = fields.get(columnName);
-        if (field == null)
+        FieldScheme fieldScheme = fields.get(columnName);
+        if (fieldScheme == null)
             throw new RuntimeException(STR."column '\{columnName}' does not exist");
-        field.addConstraint(constraint);
+        fieldScheme.addConstraint(constraint);
     }
 
     public void dropConstraint(String columnName, Constraint constraint) {
@@ -75,21 +76,17 @@ public record Table(String tableName) {
             throw new NullPointerException("parameter `columnName` is null");
         if (constraint == null)
             throw new NullPointerException("parameter `constraint` is null");
-        Field field = fields.get(columnName);
-        if (field == null)
+        FieldScheme fieldScheme = fields.get(columnName);
+        if (fieldScheme == null)
             throw new RuntimeException(STR."column \{columnName} does not exist");
-        field.removeConstraint(constraint);
-    }
-
-    public boolean containsKey(Object key) {
-        return fields.containsKey(key.toString());
+        fieldScheme.removeConstraint(constraint);
     }
 
     public boolean containsValues(Object value) {
-        return fields.containsValue((Field) value);
+        return fields.containsValue((FieldScheme) value);
     }
 
-    public Iterable<? extends Field> getFields() {
-        return fields.values();
+    public List<FieldScheme> getFields() {
+        return fields.values().stream().toList();
     }
 }
