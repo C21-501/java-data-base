@@ -21,6 +21,8 @@ public class UniqueConstraintTest {
         TableBody tableBody = new TableBody(scheme);
         tableBody.setFieldValues("value1");
         tableBody.setFieldValues("value2");
+        tableBody.setFieldValues("value2");
+        System.out.println(tableBody);
         assertThrows(RuntimeException.class,()->tableBody.setFieldValues("value2"));
     }
 

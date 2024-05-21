@@ -89,4 +89,8 @@ public record TableScheme(String tableName) {
     public List<FieldScheme> getFields() {
         return fields.values().stream().toList();
     }
+
+    public long columnsNumber() {
+        return getFields().size();
+    }
 }

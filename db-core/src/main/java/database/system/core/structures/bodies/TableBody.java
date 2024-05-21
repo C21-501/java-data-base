@@ -4,6 +4,8 @@ import database.system.core.structures.schemes.TableScheme;
 import lombok.Data;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Data
 public class TableBody implements Body {
@@ -15,19 +17,16 @@ public class TableBody implements Body {
         if (tableScheme == null)
             throw new NullPointerException("`table` is null");
         this.tableScheme = tableScheme;
-        this.columnBodyList = new ArrayList<>();
-
+        this.columnBodyList = Stream.generate(FieldBody::new)
+                .limit(tableScheme.columnsNumber())
+                .collect(Collectors.toList());
     }
 
     public void setFieldValues(Object... objects) {
-        FieldBody fieldBody = new FieldBody();
-        try {
-            for (int i = 0; i < objects.length; i++) {
-                fieldBody.setField(tableScheme.getFields().get(i), objects[i]);
-            }
-            columnBodyList.add(fieldBody);
-        } catch (RuntimeException e) {
-            e.printStackTrace(System.err);
+        if (objects.length != tableScheme.columnsNumber())
+            throw new IllegalArgumentException("values number mismatches with column number");
+        for (int i = 0; i < tableScheme.columnsNumber(); i++) {
+                columnBodyList.get(i).setField(tableScheme.getFields().get(i), objects[i]);
         }
     }
 

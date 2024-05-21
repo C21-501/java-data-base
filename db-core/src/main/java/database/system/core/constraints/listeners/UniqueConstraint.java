@@ -7,6 +7,8 @@ import database.system.core.structures.bodies.Body;
 public record UniqueConstraint() implements Constraint {
     @Override
     public boolean check(Body parent, Object value) {
-        return !parent.getInnerObjects().contains(value);
+        if (!parent.getInnerObjects().contains(value))
+            return true;
+        throw new RuntimeException("UniqueConstraint violation: Value already exists in the table");
     }
 }
