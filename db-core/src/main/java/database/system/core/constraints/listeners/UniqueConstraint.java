@@ -9,6 +9,6 @@ public record UniqueConstraint() implements Constraint {
     public boolean check(Body parent, Object value) {
         if (!parent.getInnerObjects().contains(value))
             return true;
-        throw new RuntimeException("UniqueConstraint violation: Value already exists in the table");
+        throw new RuntimeException(STR."UniqueConstraint violation: Value '\{value}' already exists in the table");
     }
 }

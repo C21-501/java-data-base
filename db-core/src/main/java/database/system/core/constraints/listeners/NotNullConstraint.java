@@ -8,7 +8,7 @@ public record NotNullConstraint() implements Constraint {
     @Override
     public boolean check(Body parent, Object value) {
         if (value == null)
-            throw new NullPointerException("`value` violates NotNullConstraint");
+            throw new NullPointerException(STR."NotNullConstraint violation: Value \{value} is null");
         return true;
     }
 }
