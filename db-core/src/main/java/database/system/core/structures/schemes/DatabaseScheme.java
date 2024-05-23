@@ -1,14 +1,15 @@
 package database.system.core.structures.schemes;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Getter
-@EqualsAndHashCode
-public class DatabaseScheme {
+
+@Data
+public class DatabaseScheme implements Scheme {
     private static volatile DatabaseScheme instance;
 
     private final Map<String, TableScheme> tables = new HashMap<>();
@@ -55,5 +56,11 @@ public class DatabaseScheme {
         if (tableName == null)
             throw new NullPointerException("parameter `tableName` is null");
         return tables.containsKey(tableName);
+    }
+
+
+    @Override
+    public long getObjectsNumber() {
+        return tables.size();
     }
 }

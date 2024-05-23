@@ -13,19 +13,19 @@ public class TableBody implements Body {
     private TableScheme tableScheme;
     private List<FieldBody> columnBodyList;
 
-    public TableBody(TableScheme tableScheme) {
+    public void setTable(TableScheme tableScheme) {
         if (tableScheme == null)
             throw new NullPointerException("`table` is null");
         this.tableScheme = tableScheme;
         this.columnBodyList = Stream.generate(FieldBody::new)
-                .limit(tableScheme.columnsNumber())
+                .limit(tableScheme.getObjectsNumber())
                 .collect(Collectors.toList());
     }
 
     public void setFieldValues(Object... objects) {
-        if (objects.length != tableScheme.columnsNumber())
+        if (objects.length != tableScheme.getObjectsNumber())
             throw new IllegalArgumentException("values number mismatches with column number");
-        for (int i = 0; i < tableScheme.columnsNumber(); i++) {
+        for (int i = 0; i < tableScheme.getObjectsNumber(); i++) {
                 columnBodyList.get(i).setField(tableScheme.getFields().get(i), objects[i]);
         }
     }

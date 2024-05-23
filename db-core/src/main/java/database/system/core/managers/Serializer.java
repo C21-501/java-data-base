@@ -14,7 +14,7 @@ public class Serializer {
 
     public static void main(String[] args) {
 
-        TableScheme tableScheme = new TableScheme("test_table");
+        TableScheme tableScheme = new TableScheme();
         tableScheme.createField("1st_column",new FieldScheme(DataType.INTEGER));
         tableScheme.createField("2nd_column",new FieldScheme(DataType.STRING));
         tableScheme.createField("3rd_column",new FieldScheme(DataType.STRING));

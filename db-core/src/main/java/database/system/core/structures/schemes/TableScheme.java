@@ -1,19 +1,15 @@
 package database.system.core.structures.schemes;
 
 import database.system.core.constraints.interfaces.Constraint;
+import lombok.Data;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-public record TableScheme(String tableName) {
+@Data
+public class TableScheme implements Scheme{
     private static final Map<String, FieldScheme> fields = new HashMap<>();
-
-    public TableScheme {
-        if (tableName == null)
-            throw new NullPointerException("`tableName` parameter is null");
-    }
 
     public boolean contains(String columnName) {
         return fields.containsKey(columnName);
@@ -90,7 +86,8 @@ public record TableScheme(String tableName) {
         return fields.values().stream().toList();
     }
 
-    public long columnsNumber() {
+    @Override
+    public long getObjectsNumber() {
         return getFields().size();
     }
 }

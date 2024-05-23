@@ -10,15 +10,14 @@ import java.util.*;
 import static database.system.core.types.DataType.map;
 
 @Data
-public final class FieldScheme {
+public class FieldScheme implements Scheme{
     private DataType type;
-    private Set<Constraint> constraintSet;
+    private Set<Constraint> constraintSet = new HashSet<>();
 
     public FieldScheme(DataType type) {
         if (type == null)
             throw new NullPointerException("`type` is null");
         this.type = type;
-        constraintSet = new HashSet<>();
     }
 
     public FieldScheme(DataType type, Set<Constraint> constraintSet) {
@@ -58,5 +57,11 @@ public final class FieldScheme {
                 return false;
         }
         return true;
+    }
+
+
+    @Override
+    public long getObjectsNumber() {
+        return 1;
     }
 }
