@@ -1,5 +1,7 @@
 package database.system.core.structures.schemes;
 
-public interface Scheme {
+import java.io.Serializable;
+
+public interface Scheme extends Serializable {
     long getObjectsNumber();
 }

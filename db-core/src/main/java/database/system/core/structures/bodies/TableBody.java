@@ -22,12 +22,13 @@ public class TableBody implements Body {
                 .collect(Collectors.toList());
     }
 
-    public void setFieldValues(Object... objects) {
+    public TableBody setFieldValues(Object... objects) {
         if (objects.length != tableScheme.getObjectsNumber())
             throw new IllegalArgumentException("values number mismatches with column number");
         for (int i = 0; i < tableScheme.getObjectsNumber(); i++) {
                 columnBodyList.get(i).setField(tableScheme.getFields().get(i), objects[i]);
         }
+        return this;
     }
 
     @Override
