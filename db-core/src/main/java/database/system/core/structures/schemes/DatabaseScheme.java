@@ -1,8 +1,6 @@
 package database.system.core.structures.schemes;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,20 +25,22 @@ public class DatabaseScheme implements Scheme {
         return instance;
     }
 
-    public void createTable(String tableName, TableScheme tableScheme) {
+    public DatabaseScheme createTable(String tableName, TableScheme tableScheme) {
         if (tableName == null || tableScheme == null)
             throw new NullPointerException("parameter `tableName` or `tableScheme` is null");
         if (tables.containsKey(tableName))
             throw new IllegalArgumentException(STR."Table already exists with name: \{tableName}");
         tables.put(tableName, tableScheme);
+        return this;
     }
 
-    public void dropTable(String tableName) {
+    public DatabaseScheme dropTable(String tableName) {
         if (tableName == null)
             throw new NullPointerException("parameter `tableName` is null");
         if (!tables.containsKey(tableName))
             throw new IllegalArgumentException(STR."Table does not exist: \{tableName}");
         tables.remove(tableName);
+        return this;
     }
 
     public TableScheme getTable(String tableName) {

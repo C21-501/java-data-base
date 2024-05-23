@@ -1,23 +1,39 @@
 package database.system.core.managers;
 
-import database.system.core.structures.bodies.Body;
 import lombok.Data;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
-public class Serializer {
-    // Метод для записи FieldRecord в файл
-    public static void writeToFile(Body record, String filePath) throws IOException {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))) {
-            oos.writeObject(record);
-        }
+public abstract class Serializer {
+    protected String DATABASE_DIR_PATH = "db-core/src/main/resources/root/db";
+    protected String databaseName;
+    protected List<String> tableNames;
+
+    Serializer(){}
+
+    protected Serializer(String dirName) {
+        this.databaseName = dirName;
+        this.tableNames = new ArrayList<>();
     }
 
-    // Метод для чтения FieldRecord из файла
-    public static Body readFromFile(String filePath) throws IOException, ClassNotFoundException {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) {
-            return (Body) ois.readObject();
-        }
+    protected Serializer(String dirName, List<String> tableNames){
+        this.databaseName = dirName;
+        this.tableNames = tableNames;
     }
+
+    protected boolean createFile(String fileName) throws IOException {
+        File file = new File(fileName);
+        if (file.exists()) {
+            System.out.println(STR."file already exists: \{fileName}");
+        }
+        return file.createNewFile();
+    }
+
+    abstract void save() throws IOException;
+    abstract void create();
+    abstract void read() throws IOException, ClassNotFoundException;
 }

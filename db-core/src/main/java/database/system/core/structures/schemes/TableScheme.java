@@ -21,22 +21,24 @@ public class TableScheme implements Scheme{
         return fields.get(columnName);
     }
 
-    public void createField(String columnName, FieldScheme fieldScheme) {
+    public TableScheme createField(String columnName, FieldScheme fieldScheme) {
         if (columnName == null)
             throw new NullPointerException("parameter `columnName` is null");
         if (fieldScheme == null)
             throw new NullPointerException("parameter `field` is null");
         fields.put(columnName, fieldScheme);
+        return this;
     }
 
-    public void dropField(String columnName) {
+    public TableScheme dropField(String columnName) {
         if (columnName == null)
             throw new NullPointerException("parameter `columnName` is null");
         if (fields.remove(columnName) == null)
             throw new RuntimeException(STR."column with name \{columnName} not found");
+        return this;
     }
 
-    public void renameField(String oldColumnName, String newColumnName) {
+    public TableScheme renameField(String oldColumnName, String newColumnName) {
         if (oldColumnName == null)
             throw new NullPointerException("parameter `oldColumnName` is null");
         if (newColumnName == null)
@@ -45,18 +47,20 @@ public class TableScheme implements Scheme{
         if (removedFieldScheme == null)
             throw new RuntimeException(STR."column \{oldColumnName} not found");
         fields.put(newColumnName, removedFieldScheme);
+        return this;
     }
 
-    public void updateField(String columnName, FieldScheme newFieldScheme) {
+    public TableScheme updateField(String columnName, FieldScheme newFieldScheme) {
         if (columnName == null)
             throw new NullPointerException("parameter `columnName` is null");
         if (newFieldScheme == null)
             throw new NullPointerException("parameter `newField` is null");
         if (fields.replace(columnName, newFieldScheme) == null)
             throw new RuntimeException(STR."column \{columnName} does not exist");
+        return this;
     }
 
-    public void addConstraint(String columnName, Constraint constraint) {
+    public TableScheme addConstraint(String columnName, Constraint constraint) {
         if (columnName == null)
             throw new NullPointerException("parameter `columnName` is null");
         if (constraint == null)
@@ -65,9 +69,10 @@ public class TableScheme implements Scheme{
         if (fieldScheme == null)
             throw new RuntimeException(STR."column '\{columnName}' does not exist");
         fieldScheme.addConstraint(constraint);
+        return this;
     }
 
-    public void dropConstraint(String columnName, Constraint constraint) {
+    public TableScheme dropConstraint(String columnName, Constraint constraint) {
         if (columnName == null)
             throw new NullPointerException("parameter `columnName` is null");
         if (constraint == null)
@@ -76,6 +81,11 @@ public class TableScheme implements Scheme{
         if (fieldScheme == null)
             throw new RuntimeException(STR."column \{columnName} does not exist");
         fieldScheme.removeConstraint(constraint);
+        return this;
+    }
+
+    public TableScheme build(){
+        return this;
     }
 
     public boolean containsValues(Object value) {
