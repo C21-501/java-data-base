@@ -5,8 +5,11 @@ import database.service.tools.grammar.SQLGrammarParser;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SQLListener extends SQLGrammarBaseListener {
+    private static final Logger logger = LogManager.getLogger(SQLListener.class);
 
     private record ColumnDefinition(
         String name,
@@ -27,28 +30,46 @@ public class SQLListener extends SQLGrammarBaseListener {
         String dbName = ctx.dbName.getText();
         String newDbName = ctx.alterDatabaseStatement().newName.getText();
 
-        //вызов функции
-        System.out.println("ALTER DB command");
-        System.out.println(dbName);
-        System.out.println(newDbName);
+        logger.info("Starting ALTER DB command...");
+        try{
+            //вызов функции
+            System.out.println(dbName);
+            System.out.println(newDbName);
+
+            logger.info("Success ALTER DB command");
+        } catch (Exception e){
+            logger.error(e.getMessage());
+        }
     }
 
     @Override
     public void exitCreateDbCommand(SQLGrammarParser.CreateDbCommandContext ctx) {
         String dbName = ctx.dbName.getText();
 
-        //вызов функции
-        System.out.println("CREATE DB command");
-        System.out.println(dbName);
+        logger.info("Starting CREATE DB command...");
+        try{
+            //вызов функции
+            System.out.println(dbName);
+
+            logger.info("Success CREATE DB command");
+        } catch (Exception e){
+            logger.error(e.getMessage());
+        }
     }
 
     @Override
     public void exitDropDbCommand(SQLGrammarParser.DropDbCommandContext ctx) {
         String dbName = ctx.dbName.getText();
 
-        //вызов функции
-        System.out.println("DROP DB command");
-        System.out.println(dbName);
+        logger.info("Starting DROP DB command...");
+        try{
+            //вызов функции
+            System.out.println(dbName);
+
+            logger.info("Success DROP DB command");
+        } catch (Exception e){
+            logger.error(e.getMessage());
+        }
     }
 
     @Override
@@ -59,28 +80,46 @@ public class SQLListener extends SQLGrammarBaseListener {
         if(alterCtx.renameTableStatement() != null){
             String newTableName = alterCtx.renameTableStatement().newName.getText();
 
-            //вызов функции
-            System.out.println("RENAME TABLE command");
-            System.out.println(tableName);
-            System.out.println(newTableName);
+            logger.info("Starting RENAME TABLE command...");
+            try{
+                //вызов функции
+                System.out.println(tableName);
+                System.out.println(newTableName);
+
+                logger.info("Success RENAME TABLE command");
+            } catch (Exception e){
+                logger.error(e.getMessage());
+            }
 
         } else if(alterCtx.addColumnStatement() != null){
             String columnName = alterCtx.addColumnStatement().columnName.getText();
             String columnType = alterCtx.addColumnStatement().dataType().getText();
 
-            //вызов функции
-            System.out.println("ADD COLUMN command");
-            System.out.println(tableName);
-            System.out.println(columnName);
-            System.out.println(columnType);
+            logger.info("Starting ADD COLUMN command...");
+            try{
+                //вызов функции
+                System.out.println(tableName);
+                System.out.println(columnName);
+                System.out.println(columnType);
+
+                logger.info("Success ADD COLUMN command");
+            } catch (Exception e){
+                logger.error(e.getMessage());
+            }
 
         } else if(alterCtx.dropColumnStatement() != null){
             String columnName = alterCtx.dropColumnStatement().columnName.getText();
 
-            //вызов функции
-            System.out.println("DROP COLUMN command");
-            System.out.println(tableName);
-            System.out.println(columnName);
+            logger.info("Starting DROP COLUMN command...");
+            try{
+                //вызов функции
+                System.out.println(tableName);
+                System.out.println(columnName);
+
+                logger.info("Success DROP COLUMN command");
+            } catch (Exception e){
+                logger.error(e.getMessage());
+            }
         }
     }
 
@@ -98,11 +137,17 @@ public class SQLListener extends SQLGrammarBaseListener {
             columnsToAdd.add(new ColumnDefinition(i.columnName.getText(),i.dataType().getText(),constraint));
         }
 
-        //вызов функции
-        System.out.println("CREATE TABLE command");
-        System.out.println(tableName);
-        for(ColumnDefinition o : columnsToAdd){
-            System.out.println(o.name +" "+ o.dataType +" "+ o.constraint);
+        logger.info("Starting CREATE TABLE command...");
+        try{
+            //вызов функции
+            System.out.println(tableName);
+            for(ColumnDefinition o : columnsToAdd){
+                System.out.println(o.name +" "+ o.dataType +" "+ o.constraint);
+            }
+
+            logger.info("Success CREATE TABLE command");
+        } catch (Exception e){
+            logger.error(e.getMessage());
         }
     }
 
@@ -110,10 +155,15 @@ public class SQLListener extends SQLGrammarBaseListener {
     @Override
     public void exitDropTableCommand(SQLGrammarParser.DropTableCommandContext ctx) {
         String tableName = ctx.tableName.getText();
+        logger.info("Starting DROP TABLE command...");
+        try{
+            //вызов функции
+            System.out.println(tableName);
 
-        //вызов функции
-        System.out.println("DROP TABLE command");
-        System.out.println(tableName);
+            logger.info("Success DROP TABLE command");
+        } catch (Exception e){
+            logger.error(e.getMessage());
+        }
     }
 
 
@@ -130,11 +180,16 @@ public class SQLListener extends SQLGrammarBaseListener {
             valuesToAdd.add(i.getText());
         }
 
-        //вызов функции
-        System.out.println("INSERT command");
-        System.out.println(tableName);
-        for (int i = 0; i < columnsToAdd.size(); i++) {
-            System.out.println(columnsToAdd.get(i) +" = "+ valuesToAdd.get(i));
+        logger.info("Starting INSERT command ...");
+        try{
+            //вызов функции
+            System.out.println(tableName);
+            for (int i = 0; i < columnsToAdd.size(); i++) {
+                System.out.println(columnsToAdd.get(i) +" = "+ valuesToAdd.get(i));
+            }
+            logger.info("Success INSERT command");
+        }catch (Exception e){
+            logger.error(e.getMessage());
         }
     }
 
@@ -164,9 +219,14 @@ public class SQLListener extends SQLGrammarBaseListener {
             //-------------------------------------------------
         }
 
-        //вызов функции
-        System.out.println("DELETE command");
-        System.out.println(tableName);
+        logger.info("Starting DELETE command ...");
+        try{
+            //вызов функции
+            System.out.println(tableName);
+            logger.info("Success DELETE command");
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
     }
 
 
@@ -200,12 +260,16 @@ public class SQLListener extends SQLGrammarBaseListener {
             }
             //-------------------------------------------------
         }
-
-        //вызов функции
-        System.out.println("SELECT command");
-        System.out.println(tableName);
-        for(String s : columnsToSelect){
-            System.out.println(s);
+        logger.info("Starting SELECT command ...");
+        try{
+            //вызов функции
+            System.out.println(tableName);
+            for(String s : columnsToSelect){
+                System.out.println(s);
+            }
+            logger.info("Success SELECT command");
+        }catch (Exception e){
+            logger.error(e.getMessage());
         }
     }
 
@@ -244,12 +308,16 @@ public class SQLListener extends SQLGrammarBaseListener {
             }
             //-------------------------------------------------
         }
-
-        //вызов функции
-        System.out.println("UPDATE command");
-        System.out.println(tableName);
-        for (int i = 0; i < columnsToUpdate.size(); i++) {
-            System.out.println(columnsToUpdate.get(i) +" = "+ values.get(i));
+        logger.info("Starting UPDATE command ...");
+        try{
+            //вызов функции
+            System.out.println(tableName);
+            for (int i = 0; i < columnsToUpdate.size(); i++) {
+                System.out.println(columnsToUpdate.get(i) +" = "+ values.get(i));
+            }
+            logger.info("Success UPDATE command");
+        }catch (Exception e){
+            logger.error(e.getMessage());
         }
     }
 
@@ -258,19 +326,34 @@ public class SQLListener extends SQLGrammarBaseListener {
 
     @Override
     public void exitBeginCommand(SQLGrammarParser.BeginCommandContext ctx) {
-        //вызов функции
-        System.out.println("BEGIN command");
+        logger.info("Starting BEGIN command ...");
+        try{
+            //вызов функции
+            logger.info("Success BEGIN command");
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
     }
 
     @Override
     public void exitCommitCommand(SQLGrammarParser.CommitCommandContext ctx) {
-        //вызов функции
-        System.out.println("COMMIT command");
+        logger.info("Starting COMMIT command ...");
+        try{
+            //вызов функции
+            logger.info("Success COMMIT command");
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
     }
 
     @Override
     public void exitRollbackCommand(SQLGrammarParser.RollbackCommandContext ctx) {
-        //вызов функции
-        System.out.println("ROLLBACK command");
+        logger.info("Starting ROLLBACK command ...");
+        try{
+            //вызов функции
+            logger.info("Success ROLLBACK command");
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
     }
 }

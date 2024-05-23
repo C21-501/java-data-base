@@ -17,7 +17,12 @@ public class Scanner {
         SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
         SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
         parser.addParseListener(new SQLListener());
-        parser.start();
+
+        try{
+            parser.start();
+        } catch (Exception ignored){
+
+        }
     }
 
     public static void readCommandsFromCommandLine() {
@@ -33,7 +38,12 @@ public class Scanner {
         SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
         SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
         parser.addParseListener(new SQLListener());
-        parser.start();
+
+        try{
+            parser.start();
+        } catch (Exception ignored){
+
+        }
     }
 
     public static void main(String[] args) throws IOException {
