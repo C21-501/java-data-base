@@ -13,11 +13,30 @@ import database.api.tcl.TCLManager;
 import database.api.tcl.commands.BeginCommand;
 import database.api.tcl.commands.CommitCommand;
 import database.api.tcl.commands.RollBackCommand;
+import database.system.core.structures.bodies.DatabaseBody;
 
 public class CommandManager {
     private final DDLManager ddlManager = new DDLManager();
     private final DMLManager dmlManager = new DMLManager();
     private final TCLManager tclManager = new TCLManager();
+
+    private class Selection {
+        private String[] tableNames;
+//        private
+    }
+
+    public CommandManager select(String... tableNames) {
+
+        return this;
+    }
+
+    public CommandManager from() {
+        return this;
+    }
+
+    public CommandManager where() {
+        return this;
+    }
 
     public void executeCommands() {
         // Example usage of DDL commands

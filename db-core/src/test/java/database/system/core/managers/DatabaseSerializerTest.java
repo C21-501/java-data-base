@@ -10,9 +10,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DatabaseSerializerTest {
     // Successfully creates a new directory if it does not exist
     @Test
-    public void test_create_new_directory() {
+    public void test_update_new_directory() {
         DatabaseSerializer serializer = new DatabaseSerializer("testDB");
-        serializer.create();
+        serializer.update();
         File directory = new File("testDB");
         assertTrue(directory.exists());
         directory.delete(); // Cleanup
@@ -22,7 +22,7 @@ public class DatabaseSerializerTest {
     @Test
     public void test_write_database_scheme_to_file() throws IOException {
         DatabaseSerializer serializer = new DatabaseSerializer("testDB");
-        serializer.create();
+        serializer.update();
         serializer.save();
         File file = new File("db-core/src/main/resources/root/db/testDB/testDB.schm");
         assertTrue(file.exists());
@@ -33,7 +33,7 @@ public class DatabaseSerializerTest {
     @Test
     public void test_read_database_scheme_from_file() throws IOException, ClassNotFoundException {
         DatabaseSerializer serializer = new DatabaseSerializer("testDB");
-        serializer.create();
+        serializer.update();
         serializer.save(); // First write to ensure there is something to read
         serializer.read();
         assertNotNull(serializer.getDatabaseScheme());
@@ -44,7 +44,7 @@ public class DatabaseSerializerTest {
     @Test
     public void test_directory_creation_with_correct_name() {
         DatabaseSerializer serializer = new DatabaseSerializer("validName");
-        serializer.create();
+        serializer.update();
         File directory = new File("validName");
         assertTrue(directory.exists());
         directory.delete(); // Cleanup
@@ -80,7 +80,7 @@ public class DatabaseSerializerTest {
         File directory = new File("db-core/src/main/resources/root/db/existingDB");
         directory.mkdirs(); // Pre-create the directory
         DatabaseSerializer serializer = new DatabaseSerializer("existingDB");
-        assertThrows(RuntimeException.class, serializer::create); // No additional files should be created in the directory
+        assertThrows(RuntimeException.class, serializer::update); // No additional files should be created in the directory
         directory.delete(); // Cleanup
     }
 

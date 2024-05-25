@@ -4,31 +4,51 @@ import database.system.core.structures.schemes.DatabaseScheme;
 import database.system.core.structures.schemes.TableScheme;
 import lombok.Data;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.*;
 
 @Data
 public class DatabaseBody implements Body {
     private Integer tableId = 0;
     private DatabaseScheme databaseScheme;
-    private List<TableBody> columnBodyList;
+    private static Map<String, TableBody> tableBodyMap = new HashMap<>();
+
 
     public DatabaseBody(DatabaseScheme databaseScheme) {
         if (databaseScheme == null)
-            throw new NullPointerException("`table` is null");
+            throw new NullPointerException("`databaseScheme` is null");
         this.databaseScheme = databaseScheme;
-        this.columnBodyList = Stream.generate(TableBody::new)
-                .limit(databaseScheme.getObjectsNumber())
-                .collect(Collectors.toList());
+        for (Map.Entry<String, TableScheme> table :databaseScheme.getTables().entrySet()){
+            tableBodyMap.put(table.getKey(), new TableBody().setTable(table.getValue()));
+        }
+    }
+
+    public DatabaseBody insertInto(String tableName, List<Object[]> values){
+        TableBody tableBody = tableBodyMap.get(tableName);
+        if (tableBody == null)
+            throw new RuntimeException(STR."Error: table '\{tableName}' not exists");
+        for (Object value: values)
+            tableBody.setFieldValue(value);
+        return this;
     }
 
     @Override
     public List<Object> getInnerObjects() {
-        return Collections.singletonList(columnBodyList);
+        return Collections.singletonList(tableBodyMap.values());
+    }
+
+    public void selectFrom(String tableName) {
+        TableBody tableBody = tableBodyMap.get(tableName);
+        if (tableBody == null)
+            throw new RuntimeException(STR."Error: table '\{tableName}' not exists");
+        int i = 0;
+        for (Map.Entry<String, FieldBody> column: tableBody.getColumnBodyMap().entrySet()){
+            selectFrom(tableName, column.getValue(), i);
+            i++;
+        }
+
+    }
+
+    private void selectFrom(String tableName, FieldBody column, int index) {
+        System.out.print(STR."\{column} \{column.getValue(index)}");
     }
 }

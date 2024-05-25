@@ -1,6 +1,7 @@
 package database.system.core.structures.schemes;
 
 import lombok.Data;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +10,6 @@ import java.util.Map;
 @Data
 public class DatabaseScheme implements Scheme {
     private static volatile DatabaseScheme instance;
-
     private final Map<String, TableScheme> tables = new HashMap<>();
 
     private DatabaseScheme() {}

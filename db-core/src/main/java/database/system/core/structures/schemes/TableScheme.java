@@ -2,14 +2,15 @@ package database.system.core.structures.schemes;
 
 import database.system.core.constraints.interfaces.Constraint;
 import lombok.Data;
+import lombok.Getter;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
 
 @Data
 public class TableScheme implements Scheme{
-    private static final Map<String, FieldScheme> fields = new HashMap<>();
+    private Map<String, FieldScheme> fields = new HashMap<>();
 
     public boolean contains(String columnName) {
         return fields.containsKey(columnName);
@@ -92,12 +93,8 @@ public class TableScheme implements Scheme{
         return fields.containsValue((FieldScheme) value);
     }
 
-    public List<FieldScheme> getFields() {
-        return fields.values().stream().toList();
-    }
-
     @Override
     public long getObjectsNumber() {
-        return getFields().size();
+        return fields.size();
     }
 }
