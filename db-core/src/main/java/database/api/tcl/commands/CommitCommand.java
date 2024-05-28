@@ -1,8 +1,17 @@
 package database.api.tcl.commands;
 
-public class CommitCommand extends AbstractTCLCommand{
+import database.api.Command;
+import database.api.DatabaseAPI;
+import database.api.DatabaseEditor;
+
+public class CommitCommand extends Command {
+
+    public CommitCommand(DatabaseAPI databaseAPI, DatabaseEditor databaseEditor) {
+        super(databaseAPI, databaseEditor);
+    }
+
     @Override
-    boolean execute() {
+    public boolean execute() {
         return false;
     }
 }

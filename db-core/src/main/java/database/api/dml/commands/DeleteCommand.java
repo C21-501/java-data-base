@@ -1,9 +1,18 @@
 package database.api.dml.commands;
 
-public class DeleteCommand extends AbstractDMLCommand{
+import database.api.Command;
+import database.api.DatabaseAPI;
+import database.api.DatabaseEditor;
+
+public class DeleteCommand extends Command {
+
+
+    public DeleteCommand(DatabaseAPI databaseAPI, DatabaseEditor databaseEditor) {
+        super(databaseAPI, databaseEditor);
+    }
 
     @Override
-    boolean execute() {
+    public boolean execute() {
         return false;
     }
 }
