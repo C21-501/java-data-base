@@ -1,28 +1,21 @@
 package database.system.core.managers;
 
-import database.api.CommandManager;
-import database.system.core.structures.bodies.DatabaseBody;
-import database.system.core.structures.bodies.TableBody;
-import database.system.core.structures.schemes.DatabaseScheme;
-import database.system.core.structures.schemes.FieldScheme;
-import database.system.core.structures.schemes.TableScheme;
+import database.system.core.structures.Column;
+import database.system.core.structures.Database;
+import database.system.core.structures.Table;
 import database.system.core.types.DataType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class DatabaseSerializer extends Serializer{
-    private DatabaseScheme databaseScheme;
-    private DatabaseBody databaseBody;
+    private Database database;
 
     private final String filePath = STR."\{super.DATABASE_DIR_PATH}/\{databaseName}";
 
@@ -30,31 +23,25 @@ public class DatabaseSerializer extends Serializer{
         if (dirName.isEmpty())
             throw new NullPointerException();
         super(dirName);
-        this.databaseScheme = DatabaseScheme.getInstance();
-        this.databaseBody = new DatabaseBody(databaseScheme);
+        this.database = Database.getInstance();
     }
 
-    public DatabaseSerializer(String dirName, DatabaseScheme instance){
+    public DatabaseSerializer(String dirName, Database instance){
         if (dirName.isEmpty() || instance == null)
             throw new NullPointerException("null parameters");
         super(dirName);
-        this.databaseScheme = instance;
+        this.database = instance;
     }
 
     @Override
-    void save() throws IOException {
-        if (!databaseScheme.getTables().isEmpty())
-            writeToFileCascade(databaseScheme);
-        writeSchmToFile(filePath,databaseName,databaseScheme);
-        writeBdyToFile(filePath,databaseName,databaseBody);
+    public void save() throws IOException {
+        writeInstanceToFile(filePath,databaseName, database);
     }
 
     @Override
-    void update() {
+    public void update() {
         File directory = new File(filePath);
-        if (directory.exists()) {
-            System.err.println(STR."Directory already exists: \{databaseName}");
-        } else {
+        if (!directory.exists()) {
             boolean created = directory.mkdirs();
             if (!created)
                 throw new RuntimeException(STR."Failed to create directory: \{databaseName}");
@@ -62,25 +49,12 @@ public class DatabaseSerializer extends Serializer{
     }
 
     @Override
-    void read() throws IOException, ClassNotFoundException {
-        this.databaseScheme = readFromFile();
+    public void read() throws IOException, ClassNotFoundException {
+        this.database = readFromFile();
     }
 
-    private void writeToFileCascade(DatabaseScheme databaseScheme) {
-        for (Map.Entry<String, TableScheme> table: databaseScheme.getTables().entrySet()){
-            String directoryPath = STR."\{filePath}/\{table.getKey()}";
-            try {
-                Files.createDirectories(Paths.get(directoryPath));
-                writeSchmToFile(directoryPath,table.getKey(),table.getValue());
-                writeBdyToFile(directoryPath,table.getKey(), new TableBody().setTable(table.getValue()));
-            } catch (IOException e) {
-                e.printStackTrace(System.err);
-            }
-        }
-    }
-
-    private void writeSchmToFile(String filePath, String name, Serializable record) throws IOException {
-        String fileName = STR."\{filePath}/\{name}.schm";
+    private void writeInstanceToFile(String filePath, String name, Serializable record) throws IOException {
+        String fileName = STR."\{filePath}/\{name}.instance";
         if (super.createFile(fileName)) {
             try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName))) {
                 oos.writeObject(record);
@@ -88,23 +62,10 @@ public class DatabaseSerializer extends Serializer{
         }
     }
 
-    private void writeBdyToFile(String filePath, String name, Serializable record) throws IOException {
-        String fileName = STR."\{filePath}/\{name}.bdy";
-        if (super.createFile(fileName)) {
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName))) {
-                oos.writeObject(record);
-            }
-        }
-    }
-
-    private DatabaseScheme readFromFile() throws IOException, ClassNotFoundException {
-        String fileName = STR."\{filePath}/\{databaseName}.schm";
-        File file = new File(fileName);
-        if (file.exists()) {
-            throw new RuntimeException(STR."file already exists: \{fileName}");
-        }
+    private Database readFromFile() throws IOException, ClassNotFoundException {
+        String fileName = STR."\{filePath}/\{databaseName}.instance";
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))) {
-            return (DatabaseScheme) ois.readObject();
+            return (Database) ois.readObject();
         }
     }
 
@@ -112,38 +73,70 @@ public class DatabaseSerializer extends Serializer{
         DatabaseSerializer databaseSerializer = new DatabaseSerializer("test_db");
         databaseSerializer.update();
 
-        databaseSerializer.getDatabaseScheme()
+        databaseSerializer.getDatabase()
                 .createTable(
                         "1_table",
-                        new TableScheme()
-                                .createField("id", new FieldScheme(DataType.INTEGER))
-                                .createField("name", new FieldScheme(DataType.STRING))
+                        new Table()
+                                .createColumn("id", new Column(DataType.INTEGER))
+                                .createColumn("name", new Column(DataType.STRING))
                 )
                 .createTable(
                         "2_table",
-                        new TableScheme()
-                                .createField("id", new FieldScheme(DataType.INTEGER))
-                                .createField("surname", new FieldScheme(DataType.STRING))
+                        new Table()
+                                .createColumn("id", new Column(DataType.INTEGER))
+                                .createColumn("surname", new Column(DataType.STRING))
                 );
+
         databaseSerializer.update();
         databaseSerializer.save();
 
+        try {
+            databaseSerializer.readFromFile();
+            System.out.println(databaseSerializer.getDatabase());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
         List<Object[]> firstTableValues = new ArrayList<>();
         firstTableValues.add(new Object[]{1, "ivan"});
-        firstTableValues.add(new Object[]{1, "ivan"});
+        firstTableValues.add(new Object[]{2, "peter"});
 
         List<Object[]> secondTableValues = new ArrayList<>();
-        secondTableValues.add(new Object[]{1, "ivan"});
-        secondTableValues.add(new Object[]{1, "ivan"});
+        secondTableValues.add(new Object[]{1, "pedro"});
+        secondTableValues.add(new Object[]{2, "pe"});
+
+        databaseSerializer
+                .getDatabase()
+                .insertInto("1_table", new String[]{"id", "name"}, firstTableValues);
+        databaseSerializer
+                .getDatabase()
+                .insertInto("2_table", new String[]{"id", "surname"}, secondTableValues);
 
         databaseSerializer.save();
 
-        databaseSerializer.getDatabaseBody()
-                .insertInto("1_table", firstTableValues)
-                .insertInto("2_table", secondTableValues);
+        try {
+            databaseSerializer.readFromFile();
+            System.out.println(databaseSerializer.getDatabase());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
-        databaseSerializer.getDatabaseBody()
-                .selectFrom("1_table");
+        databaseSerializer
+                .getDatabase()
+                .selectFrom("2_table", new String[]{"id","surname"})
+                .printTable();
+
+        databaseSerializer
+                .getDatabase()
+                .selectFrom("1_table", new String[]{"id", "name"})
+                .printTable();
+//        databaseSerializer.getDatabase()
+//                .insertInto("1_table", firstTableValues)
+//                .insertInto("2_table", secondTableValues);
+//
+//        databaseSerializer.getDatabase()
+//                .selectFrom("1_table");
+
 //        CommandManager commandManager = new CommandManager();
 //        databaseSerializer.getDatabaseBody()
 //                .select()

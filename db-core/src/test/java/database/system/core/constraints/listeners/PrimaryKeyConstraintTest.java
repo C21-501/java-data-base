@@ -1,12 +1,5 @@
 package database.system.core.constraints.listeners;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import database.system.core.structures.schemes.FieldScheme;
-import database.system.core.structures.schemes.TableScheme;
-import database.system.core.types.DataType;
-import org.junit.jupiter.api.Test;
-
 
 public class PrimaryKeyConstraintTest {
     // Creating a new instance of PrimaryKeyConstraint with a non-null Table object should not raise any exceptions.

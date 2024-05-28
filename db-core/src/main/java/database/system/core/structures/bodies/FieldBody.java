@@ -1,37 +1,34 @@
 package database.system.core.structures.bodies;
 
+import database.system.core.structures.Value;
 import database.system.core.structures.schemes.FieldScheme;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.util.*;
 
 @Data
 public class FieldBody implements Body {
-    private record Value(int id, Object object) implements Serializable {}
-
     private Integer fieldId = 0;
     public final List<Value> objectList = new ArrayList<>(); // list of values
-    private FieldScheme fieldScheme;
 
-    public void insertValue(Object value){
+    public void insertValue(FieldScheme fieldScheme, byte[] value){
         if (fieldScheme.validate(this, value))
             objectList.add(new Value(fieldId++, value));
     }
 
-    @Override
-    public List<Object> getInnerObjects() { // method is useless in this class
-        return Arrays.asList(objectList.toArray());
+    public boolean validate(FieldScheme fieldScheme){
+        for (Value value: objectList){
+            if (!fieldScheme.validate(this, value.getObject()))
+                return false;
+        }
+        return true;
     }
 
-    public Object getValue(int index) {
-        return objectList.get(index).object;
+    public List<Value> getValues() { // method is useless in this class
+        return objectList;
     }
 
-    public FieldBody setFieldScheme(FieldScheme fieldScheme) {
-        if (fieldScheme == null)
-            throw new NullPointerException("fieldScheme is null");
-        this.fieldScheme = fieldScheme;
-        return this;
+    public Value getValue(int index) {
+        return objectList.get(index);
     }
 }

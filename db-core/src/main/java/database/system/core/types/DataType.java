@@ -1,6 +1,8 @@
 package database.system.core.types;
 
 
+import database.system.core.structures.Column;
+
 public enum DataType {
     INTEGER,
     STRING,

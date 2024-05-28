@@ -18,10 +18,9 @@ public abstract class Serializer {
 
     protected boolean createFile(String fileName) throws IOException {
         File file = new File(fileName);
-        if (file.exists()) {
-            System.out.println(STR."file already exists: \{fileName}");
-        }
-        return file.createNewFile();
+        if (!file.exists())
+            return file.createNewFile();
+        return false;
     }
 
     abstract void save() throws IOException;

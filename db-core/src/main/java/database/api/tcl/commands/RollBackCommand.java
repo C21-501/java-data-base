@@ -1,8 +1,17 @@
 package database.api.tcl.commands;
 
-public class RollBackCommand extends AbstractTCLCommand{
+import database.api.Command;
+import database.api.DatabaseAPI;
+import database.api.DatabaseEditor;
+
+public class RollBackCommand extends Command {
+
+    public RollBackCommand(DatabaseAPI databaseAPI, DatabaseEditor databaseEditor) {
+        super(databaseAPI, databaseEditor);
+    }
+
     @Override
-    boolean execute() {
+    public boolean execute() {
         return false;
     }
 }
