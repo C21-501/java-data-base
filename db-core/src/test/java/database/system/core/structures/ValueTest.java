@@ -35,7 +35,7 @@ public class ValueTest {
         byte[] data = {1, 2, 3};
         Value value = Value.of(data);
         assertNotNull(value);
-        assertTrue(Arrays.equals(data, value.getObject()));
+        assertEquals(data, value.getObject());
     }
 
     // Test serialization and deserialization of the Value object

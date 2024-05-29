@@ -5,13 +5,14 @@ import database.system.core.structures.schemes.FieldScheme;
 import lombok.Data;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 @Data
 public class FieldBody implements Body {
     private Integer fieldId = 0;
     public final List<Value> objectList = new ArrayList<>(); // list of values
 
-    public void insertValue(FieldScheme fieldScheme, byte[] value){
+    public void insertValue(FieldScheme fieldScheme, Object value){
         if (fieldScheme.validate(this, value))
             objectList.add(new Value(fieldId++, value));
     }
@@ -30,5 +31,20 @@ public class FieldBody implements Body {
 
     public Value getValue(int index) {
         return objectList.get(index);
+    }
+
+    public void updateValueIf(Object updatedValue, Predicate<Object> filter) {
+        objectList.replaceAll(obj -> {
+            if (filter.test(obj.getObject())) {
+                return obj.setObject(updatedValue);
+            } else {
+                return obj;
+            }
+        });
+    }
+
+
+    public void removeValuesIf(Predicate<Object> filter) {
+        objectList.removeIf(value -> filter.test(value.getObject()));
     }
 }

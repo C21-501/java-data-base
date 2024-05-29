@@ -37,6 +37,14 @@ public class Response implements Serializable {
         responseMap.put(columnName, filteredObjects);
     }
 
+    public List<Value> get(String columnName) {
+        List<Value> values = responseMap.get(columnName);
+        if (values == null) {
+            throw new IndexOutOfBoundsException(STR."Invalid name of column: \{columnName}");
+        }
+        return values;
+    }
+
     public Object get(String columnName, int index) {
         List<Value> values = responseMap.get(columnName);
         if (values == null || index >= values.size()) {

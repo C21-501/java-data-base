@@ -15,81 +15,74 @@ public class Table implements DatabaseStructure {
     private Map<String, Column> columns = new HashMap<>();
     private Set<Constraint> constraintSet = new HashSet<>();
 
-    public boolean contains(String columnName) {
-        return columns.containsKey(columnName);
+    private void validateColumnName(String columnName) {
+        if (columnName == null || !columns.containsKey(columnName)) {
+            throw new IllegalArgumentException(String.format("Error: Column '%s' does not exist.", columnName));
+        }
+    }
+
+    private void validateNonNull(Object obj, String paramName) {
+        if (obj == null) {
+            throw new NullPointerException(String.format("Error: Parameter '%s' is null.", paramName));
+        }
+    }
+
+    private void validateConditionFormat(String[] parts) {
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Error: Invalid condition format. Expected format: <column> <operator> <value>");
+        }
     }
 
     public Column getColumn(String columnName) {
-        if (columnName == null)
-            throw new NullPointerException("parameter `columnName` is null");
+        validateColumnName(columnName);
         return columns.get(columnName);
     }
 
     public Table createColumn(String columnName, DataType type) {
-        if (columnName == null)
-            throw new NullPointerException("parameter `columnName` is null");
+        validateNonNull(columnName, "columnName");
         columns.put(columnName, new Column(type));
         return this;
     }
 
     public Table createColumn(String columnName, Column column) {
-        if (columnName == null)
-            throw new NullPointerException("parameter `columnName` is null");
-        if (column == null)
-            throw new NullPointerException("parameter `column` is null");
+        validateNonNull(columnName, "columnName");
+        validateNonNull(column, "column");
         columns.put(columnName, column);
         return this;
     }
 
     public void dropColumn(String columnName) {
-        if (columnName == null)
-            throw new NullPointerException("parameter `columnName` is null");
-        if (columns.remove(columnName) == null)
-            throw new RuntimeException(String.format("Column with name %s not found", columnName));
+        validateColumnName(columnName);
+        columns.remove(columnName);
     }
 
     public Table renameField(String oldColumnName, String newColumnName) {
-        if (oldColumnName == null)
-            throw new NullPointerException("parameter `oldColumnName` is null");
-        if (newColumnName == null)
-            throw new NullPointerException("parameter `newColumnName` is null");
+        validateColumnName(oldColumnName);
+        validateNonNull(newColumnName, "newColumnName");
         Column removedFieldScheme = columns.remove(oldColumnName);
-        if (removedFieldScheme == null)
-            throw new RuntimeException(String.format("Column %s not found", oldColumnName));
         columns.put(newColumnName, removedFieldScheme);
         return this;
     }
 
     public Table updateField(String columnName, Column newFieldScheme) {
-        if (columnName == null)
-            throw new NullPointerException("parameter `columnName` is null");
-        if (newFieldScheme == null)
-            throw new NullPointerException("parameter `newField` is null");
-        if (columns.replace(columnName, newFieldScheme) == null)
-            throw new RuntimeException(String.format("Column %s does not exist", columnName));
+        validateColumnName(columnName);
+        validateNonNull(newFieldScheme, "newField");
+        columns.replace(columnName, newFieldScheme);
         return this;
     }
 
     public Table addConstraint(String columnName, Constraint constraint) {
-        if (columnName == null)
-            throw new NullPointerException("parameter `columnName` is null");
-        if (constraint == null)
-            throw new NullPointerException("parameter `constraint` is null");
+        validateColumnName(columnName);
+        validateNonNull(constraint, "constraint");
         Column column = columns.get(columnName);
-        if (column == null)
-            throw new RuntimeException(String.format("Column %s does not exist", columnName));
         column.getFieldScheme().addConstraint(constraint);
         return this;
     }
 
     public Table dropConstraint(String columnName, Constraint constraint) {
-        if (columnName == null)
-            throw new NullPointerException("parameter `columnName` is null");
-        if (constraint == null)
-            throw new NullPointerException("parameter `constraint` is null");
+        validateColumnName(columnName);
+        validateNonNull(constraint, "constraint");
         Column column = columns.get(columnName);
-        if (column == null)
-            throw new RuntimeException(String.format("Column %s does not exist", columnName));
         column.removeConstraint(constraint);
         return this;
     }
@@ -103,80 +96,91 @@ public class Table implements DatabaseStructure {
     }
 
     public void renameColumn(String oldColumnName, String newColumnName) {
-        if (oldColumnName == null)
-            throw new NullPointerException("parameter `oldColumnName` is null");
-        if (newColumnName == null)
-            throw new NullPointerException("parameter `newColumnName` is null");
+        validateColumnName(oldColumnName);
+        validateNonNull(newColumnName, "newColumnName");
         Column removed = columns.remove(oldColumnName);
-        if (removed == null)
-            throw new RuntimeException(String.format("Column %s not found", oldColumnName));
         columns.put(newColumnName, removed);
     }
 
     public Table updateColumn(String columnName, Column column) {
-        if (columnName == null)
-            throw new NullPointerException("parameter `columnName` is null");
-        if (column == null)
-            throw new NullPointerException("parameter `newField` is null");
-        if (columns.replace(columnName, column) == null)
-            throw new RuntimeException(String.format("Column %s does not exist", columnName));
+        validateColumnName(columnName);
+        validateNonNull(column, "newField");
+        columns.replace(columnName, column);
         return this;
     }
 
-
-    public void insert(String columnName, Object value) {
-        columns.get(columnName).insert((byte[])value);
-    }
-
-    public void delete(String condition) {
-        // Получаем предикат для фильтрации строк
-        Predicate<Object[]> filter = createFilter(condition);
-
-        // Получаем список ключей столбцов
-        Set<String> columnNames = columns.keySet();
-
-        // Удаляем строки, удовлетворяющие условию
-        for (String columnName : columnNames) {
-            Column column = columns.get(columnName);
-            column.delete(filter);
-        }
-
-        // Возвращаем экземпляр текущей таблицы для поддержки цепочки вызовов
-    }
-
-    public Table update(Column column, Object value, String condition) {
-        Predicate<Object[]> filter = createFilter(condition);
-        column.update(value, filter);
-        // Возвращаем экземпляр текущей таблицы для поддержки цепочки вызовов
+    public Table insert(String columnName, Object value) {
+        validateColumnName(columnName);
+        columns.get(columnName).insert(value);
         return this;
     }
 
-    private Predicate<Object[]> createFilter(String condition) {
-        // Разбиваем условие на имя столбца, оператор и значение
-        String[] parts = condition.split(" ");
+    public Table delete(String condition) {
+        String[] parts = parseCondition(condition);
+        validateConditionFormat(parts);
         String columnName = parts[0].trim();
         String operator = parts[1].trim();
-        Object value = parts[2].trim(); // Предполагается, что value имеет правильный формат для типа столбца
+        String value = parts[2].trim();
+        // Получаем предикат для фильтрации строк
+        Predicate<Object> filter = createFilter(columnName, operator, value);
+        Column column = columns.get(columnName);
+        column.delete(filter);
+        return this;
+    }
 
-        // Создаем предикат для фильтрации строк в зависимости от оператора сравнения
+    public Table update(Object value, String condition) {
+        String[] parts = parseCondition(condition);
+        validateConditionFormat(parts);
+        String columnName = parts[0].trim();
+        String operator = parts[1].trim();
+        String filteredValue = parts[2].trim();
+        Predicate<Object> filter = createFilter(columnName, operator, filteredValue);
+        Column column = columns.get(columnName);
+        column.update(value, filter);
+        return this;
+    }
+
+    private String[] parseCondition(String condition) {
+        String[] parts = condition.split(" ", 3);
+        validateConditionFormat(parts);
+        return parts;
+    }
+
+    private Predicate<Object> createFilter(String columnName, String operator, Object value) {
+        validateColumnName(columnName);
+        Column column = columns.get(columnName);
+
         return switch (operator) {
-            case "=" -> row -> columns
-                    .get(columnName)
-                    .getFieldBody().getObjectList()
-                    .stream()
-                    .anyMatch(existingValue -> existingValue.getObject().equals(value));
-            case "<" -> row -> columns
-                    .get(columnName)
-                    .getFieldBody().getObjectList()
-                    .stream()
-                    .anyMatch(existingValue -> existingValue.compareTo(value) < 0);
-            case ">" -> row -> columns
-                    .get(columnName)
-                    .getFieldBody().getObjectList()
-                    .stream()
-                    .anyMatch(existingValue -> existingValue.compareTo(value) > 0);
-            // Добавьте другие операторы по необходимости
-            default -> throw new IllegalArgumentException(String.format("Unsupported operator: %s", operator));
+            case "=" -> obj -> compareValues(column.getFieldScheme().getType(), obj, value) == 0;
+            case "<" -> obj -> compareValues(column.getFieldScheme().getType(), obj, value) < 0;
+            case ">" -> obj -> compareValues(column.getFieldScheme().getType(), obj, value) > 0;
+            default -> throw new IllegalArgumentException(String.format("Error: Unsupported operator '%s'", operator));
         };
+    }
+
+    private int compareValues(DataType type, Object obj1, Object obj2) {
+        return switch (type) {
+            case INTEGER -> {
+                int val1 = obj1 instanceof Integer ? (Integer) obj1 : Integer.parseInt(obj1.toString());
+                int val2 = Integer.parseInt(obj2.toString());
+                yield Integer.compare(val1, val2);
+            }
+            case STRING -> obj1.toString().compareTo(obj2.toString());
+            case REAL -> {
+                float val1 = obj1 instanceof Float ? (Float) obj1 : Float.parseFloat(obj1.toString());
+                float val2 = Float.parseFloat(obj2.toString());
+                yield Float.compare(val1, val2);
+            }
+            case BOOLEAN -> {
+                boolean val1 = obj1 instanceof Boolean ? (Boolean) obj1 : Boolean.parseBoolean(obj1.toString());
+                boolean val2 = Boolean.parseBoolean(obj2.toString());
+                yield Boolean.compare(val1, val2);
+            }
+        };
+    }
+
+    public boolean contains(String columnName) {
+        validateNonNull(columnName, "columnName");
+        return columns.containsKey(columnName);
     }
 }

@@ -10,7 +10,7 @@ import java.util.*;
 import static database.system.core.types.DataType.map;
 
 @Data
-public class FieldScheme implements Scheme{
+public class FieldScheme implements Scheme {
     private DataType type;
     private Set<Constraint> constraintSet = new HashSet<>();
 
@@ -18,49 +18,63 @@ public class FieldScheme implements Scheme{
 
     public FieldScheme(DataType type) {
         if (type == null)
-            throw new NullPointerException("`type` is null");
+            throw new NullPointerException("Error: parameter 'type' is null.");
         this.type = type;
     }
 
     public FieldScheme(DataType type, Set<Constraint> constraintSet) {
-        if (type == null || constraintSet.isEmpty())
-            throw new NullPointerException("`type` is null or `constraintSet` is empty");
+        if (type == null)
+            throw new NullPointerException("Error: parameter 'type' is null.");
+        if (constraintSet == null || constraintSet.isEmpty())
+            throw new NullPointerException("Error: parameter 'constraintSet' is null or empty.");
         this.type = type;
         this.constraintSet = constraintSet;
     }
 
-    public void addConstraint(Constraint constraint){
+    public void addConstraint(Constraint constraint) {
         if (constraint == null)
-            throw new NullPointerException("parameter `constraint` is null");
+            throw new NullPointerException("Error: parameter 'constraint' is null.");
         constraintSet.add(constraint);
     }
 
-    public void removeConstraint(Constraint constraint){
+    public void removeConstraint(Constraint constraint) {
         if (constraint == null)
-            throw new NullPointerException("parameter `constraint` is null");
+            throw new NullPointerException("Error: parameter 'constraint' is null.");
         constraintSet.remove(constraint);
     }
 
-    public boolean contains(Constraint constraintClass) {
-        return constraintSet.contains(constraintClass);
+    public boolean contains(Constraint constraint) {
+        if (constraint == null)
+            throw new NullPointerException("Error: parameter 'constraint' is null.");
+        return constraintSet.contains(constraint);
     }
 
     public boolean contains(Class<?> constraintClass) {
-        return Arrays.stream(constraintSet.toArray()).anyMatch(
-                (object) -> object.getClass().equals(constraintClass)
+        if (constraintClass == null)
+            throw new NullPointerException("Error: parameter 'constraintClass' is null.");
+        return constraintSet.stream().anyMatch(
+                (constraint) -> constraint.getClass().equals(constraintClass)
         );
     }
 
     public boolean validate(Body parent, Object value) {
-        if (map(value) == null)
-            throw new IllegalArgumentException(STR."\{value.getClass()} not instance of class DataType");
-        for (Constraint constraint: constraintSet){
-            if (!constraint.check(parent, value))
-                return false;
+        DataType valueType = map(value);
+        if (valueType != type) {
+            throw new IllegalArgumentException(String.format(
+                    "Error: Type mismatch - expected '%s', but got '%s' (%s).",
+                    type, valueType, value.getClass().getName()
+            ));
+        }
+        for (Constraint constraint : constraintSet) {
+            if (!constraint.check(parent, value)) {
+                throw new IllegalArgumentException(String.format(
+                        "Error: Constraint violation - %s failed for value '%s'.",
+                        constraint.getClass().getName(), value
+                ));
+            }
         }
         return true;
     }
-
 
     @Override
     public long getObjectsNumber() {

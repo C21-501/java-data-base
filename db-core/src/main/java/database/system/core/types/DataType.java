@@ -19,9 +19,4 @@ public enum DataType {
             default -> null;
         };
     }
-
-    public static void main(String[] args) {
-        String string = "sssssq";
-        System.out.println(map(string));
-    }
 }

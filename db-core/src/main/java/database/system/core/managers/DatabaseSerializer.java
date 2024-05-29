@@ -79,7 +79,9 @@ public class DatabaseSerializer extends Serializer{
                         new Table()
                                 .createColumn("id", new Column(DataType.INTEGER))
                                 .createColumn("name", new Column(DataType.STRING))
-                )
+                );
+
+        databaseSerializer.getDatabase()
                 .createTable(
                         "2_table",
                         new Table()

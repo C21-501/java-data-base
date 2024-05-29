@@ -6,7 +6,9 @@ import database.system.core.structures.schemes.FieldScheme;
 import database.system.core.types.DataType;
 import lombok.Data;
 
+import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Data
 public class Column implements DatabaseStructure {
@@ -28,14 +30,15 @@ public class Column implements DatabaseStructure {
         return this;
     }
 
-    public void insert(byte[] value) {
+    public void insert(Object value) {
         fieldBody.insertValue(fieldScheme, value);
     }
 
-    public void delete(Predicate<Object[]> filter) {
-
+    public void delete(Predicate<Object> filter) {
+        fieldBody.removeValuesIf(filter);
     }
 
-    public void update(Object value, Predicate<Object[]> filter) {
+    public void update(Object value, Predicate<Object> filter) {
+        fieldBody.updateValueIf(value, filter);
     }
 }

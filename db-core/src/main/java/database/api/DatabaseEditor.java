@@ -1,18 +1,15 @@
 package database.api;
 
 import database.system.core.managers.DatabaseSerializer;
-import database.system.core.managers.utils.Insertion;
 import database.system.core.structures.Column;
 import database.system.core.structures.Database;
 import database.system.core.structures.Response;
 import database.system.core.structures.Table;
 import database.system.core.types.DataType;
-import lombok.Builder;
 import lombok.Data;
 
 import java.io.*;
 import java.util.List;
-import java.util.function.Predicate;
 
 @Data
 public class DatabaseEditor {
@@ -50,12 +47,7 @@ public class DatabaseEditor {
             Table table = new Table();
             for (String columnName : columns) {
                 String[] parts = columnName.split("\\s+");
-                Column column = null;
-                switch (parts[1]) {
-                    case "INT" -> column = new Column(DataType.INTEGER);
-                    case "STRING" -> column = new Column(DataType.STRING);
-                };
-                // Создание объекта Column из строки и добавление его к таблице
+                Column column = new Column(DataType.valueOf(parts[1]));
                 table.createColumn(columnName, column);
             }
             database.createTable(tableName, table);
@@ -92,9 +84,9 @@ public class DatabaseEditor {
             }
         }
 
-        public void update(String tableName, Column column, Object value, String condition) {
+        public void update(String tableName, Object value, String condition) {
             // Логика обновления данных
-            database.update(tableName, column, value, condition);
+            database.update(tableName, value, condition);
         }
 
         public void delete(String tableName, String condition) {
@@ -123,7 +115,5 @@ public class DatabaseEditor {
         public void rollback() {
             // Логика отката транзакции
         }
-
-        // Другие методы TCL
     }
 }
