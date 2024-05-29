@@ -35,6 +35,9 @@ Java: The primary programming language for developing the database system.
 Git: Version control system for managing the project's source code.
 GitHub: Hosting platform for collaboration and project management.
 
+## Explanatory notes for the modules
+[Database core](https://docs.google.com/document/d/1mEagP_lLkA7tbYHyWw0xqeE6vxl67B6L7ZzAlWGvlOg/edit#heading=h.2s8eyo1)
+
 
 ## How to Contribute
 Contributions to the project are welcome! If you're interested in contributing, please follow these steps:
