@@ -1,33 +1,41 @@
 package database.api;
 
+import database.api.ddl.DDLManager;
+import database.api.dml.DMLManager;
+import database.api.tcl.TCLManager;
 import database.system.core.managers.DatabaseSerializer;
-import database.system.core.structures.Column;
 import database.system.core.structures.Database;
-import database.system.core.structures.Response;
-import database.system.core.structures.Table;
-import database.system.core.types.DataType;
 import lombok.Data;
 
 import java.io.*;
-import java.util.List;
 
 @Data
 public class DatabaseEditor {
-    private final DatabaseSerializer databaseSerializer;
-    private final Database database;
+    private DatabaseSerializer databaseSerializer;
+    private DDLManager ddlManager;
+    private DMLManager dmlManager;
+    private TCLManager tclManager;
+    private Database database;
 
-    public DatabaseEditor(String dbName) {
-        this.databaseSerializer = new DatabaseSerializer(dbName);
+    public DatabaseEditor(){}
+
+    public void createDatabase(String databaseName){
+        if (databaseName.isEmpty())
+            throw  new NullPointerException("Error while creating database : database name is null");
+        this.databaseSerializer = new DatabaseSerializer(databaseName);
         this.database = databaseSerializer.getDatabase();
+        this.ddlManager = new DDLManager(databaseSerializer.getDatabase());
+        this.dmlManager = new DMLManager(databaseSerializer.getDatabase());
+        this.tclManager = new TCLManager(databaseSerializer.getDatabase(), databaseSerializer.getDATABASE_DIR_PATH());
     }
 
     public void saveDatabaseState() {
         try {
-            databaseSerializer.update();
+            databaseSerializer.create();
             databaseSerializer.save();
             System.out.println("Database state saved successfully.");
         } catch (IOException e) {
-            System.err.println(STR."Error while saving database state: \{e.getMessage()}");
+            System.err.printf("Error while saving database state: %s%n", e.getMessage());
         }
     }
 
@@ -36,84 +44,13 @@ public class DatabaseEditor {
             databaseSerializer.read();
             System.out.println("Database state restored successfully.");
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println(STR."Error while restoring database state: \{e.getMessage()}");
+            System.err.printf("Error while restoring database state: %s%n", e.getMessage());
         }
     }
 
-    @Data
-    public class DDL {
-        public void createTable(String tableName, List<String> columns) {
-            // Логика создания таблицы
-            Table table = new Table();
-            for (String columnName : columns) {
-                String[] parts = columnName.split("\\s+");
-                Column column = new Column(DataType.valueOf(parts[1]));
-                table.createColumn(columnName, column);
-            }
-            database.createTable(tableName, table);
-        }
-
-        public void alterTable(
-                String tableName,
-                List<String> addedColumns,
-                List<String> modifiedColumns,
-                List<String> droppedColumns
-        ) {
-            // Логика изменения таблицы
-            Table table = new Table();
-            // Добавление новых столбцов
-            for (String columnName : addedColumns) {
-                String[] parts = columnName.split("\\s+");
-                Column column = new Column(DataType.valueOf(parts[1]));
-                table.createColumn(columnName, column);
-            }
-            database.alterTable(tableName, modifiedColumns, droppedColumns, table);
-        }
-
-        public void dropTable(String tableName) {
-            database.dropTable(tableName);
-        }
-    }
-
-    @Data
-    public class DML {
-        public void insert(String tableName, String[] columns, List<Object[]> values) {
-            // Логика вставки данных
-            for (Object[] row : values) {
-                database.insertInto(tableName, columns, row);
-            }
-        }
-
-        public void update(String tableName, Object value, String condition) {
-            // Логика обновления данных
-            database.update(tableName, value, condition);
-        }
-
-        public void delete(String tableName, String condition) {
-            // Логика удаления данных
-            database.delete(tableName, condition);
-        }
-
-        public Response select(String tableName, List<String> columns, String condition) {
-            // Логика выборки данных
-            return database.select(tableName, columns, condition);
-        }
-        // Другие методы DML
-    }
-
-
-    @Data
-    public class TCL {
-        public void beginTransaction() {
-            // Логика начала транзакции
-        }
-
-        public void commit() {
-            // Логика подтверждения транзакции
-        }
-
-        public void rollback() {
-            // Логика отката транзакции
-        }
+    public void close() throws IOException {
+        databaseSerializer.getDatabase().close();
+        databaseSerializer.setDatabase(null);
     }
 }
+

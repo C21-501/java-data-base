@@ -5,13 +5,15 @@ import database.system.core.structures.bodies.FieldBody;
 import database.system.core.structures.schemes.FieldScheme;
 import database.system.core.types.DataType;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class Column implements DatabaseStructure {
+public class Column extends DatabaseStructure {
     private FieldScheme fieldScheme = new FieldScheme();
     private FieldBody fieldBody = new FieldBody();
 

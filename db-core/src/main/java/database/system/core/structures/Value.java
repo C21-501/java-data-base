@@ -45,6 +45,7 @@ public class Value implements Comparable<Object>, Serializable {
         return compareValues(this.object, o);
     }
 
+    @SuppressWarnings("unchecked")
     private int compareValues(Object thisObject, Object otherObject) {
         if (thisObject instanceof Comparable && otherObject instanceof Comparable) {
             if (thisObject.getClass().equals(otherObject.getClass())) {

@@ -7,7 +7,7 @@ import java.io.IOException;
 
 @Data
 public abstract class Serializer {
-    protected String DATABASE_DIR_PATH = "db-core/src/main/resources/root/db";
+    protected String DATABASE_DIR_PATH = "/src/main/resources/root/db";
     protected String databaseName;
 
     Serializer(){}
@@ -24,6 +24,6 @@ public abstract class Serializer {
     }
 
     abstract void save() throws IOException;
-    abstract void update();
+    abstract void create();
     abstract void read() throws IOException, ClassNotFoundException;
 }

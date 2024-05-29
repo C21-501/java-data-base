@@ -30,7 +30,7 @@ public class DatabaseTest {
         assertSame(firstInstance, secondInstance, "Both instances should be the same");
     }
 
-    // Ensure createTable adds a new table when it does not already exist
+    // Ensure create adds a new table when it does not already exist
     @Test
     public void test_create_table_success() {
         Database db = Database.getInstance();
@@ -38,7 +38,7 @@ public class DatabaseTest {
         assertTrue(db.containsTable("newTable"), "Table should be added successfully");
     }
 
-    // Test createTable throws an exception when trying to create a table that already exists
+    // Test create throws an exception when trying to create a table that already exists
     @Test
     public void test_create_table_exception() {
         Database db = Database.getInstance();
@@ -92,10 +92,9 @@ public class DatabaseTest {
         modifiedColumns.add("non_existing_column INT");
 
         List<String> droppedColumns = new ArrayList<>();
-        Table newTable = new Table();
 
         assertThrows(RuntimeException.class, () -> {
-            database.alterTable("test_table", modifiedColumns, droppedColumns, newTable);
+            database.alter("test_table", null, modifiedColumns, droppedColumns);
         });
     }
 
@@ -165,14 +164,12 @@ public class DatabaseTest {
     // Confirm update modifies data in a column based on a specified condition
     @Test
     public void test_update_modifies_data_based_on_condition() {
-        
         Table table = new Table();
         table.createColumn("column1", DataType.INTEGER);
         table.insert("column1", 11);
         table.insert("column1", 12);
         database.createTable("table1", table);
 
-        Column column = new Column(DataType.INTEGER);
         database.update("table1", 20, "column1 > 10");
 
         Response response = database.selectFrom("table1", new String[]{"column1"});
@@ -275,13 +272,15 @@ public class DatabaseTest {
         table.createColumn("column2", DataType.INTEGER);
         database.createTable("test_table", table);
 
+        List<String> newColumns = Collections.singletonList(("column3 STRING"));
         List<String> modifiedColumns = Arrays.asList("column1 STRING", "column2 BOOLEAN");
         List<String> droppedColumns = Collections.singletonList("column2");
-        Table newTable = new Table();
-        newTable.createColumn("column1", DataType.STRING);
-        newTable.createColumn("column3", DataType.REAL);
 
-        database.alterTable("test_table", modifiedColumns, droppedColumns, newTable);
+        database.alter("test_table",  newColumns);
+
+        database.alter("test_table",  null, modifiedColumns);
+
+        database.alter("test_table", null, null, droppedColumns);
 
         assertTrue(database.getTable("test_table").get().contains("column1"));
         assertFalse(database.getTable("test_table").get().contains("column2"));
@@ -295,7 +294,7 @@ public class DatabaseTest {
                 .createColumn("column1", DataType.INTEGER);
 
         // Inserting null value into column
-        assertThrows(NullPointerException.class, () -> database.insertInto(
+        assertThrows(IllegalArgumentException.class, () -> database.insertInto(
                 "test_table", "column1", null));
 
         // Inserting invalid data type into column

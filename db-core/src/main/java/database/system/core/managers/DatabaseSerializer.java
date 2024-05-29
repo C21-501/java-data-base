@@ -24,6 +24,12 @@ public class DatabaseSerializer extends Serializer{
             throw new NullPointerException();
         super(dirName);
         this.database = Database.getInstance();
+        try {
+            this.create();
+            this.save();
+        } catch (IOException e) {
+            throw new RuntimeException(String.format("Error while creating database : %s%n", e.getMessage()));
+        }
     }
 
     public DatabaseSerializer(String dirName, Database instance){
@@ -39,7 +45,7 @@ public class DatabaseSerializer extends Serializer{
     }
 
     @Override
-    public void update() {
+    public void create() {
         File directory = new File(filePath);
         if (!directory.exists()) {
             boolean created = directory.mkdirs();
@@ -71,7 +77,7 @@ public class DatabaseSerializer extends Serializer{
 
     public static void main(String[] args) throws IOException {
         DatabaseSerializer databaseSerializer = new DatabaseSerializer("test_db");
-        databaseSerializer.update();
+        databaseSerializer.create();
 
         databaseSerializer.getDatabase()
                 .createTable(
@@ -89,7 +95,7 @@ public class DatabaseSerializer extends Serializer{
                                 .createColumn("surname", new Column(DataType.STRING))
                 );
 
-        databaseSerializer.update();
+        databaseSerializer.create();
         databaseSerializer.save();
 
         try {

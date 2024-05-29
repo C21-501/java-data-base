@@ -1,8 +1,6 @@
 package database.system.core.types;
 
 
-import database.system.core.structures.Column;
-
 public enum DataType {
     INTEGER,
     STRING,
@@ -15,8 +13,16 @@ public enum DataType {
             case "java.lang.Integer" -> INTEGER;
             case "java.lang.Double" -> REAL;
             case "java.lang.Boolean" -> BOOLEAN;
-            // Добавьте другие типы данных по аналогии
             default -> null;
         };
+    }
+
+    public static boolean validate(String columnType) {
+        try {
+            DataType.valueOf(columnType.toUpperCase());
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }

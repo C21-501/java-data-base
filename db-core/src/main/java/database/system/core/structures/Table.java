@@ -3,6 +3,7 @@ package database.system.core.structures;
 import database.system.core.constraints.interfaces.Constraint;
 import database.system.core.types.DataType;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,78 +11,61 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class Table implements DatabaseStructure {
+public class Table extends DatabaseStructure {
     private Map<String, Column> columns = new HashMap<>();
     private Set<Constraint> constraintSet = new HashSet<>();
 
-    private void validateColumnName(String columnName) {
-        if (columnName == null || !columns.containsKey(columnName)) {
-            throw new IllegalArgumentException(String.format("Error: Column '%s' does not exist.", columnName));
-        }
-    }
-
-    private void validateNonNull(Object obj, String paramName) {
-        if (obj == null) {
-            throw new NullPointerException(String.format("Error: Parameter '%s' is null.", paramName));
-        }
-    }
-
-    private void validateConditionFormat(String[] parts) {
-        if (parts.length != 3) {
-            throw new IllegalArgumentException("Error: Invalid condition format. Expected format: <column> <operator> <value>");
-        }
-    }
-
     public Column getColumn(String columnName) {
-        validateColumnName(columnName);
+        validateColumnName(columnName, columns);
         return columns.get(columnName);
     }
 
     public Table createColumn(String columnName, DataType type) {
-        validateNonNull(columnName, "columnName");
+        validateNonNull(columnName);
         columns.put(columnName, new Column(type));
         return this;
     }
 
     public Table createColumn(String columnName, Column column) {
-        validateNonNull(columnName, "columnName");
-        validateNonNull(column, "column");
+        validateNonNull(columnName);
+        validateNonNull(column);
         columns.put(columnName, column);
         return this;
     }
 
     public void dropColumn(String columnName) {
-        validateColumnName(columnName);
+        validateColumnName(columnName, columns);
         columns.remove(columnName);
     }
 
     public Table renameField(String oldColumnName, String newColumnName) {
-        validateColumnName(oldColumnName);
-        validateNonNull(newColumnName, "newColumnName");
+        validateColumnName(oldColumnName, columns);
+        validateNonNull(newColumnName);
         Column removedFieldScheme = columns.remove(oldColumnName);
         columns.put(newColumnName, removedFieldScheme);
         return this;
     }
 
     public Table updateField(String columnName, Column newFieldScheme) {
-        validateColumnName(columnName);
-        validateNonNull(newFieldScheme, "newField");
+        validateColumnName(columnName, columns);
+        validateNonNull(newFieldScheme);
         columns.replace(columnName, newFieldScheme);
         return this;
     }
 
     public Table addConstraint(String columnName, Constraint constraint) {
-        validateColumnName(columnName);
-        validateNonNull(constraint, "constraint");
+        validateColumnName(columnName, columns);
+        validateNonNull(constraint);
         Column column = columns.get(columnName);
         column.getFieldScheme().addConstraint(constraint);
         return this;
     }
 
     public Table dropConstraint(String columnName, Constraint constraint) {
-        validateColumnName(columnName);
-        validateNonNull(constraint, "constraint");
+        validateColumnName(columnName, columns);
+        validateNonNull(constraint);
         Column column = columns.get(columnName);
         column.removeConstraint(constraint);
         return this;
@@ -96,21 +80,21 @@ public class Table implements DatabaseStructure {
     }
 
     public void renameColumn(String oldColumnName, String newColumnName) {
-        validateColumnName(oldColumnName);
-        validateNonNull(newColumnName, "newColumnName");
+        validateColumnName(oldColumnName, columns);
+        validateNonNull(newColumnName);
         Column removed = columns.remove(oldColumnName);
         columns.put(newColumnName, removed);
     }
 
     public Table updateColumn(String columnName, Column column) {
-        validateColumnName(columnName);
-        validateNonNull(column, "newField");
+        validateColumnName(columnName, columns);
+        validateNonNull(column);
         columns.replace(columnName, column);
         return this;
     }
 
     public Table insert(String columnName, Object value) {
-        validateColumnName(columnName);
+        validateColumnName(columnName, columns);
         columns.get(columnName).insert(value);
         return this;
     }
@@ -147,7 +131,7 @@ public class Table implements DatabaseStructure {
     }
 
     private Predicate<Object> createFilter(String columnName, String operator, Object value) {
-        validateColumnName(columnName);
+        validateColumnName(columnName, columns);
         Column column = columns.get(columnName);
 
         return switch (operator) {
@@ -180,7 +164,7 @@ public class Table implements DatabaseStructure {
     }
 
     public boolean contains(String columnName) {
-        validateNonNull(columnName, "columnName");
+        validateNonNull(columnName);
         return columns.containsKey(columnName);
     }
 }
