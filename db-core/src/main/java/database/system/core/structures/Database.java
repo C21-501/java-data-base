@@ -1,6 +1,8 @@
 package database.system.core.structures;
 
 import database.system.core.types.DataType;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,7 +12,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
-public class Database extends DatabaseStructure implements java.io.Closeable {
+@EqualsAndHashCode(callSuper = true)
+@Data
+public class Database extends DatabaseStructure {
+    private static final long serialVersionUID = 1494292840007224912L;
     private static volatile Database instance;
     private final Map<String, Table> tables = new TreeMap<>();
 
@@ -26,6 +31,10 @@ public class Database extends DatabaseStructure implements java.io.Closeable {
             }
         }
         return instance;
+    }
+
+    public static void resetInstance() {
+        instance = null;
     }
 
     public boolean containsTable(String tableName) {
@@ -175,10 +184,6 @@ public class Database extends DatabaseStructure implements java.io.Closeable {
         return response;
     }
 
-    @Override
-    public void close() throws IOException {
-        tables.clear();
-    }
 
     public void alter(String tableName, List<String>... columnLists) {
         validateTableName(tableName);
@@ -297,6 +302,11 @@ public class Database extends DatabaseStructure implements java.io.Closeable {
     public void drop(String tableName) {
         dropTable(tableName);
     }
+
+    public void drop(){
+        tables.clear();
+    }
+
 
     public void insert(String tableName, List<String> columns, List<Object[]> values) {
         // Проверка, существует ли таблица

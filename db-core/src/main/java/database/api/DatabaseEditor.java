@@ -11,28 +11,45 @@ import java.io.*;
 
 @Data
 public class DatabaseEditor {
-    private DatabaseSerializer databaseSerializer;
     private DDLManager ddlManager;
     private DMLManager dmlManager;
     private TCLManager tclManager;
     private Database database;
-
-    public DatabaseEditor(){}
+    private String databaseName;
+    private String databasePath;
+    private DatabaseSerializer databaseSerializer;
 
     public void createDatabase(String databaseName){
         if (databaseName.isEmpty())
             throw  new NullPointerException("Error while creating database : database name is null");
-        this.databaseSerializer = new DatabaseSerializer(databaseName);
-        this.database = databaseSerializer.getDatabase();
-        this.ddlManager = new DDLManager(databaseSerializer.getDatabase());
-        this.dmlManager = new DMLManager(databaseSerializer.getDatabase());
-        this.tclManager = new TCLManager(databaseSerializer.getDatabase(), databaseSerializer.getDATABASE_DIR_PATH());
+        this.databaseName = databaseName;
+        this.databasePath = databaseName;
+        this.database = Database.getInstance();
+        this.databaseSerializer = new DatabaseSerializer(database, databaseName);
+        databaseSerializer.createDatabaseDirectory(databaseName);
+        this.setUpManagers();
+    }
+
+    public void createDatabase(String databaseName, String path){
+        if (databaseName.isEmpty() || path.isEmpty())
+            throw  new NullPointerException("Error while creating database : database name or path is null");
+        this.databaseName = databaseName;
+        this.databasePath = path;
+        this.database = Database.getInstance();
+        this.databaseSerializer = new DatabaseSerializer(database, databaseName, path);
+        databaseSerializer.createDatabaseDirectory(path);
+        this.setUpManagers();
+    }
+
+    private void setUpManagers() {
+        this.ddlManager = new DDLManager(database);
+        this.dmlManager = new DMLManager(database);
+        this.tclManager = new TCLManager(database, String.format("%s/%s/%s.instance",databasePath,databaseName,databaseName));
     }
 
     public void saveDatabaseState() {
         try {
-            databaseSerializer.create();
-            databaseSerializer.save();
+            databaseSerializer.save(database);
             System.out.println("Database state saved successfully.");
         } catch (IOException e) {
             System.err.printf("Error while saving database state: %s%n", e.getMessage());
@@ -41,16 +58,24 @@ public class DatabaseEditor {
 
     public void restoreDatabaseState() {
         try {
-            databaseSerializer.read();
+            Database tmpDatabase = databaseSerializer.read(databasePath,databaseName);
+            if (tmpDatabase == null)
+                throw new RuntimeException("Error while restoring database state: database instance is null");
+            resetDatabaseInstance();
+            this.database = databaseSerializer.read(databasePath, databaseName);
             System.out.println("Database state restored successfully.");
         } catch (IOException | ClassNotFoundException e) {
-            System.err.printf("Error while restoring database state: %s%n", e.getMessage());
+            throw new RuntimeException(String.format("Error while restoring database state: %s%n", e.getMessage()));
         }
     }
 
-    public void close() throws IOException {
-        databaseSerializer.getDatabase().close();
-        databaseSerializer.setDatabase(null);
+    public void resetDatabaseInstance() throws IOException {
+        Database.resetInstance();
+        System.gc();  // Опционально, запросить сбор мусора
+    }
+
+    public String getFullPath(){
+        return String.format("%s/%s/%s.instance",databasePath,databaseName,databaseName);
     }
 }
 

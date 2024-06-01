@@ -20,7 +20,7 @@ public class DatabaseTest {
     }
     @AfterEach
     public void tearDown() throws IOException {
-        database.close();
+        database.drop();
     }
     // Verify singleton pattern correctly provides a single instance of Database
     @Test

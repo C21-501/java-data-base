@@ -1,7 +1,5 @@
 package database.api;
 
-import database.api.Command;
-
 import java.util.Stack;
 
 public class CommandHistory {
