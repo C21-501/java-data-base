@@ -4,14 +4,24 @@ import database.api.Command;
 import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
 
-public class CreateCommand extends Command {
+import java.util.List;
 
-    public CreateCommand(DatabaseAPI databaseAPI, DatabaseEditor databaseEditor) {
+public class CreateCommand extends Command {
+    private final String tableName;
+    private final List<String> columns;
+
+    public CreateCommand(DatabaseAPI databaseAPI, DatabaseEditor databaseEditor, String tableName, List<String> columns) {
         super(databaseAPI, databaseEditor);
+        this.tableName = tableName;
+        this.columns = columns;
     }
 
     @Override
     public boolean execute() {
-        return false;
+        saveBackup();
+        databaseEditor
+                .getDdlManager()
+                .create(tableName,columns);
+        return true;
     }
 }

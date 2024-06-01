@@ -6,12 +6,16 @@ import database.api.DatabaseEditor;
 
 public class CommitCommand extends Command {
 
-    public CommitCommand(DatabaseAPI databaseAPI, DatabaseEditor databaseEditor) {
+    public CommitCommand(
+            DatabaseAPI databaseAPI,
+            DatabaseEditor databaseEditor
+    ) {
         super(databaseAPI, databaseEditor);
     }
 
     @Override
     public boolean execute() {
+        databaseEditor.getTclManager().commit();
         return false;
     }
 }

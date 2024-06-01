@@ -50,9 +50,9 @@ public class DatabaseEditor {
     public void saveDatabaseState() {
         try {
             databaseSerializer.save(database);
-            System.out.println("Database state saved successfully.");
+//            System.out.println("Database state saved successfully.");
         } catch (IOException e) {
-            System.err.printf("Error while saving database state: %s%n", e.getMessage());
+            throw new RuntimeException(String.format("Error while saving database state: %s%n", e.getMessage()));
         }
     }
 
@@ -63,7 +63,7 @@ public class DatabaseEditor {
                 throw new RuntimeException("Error while restoring database state: database instance is null");
             resetDatabaseInstance();
             this.database = databaseSerializer.read(databasePath, databaseName);
-            System.out.println("Database state restored successfully.");
+//            System.out.println("Database state restored successfully.");
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(String.format("Error while restoring database state: %s%n", e.getMessage()));
         }

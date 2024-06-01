@@ -3,21 +3,34 @@ package database.api.ddl.commands;
 import database.api.Command;
 import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
+import lombok.Data;
+
+import java.util.List;
+
 
 public class AlterCommand extends Command {
     private final String tableName;
-    private final String columnName;
-    private final String newColumnName;
+    private final List<String>[] alterColumns;
 
-    public AlterCommand(DatabaseAPI databaseAPI, DatabaseEditor databaseEditor, String tableName, String columnName, String newColumnName) {
+
+    @SafeVarargs
+    public AlterCommand(
+            DatabaseAPI databaseAPI,
+            DatabaseEditor databaseEditor,
+            String tableName,
+            List<String>... alterColumns
+    ) {
         super(databaseAPI,databaseEditor);
         this.tableName = tableName;
-        this.columnName = columnName;
-        this.newColumnName = newColumnName;
+        this.alterColumns = alterColumns;
     }
 
     @Override
     public boolean execute() {
-        return false;
+        saveBackup();
+        databaseEditor
+                .getDdlManager()
+                .alter(tableName, alterColumns);
+        return true;
     }
 }

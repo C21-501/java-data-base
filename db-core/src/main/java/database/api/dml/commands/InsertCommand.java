@@ -9,10 +9,16 @@ import java.util.List;
 
 class InsertCommand extends Command {
     private final String tableName;
-    private final String[] columns;
+    private final List<String> columns;
     private final List<Object[]> values;
 
-    public InsertCommand(DatabaseAPI databaseAPI, DatabaseEditor databaseEditor, String tableName, String[] columns, List<Object[]> values) {
+    public InsertCommand(
+            DatabaseAPI databaseAPI,
+            DatabaseEditor databaseEditor,
+            String tableName,
+            List<String> columns,
+            List<Object[]> values
+    ) {
         super(databaseAPI, databaseEditor);
         this.tableName = tableName;
         this.columns = columns;
@@ -22,6 +28,9 @@ class InsertCommand extends Command {
     @Override
     public boolean execute() throws IOException {
         saveBackup();
+        databaseEditor
+                .getDmlManager()
+                .insert(tableName, columns, values);
         return true;
     }
 }

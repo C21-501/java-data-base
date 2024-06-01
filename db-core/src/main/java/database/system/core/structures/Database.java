@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serial;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import java.util.TreeMap;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class Database extends DatabaseStructure {
+    @Serial
     private static final long serialVersionUID = 1494292840007224912L;
     private static volatile Database instance;
     private final Map<String, Table> tables = new TreeMap<>();
