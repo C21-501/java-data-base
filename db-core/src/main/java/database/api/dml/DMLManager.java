@@ -32,4 +32,9 @@ public class DMLManager {
         // Логика выборки данных
         return database.select(tableName, columns, condition);
     }
+
+    public Response select(String tableName, List<String> columns) {
+        // Логика выборки данных
+        return database.select(tableName, columns);
+    }
 }

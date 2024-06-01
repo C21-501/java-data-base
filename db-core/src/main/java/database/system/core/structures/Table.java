@@ -5,10 +5,7 @@ import database.system.core.types.DataType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 @EqualsAndHashCode(callSuper = true)
@@ -97,6 +94,39 @@ public class Table extends DatabaseStructure {
         validateColumnName(columnName, columns);
         columns.get(columnName).insert(value);
         return this;
+    }
+
+    public Response select(String tableName, List<String> columnNames) {
+        Response response = new Response(tableName);
+        for (String columnName : columnNames) {
+            Column column = columns.get(columnName);
+            if (column == null) {
+                throw new RuntimeException(String.format("Error: column '%s' does not exist in table '%s'", columnName, tableName));
+            }
+            response.set(columnName, column.selectAll());
+        }
+        return response;
+    }
+
+    public Response select(String tableName, List<String> columnNames, String condition) {
+        String[] parts = parseCondition(condition);
+        validateConditionFormat(parts);
+        String filteredColumnName = parts[0].trim();
+        String operator = parts[1].trim();
+        String value = parts[2].trim();
+        // Получаем предикат для фильтрации строк
+        Predicate<Object> filter = createFilter(filteredColumnName, operator, value);
+        Response response = new Response(tableName);
+        for (String columnName : columnNames) {
+            Column column = columns.get(columnName);
+            if (column == null) {
+                throw new RuntimeException(String.format("Error: column '%s' does not exist in table '%s'", columnName, tableName));
+            }
+            if (filteredColumnName.equals(columnName))
+                response.set(filteredColumnName, column.select(filter));
+            response.set(columnName, column.selectOther(response.get(filteredColumnName)));
+        }
+        return response;
     }
 
     public Table delete(String condition) {

@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Data
 public class FieldBody implements Body {
@@ -46,5 +47,18 @@ public class FieldBody implements Body {
 
     public void removeValuesIf(Predicate<Object> filter) {
         objectList.removeIf(value -> filter.test(value.getObject()));
+    }
+
+    public List<Value> selectValuesIf(Predicate<Object> filter) {
+        return objectList.stream()
+                .filter(object -> filter.test(object.getObject()))
+                .collect(Collectors.toList());
+    }
+
+    public List<Value> selectValuesById(List<Integer> ids) {
+        Set<Integer> idSet = new HashSet<>(ids);
+        return objectList.stream()
+                .filter(value -> idSet.contains(value.getId()))
+                .collect(Collectors.toList());
     }
 }

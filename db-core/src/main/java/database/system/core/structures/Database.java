@@ -172,18 +172,17 @@ public class Database extends DatabaseStructure {
         Table table = tables.get(tableName);
         if (table == null)
             throw new RuntimeException(String.format("Error: table '%s' doesn't exist", tableName));
-
-        Response response = new Response(tableName);
-        for (String columnName : columns) {
-            Column column = table.getColumn(columnName);
-            if (column == null) {
-                throw new RuntimeException(String.format("Error: column '%s' does not exist in table '%s'", columnName, tableName));
-            }
-            response.set(columnName, column.getFieldBody().getValues());
-        }
-        return response;
+        return table.select(tableName, columns, condition);
     }
 
+    public Response select(String tableName, List<String> columns) {
+        validateTableName(tableName);
+        validateNonNull(columns);
+        Table table = tables.get(tableName);
+        if (table == null)
+            throw new RuntimeException(String.format("Error: table '%s' doesn't exist", tableName));
+        return table.select(tableName, columns);
+    }
 
     public void alter(String tableName, List<String>... columnLists) {
         validateTableName(tableName);

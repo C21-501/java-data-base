@@ -43,4 +43,16 @@ public class Column extends DatabaseStructure {
     public void update(Object value, Predicate<Object> filter) {
         fieldBody.updateValueIf(value, filter);
     }
+
+    public List<Value> select(Predicate<Object> filter) {
+        return fieldBody.selectValuesIf(filter);
+    }
+
+    public List<Value> selectOther(List<Value> values) {
+        return fieldBody.selectValuesById(values.stream().map(Value::getId).toList());
+    }
+
+    public List<Value> selectAll() {
+        return fieldBody.getValues();
+    }
 }
