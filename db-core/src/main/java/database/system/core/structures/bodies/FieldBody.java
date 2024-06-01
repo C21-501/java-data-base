@@ -61,4 +61,9 @@ public class FieldBody implements Body {
                 .filter(value -> idSet.contains(value.getId()))
                 .collect(Collectors.toList());
     }
+
+    public void removeValuesById(List<Integer> ids) {
+        Set<Integer> idSet = new HashSet<>(ids);
+        objectList.removeIf(value -> idSet.contains(value.getId()));
+    }
 }

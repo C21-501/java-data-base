@@ -1,18 +1,27 @@
 package database.system.core.structures;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
 public abstract class DatabaseStructure implements Serializable {
+    protected static final long serialVersionUID = 1494292840007224912L;
+    
     protected void validateTableName(String tableName) {
-        if (tableName == null) {
-            throw new NullPointerException("Error: Parameter 'tableName' is null.");
+        if (tableName == null || tableName.isEmpty()) {
+            throw new NullPointerException("Error: Parameter 'tableName' is null or empty.");
         }
     }
 
     protected void validateColumnNames(String[] columnNames) {
         if (columnNames == null || columnNames.length == 0) {
+            throw new IllegalArgumentException("Error: Column names array is null or empty.");
+        }
+    }
+
+    protected void validateColumnNames(List<String> columnNames) {
+        if (columnNames == null || columnNames.isEmpty()) {
             throw new IllegalArgumentException("Error: Column names array is null or empty.");
         }
     }

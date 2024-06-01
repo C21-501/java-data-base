@@ -132,13 +132,22 @@ public class Table extends DatabaseStructure {
     public Table delete(String condition) {
         String[] parts = parseCondition(condition);
         validateConditionFormat(parts);
-        String columnName = parts[0].trim();
+        String filteredColumnName = parts[0].trim();
         String operator = parts[1].trim();
         String value = parts[2].trim();
         // Получаем предикат для фильтрации строк
-        Predicate<Object> filter = createFilter(columnName, operator, value);
-        Column column = columns.get(columnName);
-        column.delete(filter);
+        Predicate<Object> filter = createFilter(filteredColumnName, operator, value);
+        Column filteredColumn = columns.get(filteredColumnName);
+        List<Value> deletedObjects = filteredColumn.select(filter);
+        for (String columnName : columns.keySet()) {
+            Column column = columns.get(columnName);
+            if (column == null) {
+                throw new RuntimeException(String.format("Error: column '%s' does not exist", columnName));
+            }
+            if (filteredColumnName.equals(columnName))
+                column.delete(filter);
+            column.deleteOther(deletedObjects);
+        }
         return this;
     }
 
@@ -157,6 +166,9 @@ public class Table extends DatabaseStructure {
     private String[] parseCondition(String condition) {
         String[] parts = condition.split(" ", 3);
         validateConditionFormat(parts);
+        if (parts.length >= 3) {
+            parts[2] = parts[2].replace("'", ""); // Удаление одиночных кавычек из третьего элемента
+        }
         return parts;
     }
 

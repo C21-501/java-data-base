@@ -16,8 +16,6 @@ import java.util.TreeMap;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class Database extends DatabaseStructure {
-    @Serial
-    private static final long serialVersionUID = 1494292840007224912L;
     private static volatile Database instance;
     private final Map<String, Table> tables = new TreeMap<>();
 
@@ -278,11 +276,13 @@ public class Database extends DatabaseStructure {
     }
 
     public void create(String tableName, List<String> columns) {
+        validateTableName(tableName);
+        validateColumnNames(columns);
         Table table = new Table();
         for (String columnDefinition : columns) {
             String[] parts = parseColumnDefinition(columnDefinition);
             if (parts.length < 2) {
-                throw new IllegalArgumentException(String.format("Error: Invalid column definition: %s", columnDefinition));
+                throw new IllegalArgumentException(String.format("Error: Invalid column definition: %s. Type is necessary.", columnDefinition));
             }
             String columnName = parts[0];
             String columnType = parts[1];
