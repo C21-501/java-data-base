@@ -58,13 +58,14 @@ public class DatabaseEditor {
 
     public void restoreDatabaseState() {
         try {
-            Database tmpDatabase = databaseSerializer.read(databasePath,databaseName);
+            resetDatabaseInstance();
+            Database tmpDatabase = databaseSerializer.read(databasePath, databaseName);
             if (tmpDatabase == null)
                 throw new RuntimeException("Error while restoring database state: database instance is null");
-            resetDatabaseInstance();
-            this.database = databaseSerializer.read(databasePath, databaseName);
+            this.database = tmpDatabase;
 //            System.out.println("Database state restored successfully.");
         } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace(System.err);
             throw new RuntimeException(String.format("Error while restoring database state: %s%n", e.getMessage()));
         }
     }

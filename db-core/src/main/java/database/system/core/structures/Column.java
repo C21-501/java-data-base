@@ -40,6 +40,10 @@ public class Column extends DatabaseStructure {
         fieldBody.removeValuesIf(filter);
     }
 
+    public void deleteOther(List<Value> values) {
+        fieldBody.removeValuesById(values.stream().map(Value::getId).toList());
+    }
+
     public void update(Object value, Predicate<Object> filter) {
         fieldBody.updateValueIf(value, filter);
     }

@@ -7,6 +7,10 @@ import java.io.*;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * The TCLManager class manages Transaction Control Language (TCL) operations on the database.
+ * It provides methods to begin, commit, and rollback transactions, and add commands to a transaction.
+ */
 @Data
 public class TCLManager {
     private Database database;
@@ -14,6 +18,12 @@ public class TCLManager {
     private boolean transactionActive;
     private Queue<Runnable> commandQueue;
 
+    /**
+     * Constructs a new TCLManager instance.
+     *
+     * @param database        the database instance to manage transactions
+     * @param transactionFile the file path for storing transaction backups
+     */
     public TCLManager(Database database, String transactionFile) {
         this.database = database;
         this.transactionFile = transactionFile;
@@ -21,6 +31,11 @@ public class TCLManager {
         this.commandQueue = new LinkedList<>();
     }
 
+    /**
+     * Begins a new transaction.
+     *
+     * @throws RuntimeException if a transaction is already in progress or an error occurs while starting the transaction
+     */
     public void begin() {
         if (transactionActive) {
             throw new RuntimeException("Error: Transaction already in progress.");
@@ -35,6 +50,11 @@ public class TCLManager {
         }
     }
 
+    /**
+     * Commits the current transaction.
+     *
+     * @throws RuntimeException if no active transaction is found or an error occurs while committing the transaction
+     */
     public void commit() {
         if (!transactionActive) {
             throw new RuntimeException("Error: No active transaction to commit.");
@@ -50,12 +70,16 @@ public class TCLManager {
                 System.err.println("Warning: Could not delete transaction backup file.");
             }
             transactionActive = false;
-//            System.out.println("Transaction committed. Changes saved.");
         } catch (Exception e) {
             throw new RuntimeException(String.format("Error while committing transaction: %s%n", e.getMessage()));
         }
     }
 
+    /**
+     * Rolls back the current transaction.
+     *
+     * @throws RuntimeException if no active transaction is found or an error occurs while rolling back the transaction
+     */
     public void rollback() {
         if (!transactionActive) {
             throw new RuntimeException("Error: No active transaction to roll back.");
@@ -65,12 +89,17 @@ public class TCLManager {
             Database backupDatabase = (Database) ois.readObject();
             database.restore(backupDatabase); // Assuming restore method exists in Database class
             transactionActive = false;
-//            System.out.println("Transaction rolled back. Database state restored.");
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(String.format("Error while rolling back transaction: %s%n", e.getMessage()));
         }
     }
 
+    /**
+     * Adds a command to the current transaction.
+     *
+     * @param command the command to be added to the transaction
+     * @throws RuntimeException if no active transaction is found
+     */
     public void addCommand(Runnable command) {
         if (!transactionActive) {
             throw new RuntimeException("Error: No active transaction. Cannot add command.");
