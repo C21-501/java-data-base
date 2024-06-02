@@ -141,8 +141,29 @@ public class SQLListener extends SQLGrammarBaseListener {
 
         for(var i : ctx.createTableStatement().columnDefinition()){
             String constraint = null;
-            if(i.columnConstraint() != null){
-                constraint = i.columnConstraint().getText();
+            List<Expression> expressions = new ArrayList<>();
+            List<String> logicalOperator = new ArrayList<>();
+
+            if(i.columnConstraint() != null) {
+
+                if(i.columnConstraint().check() != null) {
+                    constraint = "CHECK";
+
+                    for(var j : i.columnConstraint().check().condition().expression()){
+                        expressions.add(new Expression(j.columnName.getText(),j.comparisonOperator().getText(),j.value.getText()));
+                    }
+                    for(var j : i.columnConstraint().check().condition().logicalOperator()){
+                        logicalOperator.add(j.getText());
+                    }
+
+                } else if(i.columnConstraint().foreignKey() != null) {
+                    constraint = "REFERENCES";
+                    String foreignTableName = i.columnConstraint().foreignKey().tableName.getText();
+                    String foreignColumnName = i.columnConstraint().foreignKey().columnName.getText();
+
+                } else {
+                    constraint = i.columnConstraint().getText();
+                }
             }
             columnsToAdd.add(new ColumnDefinition(i.columnName.getText(),i.dataType().getText(),constraint));
         }
