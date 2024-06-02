@@ -1,83 +1,80 @@
 
-
 ```
-DatabaseProject/
+│   README.md                                       - Основной файл с описанием проекта
 │
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   ├── databaseScheme/
-│   │   │   │   ├── core/
-│   │   │   │   │   ├── Database.java        // Singleton для управления экземпляром базы данных
-│   │   │   │   │   ├── Table.java          // Composite для управления структурой таблиц
-│   │   │   │   │   ├── Record.java         // Data Transfer Object для представления записей
-│   │   │   │   │   └── Column.java         // Data Transfer Object для столбцов
-│   │   │   │   │
-│   │   │   │   ├── parser/
-│   │   │   │   │   ├── SQLParser.java      // Interpreter для разбора SQL запросов
-│   │   │   │   │   ├── Query.java          // Command для представления выполнимых запросов
-│   │   │   │   │   └── Tokenizer.java      // Strategy для различных методов токенизации
-│   │   │   │   │
-│   │   │   │   ├── api/
-│   │   │   │   │   ├── DatabaseAPI.java    // Facade для предоставления простого API
-│   │   │   │   │   └── CLI.java            // Command Line Interface использующий Facade
-│   │   │   │   │
-│   │   │   │   ├── storage/
-│   │   │   │   │   ├── DataManager.java    // Singleton для управления файлами данных
-│   │   │   │   │   ├── Serializer.java     // Strategy для сериализации объектов
-│   │   │   │   │   └── Deserializer.java   // Strategy для десериализации данных
-│   │   │   │   │
-│   │   │   │   ├── transaction/
-│   │   │   │   │   ├── TransactionManager.java // State для управления состояниями транзакций
-│   │   │   │   │   └── TransactionLog.java     // Observer для логирования изменений
-│   │   │   │   │
-│   │   │   │   ├── indexing/
-│   │   │   │   │   ├── IndexManager.java   // Singleton для управления индексами
-│   │   │   │   │   └── BTreeIndex.java     // Adapter для адаптации B-дерева под нужды индексации
-│   │   │   │   │
-│   │   │   │   └── utils/
-│   │   │   │       ├── ConfigLoader.java   // Singleton для загрузки конфигураций
-│   │   │   │       └── Logger.java         // Singleton для логирования
-│   │   │   │
-│   │   ├── resources/
-│   │   │   └── config.properties           // Файл конфигурации
+├───api                                            - Пакет содержащий классы для взаимодействия с API базы данных
+│   │   Command.java                               - Класс для выполнения команд в рамках базы данных
+│   │   CommandHistory.java                         - Класс для хранения истории выполненных команд
+│   │   DatabaseAPI.java                            - Класс для взаимодействия с базой данных через API
+│   │   DatabaseEditor.java                         - Класс для редактирования базы данных
+│   │
+│   ├───ddl                                        - Пакет содержащий классы для операций DDL (Data Definition Language)
+│   │   │   DDLManager.java                         - Класс для управления DDL-операциями в базе данных
 │   │   │
-│   ├── test/
-│   │   ├── java/
-│   │   │   ├── databaseScheme/
-│   │   │   │   ├── core/
-│   │   │   │   │   ├── DatabaseTest.java
-│   │   │   │   │   ├── TableTest.java
-│   │   │   │   │   └── RecordTest.java
-│   │   │   │   │
-│   │   │   │   ├── parser/
-│   │   │   │   │   ├── SQLParserTest.java
-│   │   │   │   │   └── TokenizerTest.java
-│   │   │   │   │
-│   │   │   │   ├── api/
-│   │   │   │   │   └── DatabaseAPITest.java
-│   │   │   │   │
-│   │   │   │   ├── storage/
-│   │   │   │   │   ├── DataManagerTest.java
-│   │   │   │   │   ├── SerializerTest.java
-│   │   │   │   │   └── DeserializerTest.java
-│   │   │   │   │
-│   │   │   │   ├── transaction/
-│   │   │   │   │   ├── TransactionManagerTest.java
-│   │   │   │   │   └── TransactionLogTest.java
-│   │   │   │   │
-│   │   │   │   ├── indexing/
-│   │   │   │   │   ├── IndexManagerTest.java
-│   │   │   │   │   └── BTreeIndexTest.java
-│   │   │   │   │
-│   │   │   │   └── utils/
-│   │   │   │       ├── ConfigLoaderTest.java
-│   │   │   │       └── LoggerTest.java
-│   │   │   │
-│   │   ├── resources/
-│   │   │   └── testdata/
+│   │   └───commands                               - Пакет содержащий команды DDL
+│   │           AlterCommand.java                   - Команда для изменения структуры таблицы
+│   │           CreateCommand.java                  - Команда для создания новой таблицы
+│   │           DropCommand.java                    - Команда для удаления таблицы
+│   │
+│   ├───dml                                        - Пакет содержащий классы для операций DML (Data Manipulation Language)
+│   │   │   DMLManager.java                         - Класс для управления DML-операциями в базе данных
 │   │   │
-├── docs/
-│   ├── README.md
-│   └── API.md
+│   │   └───commands                               - Пакет содержащий команды DML
+│   │           DeleteCommand.java                  - Команда для удаления данных из таблицы
+│   │           InsertCommand.java                  - Команда для вставки данных в таблицу
+│   │           SelectCommand.java                  - Команда для выборки данных из таблицы
+│   │           UpdateCommand.java                  - Команда для обновления данных в таблице
+│   │
+│   └───tcl                                        - Пакет содержащий классы для управления транзакциями в базе данных
+│       │   TCLManager.java                         - Класс для управления транзакциями
+│       │
+│       └───commands                               - Пакет содержащий команды управления транзакциями
+│               BeginCommand.java                   - Команда для начала транзакции
+│               CommitCommand.java                  - Команда для подтверждения транзакции
+│               RollBackCommand.java                - Команда для отмены транзакции
+│
+└───system                                         - Пакет содержащий системные классы базы данных
+    └───core                                     
+        ├───constraints                          - Пакет содержащий классы для работы с ограничениями в базе данных
+        │       ConstraintEnum.java             - Перечисление типов ограничений
+        │       ConstraintManager.java          - Класс для управления ограничениями
+        │
+        ├───interfaces                          - Пакет содержащий интерфейсы для работы с ограничениями
+        │       Constraint.java                 - Интерфейс для ограничений
+        │       Listener.java                   - Интерфейс слушателя событий
+        │       Observed.java                   - Интерфейс для наблюдаемых объектов
+        │
+        └───listeners                           - Пакет содержащий слушателей событий ограничений
+        │       CheckConstraint.java             - Слушатель для ограничений типа CHECK
+        │       ForeignKeyConstraint.java       - Слушатель для ограничений типа FOREIGN KEY
+        │       NotNullConstraint.java          - Слушатель для ограничений типа NOT NULL
+        │       PrimaryKeyConstraint.java       - Слушатель для ограничений типа PRIMARY KEY
+        │       UniqueConstraint.java           - Слушатель для ограничений типа UNIQUE
+        │
+        ├───managers                            - Пакет содержащий менеджеры базы данных
+        │   │   DatabaseSerializer.java         - Класс для сериализации базы данных
+        │   │   Serializer.java                 - Класс для сериализации объектов
+        │   │
+        │   └───utils                          -
+        │           Insertion.java              - Класс для вставки данных в базу данных
+        │
+        ├───structures                        - Пакет содержащий основные структуры данных базы данных
+        │   │   Column.java                   - Класс, представляющий столбец таблицы
+        │   │   Database.java                 - Класс, представляющий базу данных
+        │   │   DatabaseStructure.java        - Класс, описывающий структуру базы данных
+        │   │   Response.java                 - Класс, представляющий ответ от базы данных
+        │   │   Table.java                    - Класс, представляющий таблицу в базе данных
+        │   │   Value.java                    - Класс, представляющий значение в таблице
+        │   │
+        │   ├───bodies                        - Пакет содержащий тела данных таблицы
+        │   │       Body.java                 - Класс, представляющий тело данных
+        │   │       FieldBody.java            - Класс, представляющий тело поля данных
+        │   │
+        │   └───schemes                       - Пакет содержащий схемы данных таблицы
+        │           FieldScheme.java          - Класс, представляющий схему поля данных
+        │           Scheme.java               - Класс, представляющий схему данных
+        │
+        └───types                             - Пакет содержащий типы данных
+                DataType.java                - Перечисление типов данных
+
 ```

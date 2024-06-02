@@ -7,6 +7,9 @@ import database.api.dml.commands.DeleteCommand;
 import database.api.dml.commands.InsertCommand;
 import database.api.dml.commands.SelectCommand;
 import database.api.dml.commands.UpdateCommand;
+import database.api.tcl.commands.BeginCommand;
+import database.api.tcl.commands.CommitCommand;
+import database.api.tcl.commands.RollBackCommand;
 import database.system.core.structures.Response;
 import lombok.Data;
 
@@ -62,7 +65,8 @@ public class DatabaseAPI {
      *                     </ol>
      * @throws IOException if an I/O error occurs during the execution
      */
-    synchronized public void alter(String tableName, List<String>... alterColumns) throws IOException {
+    @SafeVarargs
+    final synchronized public void alter(String tableName, List<String>... alterColumns) throws IOException {
         executeCommand(new AlterCommand(this, activeEditor, tableName, alterColumns));
     }
 
@@ -134,6 +138,34 @@ public class DatabaseAPI {
     synchronized public void update(String tableName, Object value, String condition) throws IOException {
         executeCommand(new UpdateCommand(this, activeEditor, tableName, value, condition));
     }
+
+    /**
+     * Begins a new transaction by executing the BeginCommand.
+     *
+     * @throws IOException if an I/O error occurs during the execution
+     */
+    synchronized public void begin() throws IOException {
+        executeCommand(new BeginCommand(this, activeEditor));
+    }
+
+    /**
+     * Commits the current transaction by executing the CommitCommand.
+     *
+     * @throws IOException if an I/O error occurs during the execution
+     */
+    synchronized public void commit() throws IOException {
+        executeCommand(new CommitCommand(this, activeEditor));
+    }
+
+    /**
+     * Rolls back the current transaction by executing the RollBackCommand.
+     *
+     * @throws IOException if an I/O error occurs during the execution
+     */
+    synchronized public void rollback() throws IOException {
+        executeCommand(new RollBackCommand(this, activeEditor));
+    }
+
 
     private void executeCommand(Command command) throws IOException {
         if (command.execute()) {
