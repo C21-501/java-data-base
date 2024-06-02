@@ -8,9 +8,17 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * SQLListener is an implementation of the SQLGrammarBaseListener that handles
+ * various SQL commands such as ALTER, CREATE, DROP, INSERT, DELETE, SELECT, UPDATE,
+ * BEGIN, COMMIT, and ROLLBACK. It logs the start and success of each command execution.
+ */
 public class SQLListener extends SQLGrammarBaseListener {
     private static final Logger logger = LogManager.getLogger(SQLListener.class);
 
+    /**
+     * Represents the definition of a column in a table.
+     */
     private record ColumnDefinition(
         String name,
         String dataType,
@@ -18,13 +26,15 @@ public class SQLListener extends SQLGrammarBaseListener {
     ){
     }
 
+    /**
+     * Represents an expression in a SQL command.
+     */
     private record Expression(
         String columnName,
         String operator,
         String value
     ){
     }
-
     @Override
     public void exitAlterDbCommand(SQLGrammarParser.AlterDbCommandContext ctx) {
         String dbName = ctx.dbName.getText();

@@ -8,10 +8,20 @@ import org.antlr.v4.runtime.CommonTokenStream;
 
 import java.io.IOException;
 
+/**
+ * The Scanner class provides methods to read and parse SQL commands from a file or from the command line.
+ * It utilizes ANTLR for lexical and syntactic analysis of SQL commands.
+ */
 public class Scanner {
 
     private static final java.util.Scanner in = new java.util.Scanner(System.in);
 
+    /**
+     * Reads SQL commands from a file and parses them.
+     *
+     * @param fileName the name of the file containing SQL commands.
+     * @throws IOException if an I/O error occurs when reading the file.
+     */
     public static void readCommandsFromFile(String fileName) throws IOException {
         CharStream stream = CharStreams.fromFileName(fileName);
         SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
@@ -25,6 +35,10 @@ public class Scanner {
         }
     }
 
+    /**
+     * Reads SQL commands from the command line until the user enters ":q".
+     * Parses the accumulated commands.
+     */
     public static void readCommandsFromCommandLine() {
         StringBuilder commands = new StringBuilder();
         String line = in.next();
