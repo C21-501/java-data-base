@@ -256,4 +256,16 @@ public interface SQLGrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitColumnConstraint(SQLGrammarParser.ColumnConstraintContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SQLGrammarParser#check}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCheck(SQLGrammarParser.CheckContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SQLGrammarParser#foreignKey}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitForeignKey(SQLGrammarParser.ForeignKeyContext ctx);
 }

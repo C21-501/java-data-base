@@ -57,15 +57,19 @@ condition: expression (logicalOperator expression)*;
 expression: columnName=IDENTIFIER comparisonOperator value=literal;
 
 // Литералы
-literal: INT | STRING | FLOAT;
+literal: INTEGER | STRING | REAL | BOOLEAN;
 
 // Идентификаторы
 IDENTIFIER: [a-zA-Z_] [a-zA-Z0-9_]*;
 
 // Терминалы
-INT: [1-9] [0-9]*;
+INTEGER: '-'? NON_ZERO_DIGIT DIGIT* | '0';
 STRING: '\'' .*? '\'';
-FLOAT: [1-9] [0-9]* '.' [0-9]+;
+REAL: '-'? NON_ZERO_DIGIT DIGIT* '.' DIGIT+ | '0' '.' DIGIT+;
+BOOLEAN: 'TRUE' | 'FALSE';
+DIGIT: [0-9];
+NON_ZERO_DIGIT: [1-9];
+
 logicalOperator: 'AND' | 'OR';
 comparisonOperator: '=' | '<>' | '<' | '>' | '<=' | '>=';
 WS: [ \t\r\n]+ -> skip;
@@ -83,5 +87,8 @@ dropColumnStatement: 'DROP' 'COLUMN' columnName=IDENTIFIER;
 // Реализация поддержки команд CREATE TABLE
 createTableStatement: '(' columnDefinition (',' columnDefinition)* ')';
 columnDefinition: columnName=IDENTIFIER dataType columnConstraint?;
-dataType: 'numeric' | 'bigint' | 'text';
-columnConstraint: 'PRIMARY KEY' | 'NOT NULL' | 'UNIQUE';
+dataType: 'INTEGER' | 'REAL' | 'STRING' | 'BOOLEAN';
+columnConstraint: check | foreignKey |'PRIMARY KEY' | 'NOT NULL' | 'UNIQUE';
+check: 'CHECK' '('condition')';
+foreignKey: 'REFERENCES' tableName=IDENTIFIER '(' columnName=IDENTIFIER ')';
+

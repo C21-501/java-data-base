@@ -504,6 +504,30 @@ public class SQLGrammarBaseListener implements SQLGrammarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitColumnConstraint(SQLGrammarParser.ColumnConstraintContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCheck(SQLGrammarParser.CheckContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCheck(SQLGrammarParser.CheckContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterForeignKey(SQLGrammarParser.ForeignKeyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitForeignKey(SQLGrammarParser.ForeignKeyContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

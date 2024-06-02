@@ -417,4 +417,24 @@ public interface SQLGrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitColumnConstraint(SQLGrammarParser.ColumnConstraintContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SQLGrammarParser#check}.
+	 * @param ctx the parse tree
+	 */
+	void enterCheck(SQLGrammarParser.CheckContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SQLGrammarParser#check}.
+	 * @param ctx the parse tree
+	 */
+	void exitCheck(SQLGrammarParser.CheckContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SQLGrammarParser#foreignKey}.
+	 * @param ctx the parse tree
+	 */
+	void enterForeignKey(SQLGrammarParser.ForeignKeyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SQLGrammarParser#foreignKey}.
+	 * @param ctx the parse tree
+	 */
+	void exitForeignKey(SQLGrammarParser.ForeignKeyContext ctx);
 }
