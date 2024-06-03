@@ -94,11 +94,15 @@ public class DatabaseAPITest {
     @Test
     public void test_select_records_with_valid_columns_and_condition() throws IOException {
         databaseAPI.setHistory(new CommandHistory());
-        List<String> columns = List.of("id INTEGER", "name STRING");
-        List<Object[]> values = List.of(new Object[]{1, "John"}, new Object[]{2, "Jane"});
+        List<String> columns = List.of("id INTEGER", "name STRING", "surname STRING", "salary INTEGER", "is_boss BOOLEAN");
+        List<Object[]> values = List.of(
+                new Object[]{1, "John", "Doe", 50000, false},
+                new Object[]{2, "Jane", "Smith", 60000, true}
+        );
         databaseAPI.create("testTable", columns);
-        columns = List.of("id", "name");
+        columns = List.of("id", "name", "surname", "salary", "is_boss");
         databaseAPI.insert("testTable", columns, values);
+        columns = List.of("id", "name", "surname", "is_boss");
         Response result = databaseAPI.getActiveEditor().getDmlManager().select("testTable", columns, "id = 1");
         result.printTable();
         assertEquals(1, result.getResponseMap().get("id").size());

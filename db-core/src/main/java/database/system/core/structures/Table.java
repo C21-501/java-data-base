@@ -11,7 +11,7 @@ import java.util.function.Predicate;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class Table extends DatabaseStructure {
-    private Map<String, Column> columns = new HashMap<>();
+    private Map<String, Column> columns = new TreeMap<>();
     private Set<Constraint> constraintSet = new HashSet<>();
 
     public Column getColumn(String columnName) {
@@ -97,7 +97,7 @@ public class Table extends DatabaseStructure {
     }
 
     public Response select(String tableName, List<String> columnNames) {
-        Response response = new Response(tableName);
+        Response response = new Response(tableName, columnNames);
         for (String columnName : columnNames) {
             Column column = columns.get(columnName);
             if (column == null) {
@@ -116,7 +116,7 @@ public class Table extends DatabaseStructure {
         String value = parts[2].trim();
         // Получаем предикат для фильтрации строк
         Predicate<Object> filter = createFilter(filteredColumnName, operator, value);
-        Response response = new Response(tableName);
+        Response response = new Response(tableName, columnNames);
         for (String columnName : columnNames) {
             Column column = columns.get(columnName);
             if (column == null) {

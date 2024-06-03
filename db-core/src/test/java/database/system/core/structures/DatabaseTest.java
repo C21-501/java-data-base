@@ -78,7 +78,7 @@ public class DatabaseTest {
                 .createColumn("column2", DataType.STRING);
 
         assertThrows(RuntimeException.class, () -> {
-            database.selectFrom("test_table", new String[]{"column3"});
+            database.select("test_table", List.of("column3"));
         });
     }
 
@@ -152,7 +152,7 @@ public class DatabaseTest {
         database.insertInto("table1", new String[]{"column1", "column2"}, new Object[]{1, "value1"})
                 .insertInto("table1", new String[]{"column1", "column2"}, new Object[]{2, "value2"});
 
-        Response response = database.selectFrom("table1", new String[]{"column1", "column2"});
+        Response response = database.select("table1", List.of("column1", "column2"));
         assertNotNull(response);
         assertEquals("table1", response.getTableName());
         assertEquals(1, response.get("column1", 0));
@@ -172,7 +172,7 @@ public class DatabaseTest {
         database.createTable("table1", table);
         database.update("table1", 20, "column1 > 10");
 
-        Response response = database.selectFrom("table1", new String[]{"column1"});
+        Response response = database.selectFrom("table1", List.of("column1"));
         assertEquals(20, response.get("column1", 0));
         assertEquals(20, response.get("column1", 1));
     }
@@ -204,7 +204,7 @@ public class DatabaseTest {
 
         database.delete("test_table", "column1 > 1");
 
-        Response response = database.selectFrom("test_table", new String[]{"column1", "column2"});
+        Response response = database.selectFrom("test_table", List.of("column1", "column2"));
         List<Value> column1Values = response.get("column1");
         List<Value> column2Values = response.get("column2");
 
@@ -235,7 +235,7 @@ public class DatabaseTest {
         database.insertInto("users", "id", idValues);
         database.insertInto("users", "name", nameValues);
 
-        Response response = database.selectFrom("users", new String[]{"id", "name"});
+        Response response = database.selectFrom("users", List.of("id", "name"));
         assertEquals(3, response.get("id", 2));
         assertEquals("Bob", response.get("name", 1));
     }
@@ -285,6 +285,15 @@ public class DatabaseTest {
         assertTrue(database.getTable("test_table").get().contains("column1"));
         assertFalse(database.getTable("test_table").get().contains("column2"));
         assertTrue(database.getTable("test_table").get().contains("column3"));
+    }
+
+    @Test
+    public void test_rename_existing_table() {
+        Database db = Database.getInstance();
+        db.createTable("oldTable");
+        db.alter("oldTable", "newTable");
+        assertTrue(db.containsTable("newTable"));
+        assertFalse(db.containsTable("oldTable"));
     }
 
     // Check behavior when inserting null or invalid data types into columns
