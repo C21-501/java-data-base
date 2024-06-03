@@ -12,7 +12,6 @@ import database.api.tcl.commands.CommitCommand;
 import database.api.tcl.commands.RollBackCommand;
 import database.system.core.structures.Response;
 import lombok.Data;
-import lombok.Synchronized;
 
 import java.io.IOException;
 import java.util.List;

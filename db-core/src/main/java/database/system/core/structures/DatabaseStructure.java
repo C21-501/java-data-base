@@ -51,7 +51,7 @@ public abstract class DatabaseStructure implements Serializable {
 
     protected void validateNonNull(Object obj) {
         if (obj == null) {
-            throw new NullPointerException(String.format("Error: Parameter '%s' is null.", obj.getClass().getSimpleName()));
+            throw new NullPointerException(String.format("Error: Parameter is '%s'", obj));
         }
     }
 }

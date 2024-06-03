@@ -30,6 +30,28 @@ public class DatabaseAPITest {
         databaseAPI.getActiveEditor().resetDatabaseInstance();
     }
     
+    @Test
+    public void test_example_with_all_commands() throws IOException {
+        // Create a new table named "employees" with columns "id INTEGER", "name STRING", "age INTEGER"
+        databaseAPI.create("employees", List.of("id INTEGER", "name STRING", "age INTEGER"));
+        // Insert records into the "employees" table
+        List<Object[]> values = List.of(
+                new Object[]{1, "John", 30},
+                new Object[]{2, "Alice", 25}
+        );
+        databaseAPI.insert("employees", List.of("id", "name", "age"), values);
+        // Select all records from the "employees" table
+        databaseAPI.select("employees", List.of("id", "name", "age"));
+        // Begin a new transaction
+        databaseAPI.begin();
+        // Update the age of employee with id 1 to 32
+        databaseAPI.update("employees", 32, "id = 1");
+        // Commit the transaction
+        databaseAPI.commit();
+        // Drop the "employees" table
+        databaseAPI.drop("employees");
+    }
+
     // Successfully create a new table with valid table name and columns
     @Test
     public void test_create_table_with_valid_name_and_columns() throws IOException {
