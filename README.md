@@ -37,6 +37,8 @@ GitHub: Hosting platform for collaboration and project management.
 
 ## Explanatory notes for the modules
 [Database core](https://docs.google.com/document/d/1mEagP_lLkA7tbYHyWw0xqeE6vxl67B6L7ZzAlWGvlOg/edit#heading=h.2s8eyo1)
+[ТЗ](https://docs.google.com/document/d/1VI3wjliWXxzFRfSBirpewThKCJBZNnHxIZp_AxO7HeY/edit?usp=sharing)
+[ПЗ](https://docs.google.com/document/d/1m2iKHKEmcJidD2r4rYCXnRJpH4Lz4xY9gxQaMaP0CYY/edit?usp=sharing)
 
 
 ## How to Contribute
