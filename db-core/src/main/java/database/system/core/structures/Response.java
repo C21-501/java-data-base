@@ -3,10 +3,7 @@ package database.system.core.structures;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -18,18 +15,40 @@ import java.util.stream.Collectors;
 public class Response implements Serializable {
     private String tableName;
     private Map<String, List<Value>> responseMap = new TreeMap<>();
+    private Set<String> responseColumnsOrder = new LinkedHashSet<>();
 
-    public Response(String tableName) {
+    /**
+     * Constructs a new Response object with the specified table name and column names.
+     *
+     * @param tableName   The name of the table.
+     * @param columnNames The list of column names in the table.
+     * @throws NullPointerException if tableName is null or empty.
+     */
+    public Response(String tableName, List<String> columnNames) {
         if (tableName == null || tableName.isEmpty()) {
             throw new NullPointerException("Table name cannot be null or empty");
         }
         this.tableName = tableName;
+        this.responseColumnsOrder.addAll(columnNames);
     }
 
-    public void set(String columnName, List<Value> objects){
-        responseMap.put(columnName,objects);
+    /**
+     * Sets the values for the specified column.
+     *
+     * @param columnName The name of the column.
+     * @param objects    The list of values for the column.
+     */
+    public void set(String columnName, List<Value> objects) {
+        responseMap.put(columnName, objects);
     }
 
+    /**
+     * Sets the values for the specified column, applying the given predicate.
+     *
+     * @param columnName The name of the column.
+     * @param objects    The list of values for the column.
+     * @param predicate  The predicate to filter the values.
+     */
     public void set(String columnName, List<Value> objects, Predicate<Object> predicate) {
         List<Value> filteredObjects = objects.stream()
                 .filter(predicate)
@@ -37,22 +56,40 @@ public class Response implements Serializable {
         responseMap.put(columnName, filteredObjects);
     }
 
+    /**
+     * Retrieves the list of values for the specified column.
+     *
+     * @param columnName The name of the column.
+     * @return The list of values for the column.
+     * @throws IndexOutOfBoundsException if the column name is invalid.
+     */
     public List<Value> get(String columnName) {
         List<Value> values = responseMap.get(columnName);
         if (values == null) {
-            throw new IndexOutOfBoundsException(STR."Invalid name of column: \{columnName}");
+            throw new IndexOutOfBoundsException(String.format("Invalid name of column: %s", columnName));
         }
         return values;
     }
 
+    /**
+     * Retrieves the value at the specified index for the specified column.
+     *
+     * @param columnName The name of the column.
+     * @param index      The index of the value.
+     * @return The value at the specified index.
+     * @throws IndexOutOfBoundsException if the column name is invalid or the index is out of bounds.
+     */
     public Object get(String columnName, int index) {
         List<Value> values = responseMap.get(columnName);
         if (values == null || index >= values.size()) {
-            throw new IndexOutOfBoundsException(STR."Invalid index for column: \{columnName}");
+            throw new IndexOutOfBoundsException(String.format("Invalid index for column: %s", columnName));
         }
         return values.get(index).getObject();
     }
 
+    /**
+     * Prints the table with formatted columns and values.
+     */
     public void printTable() {
         // Calculate the maximum number of rows
         System.out.println(tableName);
@@ -63,7 +100,7 @@ public class Response implements Serializable {
 
         // Calculate the maximum width for each column
         Map<String, Integer> columnWidths = new HashMap<>();
-        for (String columnName : responseMap.keySet()) {
+        for (String columnName : responseColumnsOrder) {
             int maxWidth = columnName.length();
             for (Value value : responseMap.get(columnName)) {
                 int length = value.getObject().toString().length();
@@ -80,32 +117,32 @@ public class Response implements Serializable {
 
         // Print the column headers
         printSeparator(totalWidth);
-        for (String columnName : responseMap.keySet()) {
+        for (String columnName : responseColumnsOrder) {
             int width = columnWidths.get(columnName);
-            System.out.printf(STR."| %-\{width}s ", columnName);
+            System.out.printf("| %%-%ds ".formatted(width), columnName);
         }
         System.out.println("|");
         printSeparator(totalWidth);
 
         // Print the rows
         for (int i = 0; i < maxRows; i++) {
-            for (String columnName : responseMap.keySet()) {
+            for (String columnName : responseColumnsOrder) {
                 List<Value> values = responseMap.get(columnName);
                 int width = columnWidths.get(columnName);
                 if (i < values.size()) {
                     String value = values.get(i).getObject().toString();
-                    System.out.printf(STR."| %-\{width}s ", center(value, width));
+                    System.out.printf("| %%-%ds ".formatted(width), center(value, width));
                 } else {
-                    System.out.printf(STR."| %-\{width}s ", center("", width));
+                    System.out.printf("| %%-%ds ".formatted(width), center("", width));
                 }
             }
             System.out.println("|");
+            printSeparator(totalWidth);
         }
-        printSeparator(totalWidth);
     }
 
     private void printSeparator(int width) {
-        System.out.println("-".repeat(width));
+        System.out.printf("+%s+%n", "-".repeat(width - 2));
     }
 
     private String center(String text, int width) {

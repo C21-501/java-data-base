@@ -42,6 +42,10 @@ public class DDLManager {
         database.alter(tableName, alterColumns);
     }
 
+    public void alter(String tableName, String newTableName) {
+        database.alter(tableName, newTableName);
+    }
+
     /**
      * Drops (deletes) a table from the database.
      *

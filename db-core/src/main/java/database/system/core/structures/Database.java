@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.Serial;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -129,13 +128,13 @@ public class Database extends DatabaseStructure {
         return this;
     }
 
-    public Response selectFrom(String tableName, String[] columnNames) {
+    public Response selectFrom(String tableName, List<String> columnNames) {
         validateTableName(tableName);
         validateColumnNames(columnNames);
         Table table = tables.get(tableName);
         if (table == null)
             throw new RuntimeException(String.format("Error: table '%s' doesn't not exist", tableName));
-        Response response = new Response(tableName);
+        Response response = new Response(tableName, columnNames);
         for (String columnName : columnNames) {
             Column column = table.getColumn(columnName);
             if (column == null) {
@@ -376,5 +375,11 @@ public class Database extends DatabaseStructure {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
             oos.writeObject(this);
         }
+    }
+
+    public void alter(String tableName, String newTableName) {
+        validateTableName(tableName);
+        validateTableName(newTableName);
+        tables.put(newTableName, tables.remove(tableName));
     }
 }

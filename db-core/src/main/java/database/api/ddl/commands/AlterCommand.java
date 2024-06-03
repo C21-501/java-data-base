@@ -13,6 +13,7 @@ import java.util.List;
 public class AlterCommand extends Command {
     private final String tableName;
     private final List<String>[] alterColumns;
+    private String newTableName = null;
 
     /**
      * Constructs a new AlterCommand instance.
@@ -34,6 +35,18 @@ public class AlterCommand extends Command {
         this.alterColumns = alterColumns;
     }
 
+    public AlterCommand(
+            DatabaseAPI databaseAPI,
+            DatabaseEditor databaseEditor,
+            String tableName,
+            String newTableName
+    ) {
+        super(databaseAPI, databaseEditor);
+        this.tableName = tableName;
+        this.newTableName = newTableName;
+        this.alterColumns = null;
+    }
+
     /**
      * Executes the alter command.
      * Saves a backup before performing the alteration using the database editor's DDL manager.
@@ -43,9 +56,10 @@ public class AlterCommand extends Command {
     @Override
     public boolean execute() {
         saveBackup();
-        databaseEditor
-                .getDdlManager()
-                .alter(tableName, alterColumns);
+        if (this.newTableName==null)
+            databaseEditor.getDdlManager().alter(tableName, alterColumns);
+        else
+            databaseEditor.getDdlManager().alter(tableName, newTableName);
         return true;
     }
 }
