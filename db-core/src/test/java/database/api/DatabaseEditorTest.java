@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -145,12 +146,43 @@ public class DatabaseEditorTest {
      */
     @Test
     public void test_handling_large_volumes_of_data_efficiently() {
-        // Create a large volume of data to test efficiency
-        // Perform operations on the DatabaseEditor with the large volume of data
-        // Assert the efficiency of handling the large volume of data
-    }
+        // Создание большого объема данных для тестирования эффективности
+        List<Object[]> largeData = new ArrayList<>();
+        int largeVolume = 100000; // Количество записей
+        for (int i = 0; i < largeVolume; i++) {
+            largeData.add(new Object[]{i, "Name_%d".formatted(i)});
+        }
 
-    // Ensuring proper cleanup of temporary transaction files
+        // Операции с большим объемом данных
+        long startTime = System.currentTimeMillis();
+
+        editor.getDdlManager().create("large_table", List.of("id INTEGER", "name STRING"));
+        editor.getDmlManager().insert("large_table", List.of("id", "name"), largeData);
+
+        long insertTime = System.currentTimeMillis();
+        System.out.printf("Insertion time for %d records: %d ms%n", largeVolume, insertTime - startTime);
+
+        Response response = editor.getDmlManager().select("large_table", List.of("id", "name"), "id < 10");
+        response.printTable();
+
+        long selectTime = System.currentTimeMillis();
+        System.out.printf("Selection time for %d records: %d ms%n", largeVolume, selectTime - insertTime);
+
+        // Убедиться, что выборка верна
+        assertEquals(1, response.getResponseMap().size() / 2); // 10 записей для "id" и "name"
+        for (int i = 0; i < 10; i++) {
+            assertEquals(i, response.get("id", i));
+            assertEquals("Name_%d".formatted(i), response.get("name", i));
+        }
+
+        // Вывод общей длительности операций
+        long endTime = System.currentTimeMillis();
+        System.out.printf("Total time for handling large volume of data: %d ms%n", endTime - startTime);
+
+        // Добавить утверждение о максимальной длительности операции для эффективности (например, менее 5 секунд)
+        assertTrue((endTime - startTime) < 5000, "Handling large volume of data took too long");
+    }
+        // Ensuring proper cleanup of temporary transaction files
     @Test
     public void test_ensuring_proper_cleanup_of_temporary_transaction_files() {
         editor.saveDatabaseState();
@@ -177,7 +209,7 @@ public class DatabaseEditorTest {
         editor.getTclManager().commit();
 
         // Validate data integrity
-        Response response = editor.getDmlManager().select("1_table", Arrays.asList("id", "name"), "");
+        Response response = editor.getDmlManager().select("1_table", Arrays.asList("id", "name"));
         response.printTable();
         assertEquals(2, response.getResponseMap().size());
         assertEquals(3, response.get("id",0));

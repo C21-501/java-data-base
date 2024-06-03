@@ -168,8 +168,8 @@ public class DatabaseTest {
         table.createColumn("column1", DataType.INTEGER);
         table.insert("column1", 11);
         table.insert("column1", 12);
-        database.createTable("table1", table);
 
+        database.createTable("table1", table);
         database.update("table1", 20, "column1 > 10");
 
         Response response = database.selectFrom("table1", new String[]{"column1"});
