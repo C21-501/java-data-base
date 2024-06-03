@@ -66,8 +66,10 @@ public class SelectCommand extends Command {
      */
     @Override
     public boolean execute() {
-        if (condition == null) databaseEditor.getDmlManager().select(tableName, columns);
-        databaseAPI.setLastResponse(databaseEditor.getDmlManager().select(tableName, columns, condition));
+        if (condition == null)
+            databaseEditor.getDmlManager().select(tableName, columns);
+        else
+            databaseAPI.setLastResponse(databaseEditor.getDmlManager().select(tableName, columns, condition));
         return false;
     }
 }
