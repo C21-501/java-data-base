@@ -21,6 +21,13 @@ public class Column extends DatabaseStructure {
         fieldScheme.setType(type);
     }
 
+    public Column(Column other) {
+        if (!this.equals(other)){
+            this.fieldScheme = new FieldScheme(other.getFieldScheme());
+            this.fieldBody = new FieldBody(other.getFieldBody());
+        }
+    }
+
     public Column setConstraint(Constraint constraint){
         fieldScheme.addConstraint(constraint);
         fieldBody.validate(fieldScheme);

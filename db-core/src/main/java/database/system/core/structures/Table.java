@@ -5,14 +5,29 @@ import database.system.core.types.DataType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.nio.file.CopyOption;
 import java.util.*;
 import java.util.function.Predicate;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class Table extends DatabaseStructure {
+public class Table extends DatabaseStructure implements CopyOption {
     private Map<String, Column> columns = new TreeMap<>();
     private Set<Constraint> constraintSet = new HashSet<>();
+
+    public Table(){}
+
+    public Table(Table other) {
+        // Deep copy columns
+        for (Map.Entry<String, Column> entry : other.columns.entrySet()) {
+            String key = entry.getKey();
+            Column originalColumn = entry.getValue();
+            Column copiedColumn = new Column(originalColumn); // Assuming Column class has a copy constructor
+            this.columns.put(key, copiedColumn);
+        }
+        // Deep copy constraintSet
+        this.constraintSet = new HashSet<>(other.constraintSet);
+    }
 
     public Column getColumn(String columnName) {
         validateColumnName(columnName, columns);

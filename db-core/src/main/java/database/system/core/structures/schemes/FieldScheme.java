@@ -31,6 +31,13 @@ public class FieldScheme implements Scheme {
         this.constraintSet = constraintSet;
     }
 
+    public FieldScheme(FieldScheme other) {
+        if (!this.equals(other)){
+            this.type = other.type;
+            this.constraintSet = new HashSet<>(other.constraintSet);
+        }
+    }
+
     public void addConstraint(Constraint constraint) {
         if (constraint == null)
             throw new NullPointerException("Error: parameter 'constraint' is null.");

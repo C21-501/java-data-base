@@ -11,7 +11,16 @@ import java.util.stream.Collectors;
 @Data
 public class FieldBody implements Body {
     private Integer fieldId = 0;
-    public final List<Value> objectList = new ArrayList<>(); // list of values
+    public List<Value> objectList = new ArrayList<>(); // list of values
+
+    public FieldBody(){}
+
+    public FieldBody(FieldBody other) {
+        if (!this.equals(other)){
+            this.fieldId = other.fieldId;
+            this.objectList = new ArrayList<>(other.objectList);
+        }
+    }
 
     public void insertValue(FieldScheme fieldScheme, Object value){
         if (fieldScheme.validate(this, value))
