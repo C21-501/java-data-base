@@ -8,7 +8,7 @@ import database.api.DatabaseEditor;
  * The UpdateCommand class represents a command to update records in a table in the database.
  * It extends the Command class and overrides the execute method to perform the update operation.
  */
-public class UpdateCommand extends Command {
+public final class UpdateCommand extends Command {
     private final String tableName;
     private final Object value;
     private final String condition;

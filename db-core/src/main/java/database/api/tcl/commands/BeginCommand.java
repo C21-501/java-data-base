@@ -8,7 +8,7 @@ import database.api.DatabaseEditor;
  * The BeginCommand class represents a command to begin a transaction in the database.
  * It extends the Command class and overrides the execute method to perform the begin transaction operation.
  */
-public class BeginCommand extends Command {
+public final class BeginCommand extends Command {
 
     /**
      * Constructs a new BeginCommand instance.

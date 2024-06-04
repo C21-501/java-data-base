@@ -8,7 +8,7 @@ import database.api.DatabaseEditor;
  * The DeleteCommand class represents a command to delete records from a table in the database.
  * It extends the Command class and overrides the execute method to perform the delete operation.
  */
-public class DeleteCommand extends Command {
+public final class DeleteCommand extends Command {
     private final String tableName;
     private final String condition;
 

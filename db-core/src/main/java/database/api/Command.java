@@ -2,6 +2,7 @@ package database.api;
 
 import database.system.core.structures.Database;
 import database.system.core.structures.Table;
+import lombok.ToString;
 
 import java.io.IOException;
 import java.util.AbstractMap;
@@ -13,6 +14,7 @@ import java.util.TreeMap;
  * The Command class represents an abstract command to be executed on the database.
  * It provides methods to save a database state as backup, undo a command, and execute the command.
  */
+@ToString
 public abstract class Command {
     protected DatabaseAPI databaseAPI;
     protected DatabaseEditor databaseEditor;

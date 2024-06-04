@@ -42,8 +42,9 @@ public class DDLManager {
         database.alter(tableName, alterColumns);
     }
 
-    public void alter(String tableName, String newTableName) {
-        database.alter(tableName, newTableName);
+
+    public void alter(String name, String newName) {
+        database.alter(name, newName);
     }
 
     /**

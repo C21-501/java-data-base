@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @Data
 public class DatabaseEditor {
@@ -118,6 +119,49 @@ public class DatabaseEditor {
         database = Database.getInstance();
         database.setTables(backup);
         saveDatabaseState();
+    }
+
+    public void renameDatabase(String name, String newName) throws IOException {
+        if (name.isEmpty() || newName.isEmpty()) {
+            throw new IllegalArgumentException("Error: Database name or new name is empty");
+        }
+
+        Path oldDatabaseDir = Paths.get(databasePath, name);
+        Path newDatabaseDir = Paths.get(databasePath, newName);
+
+        if (Files.exists(oldDatabaseDir)) {
+            if (Files.exists(newDatabaseDir)) {
+                throw new RuntimeException(String.format("Error while renaming database: %s already exists%n", newName));
+            }
+
+            try {
+                // Move the directory
+                Files.move(oldDatabaseDir, newDatabaseDir);
+                databaseName = newName;
+
+                // Update the database path if needed
+                databasePath = newDatabaseDir.getParent().toString();
+
+                // Rename files starting with the old database name
+                try (Stream<Path> files = Files.walk(newDatabaseDir)) {
+                    files.filter(Files::isRegularFile)
+                            .filter(path -> path.getFileName().toString().startsWith(name))
+                            .forEach(path -> {
+                                try {
+                                    Path newPath = path.resolveSibling(path.getFileName().toString().replaceFirst(name, newName));
+                                    Files.move(path, newPath);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(String.format("Error while renaming file: %s%n", e.getMessage()));
+                                }
+                            });
+                }
+
+            } catch (IOException e) {
+                throw new RuntimeException(String.format("Error while renaming database: %s%n", e.getMessage()));
+            }
+        } else {
+            throw new RuntimeException(String.format("Database %s does not exist.%n", name));
+        }
     }
 }
 

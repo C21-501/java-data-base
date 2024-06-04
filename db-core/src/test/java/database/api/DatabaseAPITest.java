@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -317,5 +316,12 @@ public class DatabaseAPITest {
         } catch (IOException | ClassNotFoundException e) {
             fail("Exception thrown while undoing the command: %s".formatted(e.getMessage()));
         }
+    }
+
+    @Test
+    public void test_rename_existing_database() throws IOException {
+        databaseAPI.alter("test_db", "new_test_db", true);
+        assertEquals("new_test_db", databaseAPI.getActiveEditor().getDatabaseName());
+        databaseAPI.alter("new_test_db", "test_db", true);
     }
 }

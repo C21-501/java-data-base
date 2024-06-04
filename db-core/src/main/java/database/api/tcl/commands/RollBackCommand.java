@@ -8,7 +8,7 @@ import database.api.DatabaseEditor;
  * The RollBackCommand class represents a command to rollback a transaction in the database.
  * It extends the Command class and overrides the execute method to perform the rollback operation.
  */
-public class RollBackCommand extends Command {
+public final class RollBackCommand extends Command {
     /**
      * Constructs a new RollBackCommand instance.
      *

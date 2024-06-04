@@ -126,18 +126,19 @@ public class DatabaseAPI {
     /**
      * Executes an ALTER command to rename an existing table in the database.
      *
-     * @param tableName    the current name of the table to be renamed
-     * @param newTableName the new name for the table
+     * @param name    the current name of the table or database to be renamed
+     * @param newName the new name for the table or database
+     * @param isDatabase flag
      * @throws IOException if an I/O error occurs during the execution
      *
-     * <p>Example:</p>
-     * <pre>{@code
-     * 
-     * dbApi.alter("oldTableName", "newTableName");
-     * }</pre>
+     *                     <p>Example:</p>
+     *                     <pre>{@code
+     *
+     *                     dbApi.alter("oldTableName", "newTableName", false);
+     *                     }</pre>
      */
-    final synchronized public void alter(String tableName, String newTableName) throws IOException {
-        executeCommand(new AlterCommand(this, activeEditor, tableName, newTableName));
+    final synchronized public void alter(String name, String newName, boolean isDatabase) throws IOException {
+        executeCommand(new AlterCommand(this, activeEditor, name, newName, isDatabase));
     }
 
     /**

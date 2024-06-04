@@ -8,7 +8,7 @@ import database.api.DatabaseEditor;
  * The DropCommand class represents a command to drop (delete) a table from the database.
  * It extends the Command class and overrides the execute method to perform the drop operation.
  */
-public class DropCommand extends Command {
+public final class DropCommand extends Command {
     private final String name;
     private final boolean isDatabase;
 

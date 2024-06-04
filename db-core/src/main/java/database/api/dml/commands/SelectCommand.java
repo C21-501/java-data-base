@@ -11,7 +11,7 @@ import java.util.Optional;
  * The SelectCommand class represents a command to select records from a table in the database.
  * It extends the Command class and overrides the execute method to perform the select operation.
  */
-public class SelectCommand extends Command {
+public final class SelectCommand extends Command {
 
     private final String tableName;
     private final Optional<List<String>> columns;
