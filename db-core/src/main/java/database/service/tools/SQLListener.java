@@ -1,10 +1,13 @@
 package database.service.tools;
 
+import database.api.DatabaseAPI;
 import database.service.tools.grammar.SQLGrammarBaseListener;
 import database.service.tools.grammar.SQLGrammarParser;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,27 +17,32 @@ import org.apache.logging.log4j.Logger;
  * BEGIN, COMMIT, and ROLLBACK. It logs the start and success of each command execution.
  */
 public class SQLListener extends SQLGrammarBaseListener {
-    private static final Logger logger = LogManager.getLogger(SQLListener.class);
+    private final Logger logger = LogManager.getLogger(SQLListener.class);
+    private final DatabaseAPI databaseAPI;
 
-    /**
-     * Represents the definition of a column in a table.
-     */
-    private record ColumnDefinition(
-        String name,
-        String dataType,
-        String constraint
-    ){
+    public SQLListener(DatabaseAPI databaseAPI) {
+        this.databaseAPI = databaseAPI;
     }
 
-    /**
-     * Represents an expression in a SQL command.
-     */
-    private record Expression(
-        String columnName,
-        String operator,
-        String value
-    ){
-    }
+//    /**
+//     * Represents the definition of a column in a table.
+//     */
+//    private record ColumnDefinition(
+//        String name,
+//        String dataType,
+//        String constraint
+//    ){
+//    }
+
+//    /**
+//     * Represents an expression in a SQL command.
+//     */
+//    private record Expression(
+//        String columnName,
+//        String operator,
+//        String value
+//    ){
+//    }
     @Override
     public void exitAlterDbCommand(SQLGrammarParser.AlterDbCommandContext ctx) {
         String dbName = ctx.dbName.getText();
@@ -58,9 +66,7 @@ public class SQLListener extends SQLGrammarBaseListener {
 
         logger.info("Starting CREATE DB command...");
         try{
-            //вызов функции
-            System.out.println(dbName);
-
+            databaseAPI.create(dbName, Optional.empty());
             logger.info("Success CREATE DB command");
         } catch (Exception e){
             logger.error(e.getMessage());
@@ -92,10 +98,7 @@ public class SQLListener extends SQLGrammarBaseListener {
 
             logger.info("Starting RENAME TABLE command...");
             try{
-                //вызов функции
-                System.out.println(tableName);
-                System.out.println(newTableName);
-
+                databaseAPI.alter(tableName, newTableName);
                 logger.info("Success RENAME TABLE command");
             } catch (Exception e){
                 logger.error(e.getMessage());
@@ -103,15 +106,12 @@ public class SQLListener extends SQLGrammarBaseListener {
 
         } else if(alterCtx.addColumnStatement() != null){
             String columnName = alterCtx.addColumnStatement().columnName.getText();
-            String columnType = alterCtx.addColumnStatement().dataType().getText();
+            //String columnType = alterCtx.addColumnStatement().dataType().getText();
 
             logger.info("Starting ADD COLUMN command...");
             try{
-                //вызов функции
-                System.out.println(tableName);
-                System.out.println(columnName);
-                System.out.println(columnType);
-
+                List<String> alterColumns = List.of(columnName);
+                databaseAPI.alter(tableName, alterColumns);
                 logger.info("Success ADD COLUMN command");
             } catch (Exception e){
                 logger.error(e.getMessage());
@@ -122,10 +122,8 @@ public class SQLListener extends SQLGrammarBaseListener {
 
             logger.info("Starting DROP COLUMN command...");
             try{
-                //вызов функции
-                System.out.println(tableName);
-                System.out.println(columnName);
-
+                List<String> alterColumns = List.of(columnName);
+                databaseAPI.alter(tableName, null, null, alterColumns);
                 logger.info("Success DROP COLUMN command");
             } catch (Exception e){
                 logger.error(e.getMessage());
@@ -137,45 +135,40 @@ public class SQLListener extends SQLGrammarBaseListener {
     public void exitCreateTableCommand(SQLGrammarParser.CreateTableCommandContext ctx) {
         String tableName = ctx.tableName.getText();
 
-        List<ColumnDefinition> columnsToAdd = new ArrayList<>();
+        List<String> columnsToAdd = new LinkedList<>();
 
-        for(var i : ctx.createTableStatement().columnDefinition()){
-            String constraint = null;
-            List<Expression> expressions = new ArrayList<>();
-            List<String> logicalOperator = new ArrayList<>();
-
-            if(i.columnConstraint() != null) {
-
-                if(i.columnConstraint().check() != null) {
-                    constraint = "CHECK";
-
-                    for(var j : i.columnConstraint().check().condition().expression()){
-                        expressions.add(new Expression(j.columnName.getText(),j.comparisonOperator().getText(),j.value.getText()));
-                    }
-                    for(var j : i.columnConstraint().check().condition().logicalOperator()){
-                        logicalOperator.add(j.getText());
-                    }
-
-                } else if(i.columnConstraint().foreignKey() != null) {
-                    constraint = "REFERENCES";
-                    String foreignTableName = i.columnConstraint().foreignKey().tableName.getText();
-                    String foreignColumnName = i.columnConstraint().foreignKey().columnName.getText();
-
-                } else {
-                    constraint = i.columnConstraint().getText();
-                }
-            }
-            columnsToAdd.add(new ColumnDefinition(i.columnName.getText(),i.dataType().getText(),constraint));
+        for(var i : ctx.createTableStatement().columnDefinition()) {
+//            String constraint = null;
+//            List<Expression> expressions = new ArrayList<>();
+//            List<String> logicalOperator = new ArrayList<>();
+//
+//            if(i.columnConstraint() != null) {
+//
+//                if(i.columnConstraint().check() != null) {
+//                    constraint = "CHECK";
+//
+//                    for(var j : i.columnConstraint().check().condition().expression()){
+//                        expressions.add(new Expression(j.columnName.getText(),j.comparisonOperator().getText(),j.value.getText()));
+//                    }
+//                    for(var j : i.columnConstraint().check().condition().logicalOperator()){
+//                        logicalOperator.add(j.getText());
+//                    }
+//
+//                } else if(i.columnConstraint().foreignKey() != null) {
+//                    constraint = "REFERENCES";
+//                    String foreignTableName = i.columnConstraint().foreignKey().tableName.getText();
+//                    String foreignColumnName = i.columnConstraint().foreignKey().columnName.getText();
+//
+//                } else {
+//                    constraint = i.columnConstraint().getText();
+//                }
+//            }
+            columnsToAdd.add(STR."\{i.columnName.getText()} \{i.dataType().getText()}");
         }
 
         logger.info("Starting CREATE TABLE command...");
         try{
-            //вызов функции
-            System.out.println(tableName);
-            for(ColumnDefinition o : columnsToAdd){
-                System.out.println(o.name +" "+ o.dataType +" "+ o.constraint);
-            }
-
+            databaseAPI.create(tableName, columnsToAdd);
             logger.info("Success CREATE TABLE command");
         } catch (Exception e){
             logger.error(e.getMessage());
@@ -188,9 +181,7 @@ public class SQLListener extends SQLGrammarBaseListener {
         String tableName = ctx.tableName.getText();
         logger.info("Starting DROP TABLE command...");
         try{
-            //вызов функции
-            System.out.println(tableName);
-
+            databaseAPI.drop(tableName);
             logger.info("Success DROP TABLE command");
         } catch (Exception e){
             logger.error(e.getMessage());
@@ -201,8 +192,8 @@ public class SQLListener extends SQLGrammarBaseListener {
     @Override
     public void exitInsertCommand(SQLGrammarParser.InsertCommandContext ctx) {
         String tableName = ctx.tableName.getText();
-        List<String> columnsToAdd = new ArrayList<>();
-        List<String> valuesToAdd = new ArrayList<>();  //нужно добавить определение типа данных значения
+        List<String> columnsToAdd = new LinkedList<>();
+        List<String> valuesToAdd = new LinkedList<>();
 
         for(var i : ctx.columnList().IDENTIFIER()){
             columnsToAdd.add(i.getText());
@@ -213,11 +204,9 @@ public class SQLListener extends SQLGrammarBaseListener {
 
         logger.info("Starting INSERT command ...");
         try{
-            //вызов функции
-            System.out.println(tableName);
-            for (int i = 0; i < columnsToAdd.size(); i++) {
-                System.out.println(columnsToAdd.get(i) +" = "+ valuesToAdd.get(i));
-            }
+            List<Object[]> values = new LinkedList<>();
+            values.add(valuesToAdd.toArray());
+            databaseAPI.insert(tableName, columnsToAdd, values);
             logger.info("Success INSERT command");
         }catch (Exception e){
             logger.error(e.getMessage());
@@ -227,33 +216,26 @@ public class SQLListener extends SQLGrammarBaseListener {
     @Override
     public void exitDeleteCommand(SQLGrammarParser.DeleteCommandContext ctx) {
         String tableName = ctx.tableName.getText();
+        String condition = "";
 
         if(ctx.condition() != null){
-            List<Expression> expressions = new ArrayList<>();
-            List<String> logicalOperator = new ArrayList<>();
-
-            for(var i : ctx.condition().expression()){
-                expressions.add(new Expression(i.columnName.getText(),i.comparisonOperator().getText(),i.value.getText()));
-            }
-
-            for(var i : ctx.condition().logicalOperator()){
-                logicalOperator.add(i.getText());
-            }
-
-            //-------------------------------------------------
-            for (Expression o : expressions){
-                System.out.println(o.columnName +" "+ o.operator +" "+ o.value);
-            }
-            for(String s : logicalOperator){
-                System.out.println(s);
-            }
-            //-------------------------------------------------
+//            List<Expression> expressions = new ArrayList<>();
+//            List<String> logicalOperator = new ArrayList<>();
+//
+//            for(var i : ctx.condition().expression()){
+//                expressions.add(new Expression(i.columnName.getText(),i.comparisonOperator().getText(),i.value.getText()));
+//            }
+//
+//            for(var i : ctx.condition().logicalOperator()){
+//                logicalOperator.add(i.getText());
+//            }
+            var i = ctx.condition().expression().getFirst();
+            condition = STR."\{i.columnName.getText()} \{i.comparisonOperator().getText()} \{i.value.getText()}";
         }
 
         logger.info("Starting DELETE command ...");
         try{
-            //вызов функции
-            System.out.println(tableName);
+            databaseAPI.delete(tableName, condition);
             logger.info("Success DELETE command");
         }catch (Exception e){
             logger.error(e.getMessage());
@@ -264,39 +246,34 @@ public class SQLListener extends SQLGrammarBaseListener {
     @Override
     public void exitSelectCommand(SQLGrammarParser.SelectCommandContext ctx) { //если *, то columnsToSelect пустой массив
         String tableName = ctx.tableName.getText();
-        List<String> columnsToSelect = new ArrayList<>();
+        List<String> columnsToSelect = new LinkedList<>();
+        String condition = "";
 
         for(var i : ctx.selectList.selectElement()){
             columnsToSelect.add(i.columnName.getText());
         }
 
         if(ctx.condition() != null){
-            List<Expression> expressions = new ArrayList<>();
-            List<String> logicalOperator = new ArrayList<>();
-
-            for(var i : ctx.condition().expression()){
-                expressions.add(new Expression(i.columnName.getText(),i.comparisonOperator().getText(),i.value.getText()));
-            }
-
-            for(var i : ctx.condition().logicalOperator()){
-                logicalOperator.add(i.getText());
-            }
-
-            //-------------------------------------------------
-            for (Expression o : expressions){
-                System.out.println(o.columnName +" "+ o.operator +" "+ o.value);
-            }
-            for(String s : logicalOperator){
-                System.out.println(s);
-            }
-            //-------------------------------------------------
+//            List<Expression> expressions = new LinkedList<>();
+//            List<String> logicalOperator = new LinkedList<>();
+//
+//            for(var i : ctx.condition().expression()){
+//                expressions.add(new Expression(i.columnName.getText(),i.comparisonOperator().getText(),i.value.getText()));
+//            }
+//
+//            for(var i : ctx.condition().logicalOperator()){
+//                logicalOperator.add(i.getText());
+//            }
+            var i = ctx.condition().expression().getFirst();
+            condition = STR."\{i.columnName.getText()} \{i.comparisonOperator().getText()} \{i.value.getText()}";
         }
+
         logger.info("Starting SELECT command ...");
         try{
-            //вызов функции
-            System.out.println(tableName);
-            for(String s : columnsToSelect){
-                System.out.println(s);
+            if(condition.isEmpty()){
+                databaseAPI.select(tableName, columnsToSelect);
+            } else {
+                databaseAPI.select(tableName, columnsToSelect, condition);
             }
             logger.info("Success SELECT command");
         }catch (Exception e){
@@ -307,45 +284,37 @@ public class SQLListener extends SQLGrammarBaseListener {
     @Override
     public void exitUpdateCommand(SQLGrammarParser.UpdateCommandContext ctx) {
         String tableName = ctx.tableName.getText();
-        List<String> columnsToUpdate = new ArrayList<>();
-        List<String> values = new ArrayList<>();
+        //List<String> columnsToUpdate = new LinkedList<>();
+        //List<String> values = new LinkedList<>();
+        String condition = "";
+        String value = ctx.updateList.literal().getFirst().getText();
 
-        for(var i : ctx.updateList.IDENTIFIER()){
-            columnsToUpdate.add(i.getText());
-        }
-
-        for(var i : ctx.updateList.literal()){
-            values.add(i.getText());
-        }
+//        for(var i : ctx.updateList.IDENTIFIER()){
+//            columnsToUpdate.add(i.getText());
+//        }
+//
+//        for(var i : ctx.updateList.literal()){
+//            values.add(i.getText());
+//        }
 
         if(ctx.condition() != null){
-            List<Expression> expressions = new ArrayList<>();
-            List<String> logicalOperator = new ArrayList<>();
-
-            for(var i : ctx.condition().expression()){
-                expressions.add(new Expression(i.columnName.getText(),i.comparisonOperator().getText(),i.value.getText()));
-            }
-
-            for(var i : ctx.condition().logicalOperator()){
-                logicalOperator.add(i.getText());
-            }
-
-            //-------------------------------------------------
-            for (Expression o : expressions){
-                System.out.println(o.columnName +" "+ o.operator +" "+ o.value);
-            }
-            for(String s : logicalOperator){
-                System.out.println(s);
-            }
-            //-------------------------------------------------
+//            List<Expression> expressions = new ArrayList<>();
+//            List<String> logicalOperator = new ArrayList<>();
+//
+//            for(var i : ctx.condition().expression()){
+//                expressions.add(new Expression(i.columnName.getText(),i.comparisonOperator().getText(),i.value.getText()));
+//            }
+//
+//            for(var i : ctx.condition().logicalOperator()){
+//                logicalOperator.add(i.getText());
+//            }
+            var i = ctx.condition().expression().getFirst();
+            condition = STR."\{i.columnName.getText()} \{i.comparisonOperator().getText()} \{i.value.getText()}";
         }
+
         logger.info("Starting UPDATE command ...");
         try{
-            //вызов функции
-            System.out.println(tableName);
-            for (int i = 0; i < columnsToUpdate.size(); i++) {
-                System.out.println(columnsToUpdate.get(i) +" = "+ values.get(i));
-            }
+            databaseAPI.update(tableName, value, condition);
             logger.info("Success UPDATE command");
         }catch (Exception e){
             logger.error(e.getMessage());
@@ -359,7 +328,7 @@ public class SQLListener extends SQLGrammarBaseListener {
     public void exitBeginCommand(SQLGrammarParser.BeginCommandContext ctx) {
         logger.info("Starting BEGIN command ...");
         try{
-            //вызов функции
+            databaseAPI.begin();
             logger.info("Success BEGIN command");
         }catch (Exception e){
             logger.error(e.getMessage());
@@ -370,7 +339,7 @@ public class SQLListener extends SQLGrammarBaseListener {
     public void exitCommitCommand(SQLGrammarParser.CommitCommandContext ctx) {
         logger.info("Starting COMMIT command ...");
         try{
-            //вызов функции
+            databaseAPI.commit();
             logger.info("Success COMMIT command");
         }catch (Exception e){
             logger.error(e.getMessage());
@@ -381,7 +350,7 @@ public class SQLListener extends SQLGrammarBaseListener {
     public void exitRollbackCommand(SQLGrammarParser.RollbackCommandContext ctx) {
         logger.info("Starting ROLLBACK command ...");
         try{
-            //вызов функции
+            databaseAPI.rollback();
             logger.info("Success ROLLBACK command");
         }catch (Exception e){
             logger.error(e.getMessage());

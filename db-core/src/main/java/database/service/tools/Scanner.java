@@ -1,5 +1,8 @@
 package database.service.tools;
 
+import database.api.CommandHistory;
+import database.api.DatabaseAPI;
+import database.api.DatabaseEditor;
 import database.service.tools.grammar.SQLGrammarLexer;
 import database.service.tools.grammar.SQLGrammarParser;
 import org.antlr.v4.runtime.CharStream;
@@ -22,11 +25,11 @@ public class Scanner {
      * @param fileName the name of the file containing SQL commands.
      * @throws IOException if an I/O error occurs when reading the file.
      */
-    public static void readCommandsFromFile(String fileName) throws IOException {
+    public static void readCommandsFromFile(String fileName, DatabaseAPI databaseAPI) throws IOException {
         CharStream stream = CharStreams.fromFileName(fileName);
         SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
         SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
-        parser.addParseListener(new SQLListener());
+        parser.addParseListener(new SQLListener(databaseAPI));
 
         try{
             parser.start();
@@ -39,7 +42,7 @@ public class Scanner {
      * Reads SQL commands from the command line until the user enters ":q".
      * Parses the accumulated commands.
      */
-    public static void readCommandsFromCommandLine() {
+    public static void readCommandsFromCommandLine(DatabaseAPI databaseAPI) {
         StringBuilder commands = new StringBuilder();
         String line = in.next();
         while(!line.equals(":q")){
@@ -51,7 +54,7 @@ public class Scanner {
         //CharStream stream = CharStreams.fromStream(System.in);
         SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
         SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
-        parser.addParseListener(new SQLListener());
+        parser.addParseListener(new SQLListener(databaseAPI));
 
         try{
             parser.start();
@@ -61,6 +64,10 @@ public class Scanner {
     }
 
     public static void main(String[] args) throws IOException {
+        DatabaseAPI databaseAPI;
+        databaseAPI = new DatabaseAPI();
+        databaseAPI.setActiveEditor(new DatabaseEditor());
+        databaseAPI.setHistory(new CommandHistory());
         boolean flag = true;
         while(flag){
             System.out.println("Введите номер:");
@@ -74,12 +81,12 @@ public class Scanner {
                     break;
                 case 1:
                     System.out.println("Введите команды, по завершении введите :q");
-                    readCommandsFromCommandLine();
+                    readCommandsFromCommandLine(databaseAPI);
                     break;
                 case 2:
                     System.out.println("Введите название файла:");
                     String fileName = in.next();
-                    readCommandsFromFile(fileName);
+                    readCommandsFromFile(fileName, databaseAPI);
                     break;
             }
         }
