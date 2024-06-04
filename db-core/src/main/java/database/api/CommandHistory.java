@@ -4,9 +4,10 @@ import java.util.Stack;
 
 /**
  * The CommandHistory class represents a history of executed commands in the database.
- * It uses a stack data structure to store the command history.
+ * It uses a stack data structure to store the command history with a maximum size limit.
  */
 public class CommandHistory {
+    private static final int MAX_SIZE = 10;
     private final Stack<Command> history = new Stack<>();
 
     /**
@@ -16,6 +17,9 @@ public class CommandHistory {
      */
     public void push(Command command) {
         history.push(command);
+        if (history.size() > MAX_SIZE) {
+            overwriteStack();
+        }
     }
 
     /**
@@ -28,11 +32,22 @@ public class CommandHistory {
     }
 
     /**
-     * Size of a history command stack.
+     * Returns the size of the command history stack.
      *
-     * @return size of the stack
+     * @return the number of commands stored in the history stack
      */
     public int size() {
         return history.size();
+    }
+
+    /**
+     * Overwrites the oldest commands in the stack when it exceeds the maximum size.
+     * It saves the database state associated with the removed commands.
+     */
+    private void overwriteStack() {
+        while (history.size() > MAX_SIZE) {
+            Command removedCommand = history.removeFirst();
+            removedCommand.databaseEditor.saveDatabaseState();
+        }
     }
 }

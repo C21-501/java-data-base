@@ -143,17 +143,18 @@ public class DatabaseAPI {
     /**
      * Executes a DROP command to delete a table from the database.
      *
-     * @param tableName the name of the table to delete
+     * @param name         the name of the table or database to delete
+     * @param isDatabase   the flag
      * @throws IOException if an I/O error occurs during the execution
      *
-     * <p>Example:</p>
-     * <pre>{@code
-     * 
-     * dbApi.drop("myTable");
-     * }</pre>
+     *                     <p>Example:</p>
+     *                     <pre>{@code
+     *
+     *                     dbApi.drop("myTable", false);
+     *                     }</pre>
      */
-    final synchronized public void drop(String tableName) throws IOException {
-        executeCommand(new DropCommand(this, activeEditor, tableName));
+    final synchronized public void drop(String name, boolean isDatabase) throws IOException {
+        executeCommand(new DropCommand(this, activeEditor, name, isDatabase));
     }
 
     /**
@@ -192,7 +193,40 @@ public class DatabaseAPI {
     }
 
     /**
-     * Executes a SELECT command to retrieve records from a table in the database.
+     * Executes a SELECT command to retrieve all records from a table in the database.
+     *
+     * @param tableName the name of the table from which records will be retrieved
+     * @throws IOException if an I/O error occurs during the execution
+     *
+     * <p>Example:</p>
+     * <pre>{@code
+     *
+     * dbApi.select("myTable");
+     * }</pre>
+     */
+    final synchronized public void select(String tableName) throws IOException {
+        executeCommand(new SelectCommand(this, activeEditor, tableName));
+    }
+
+    /**
+     * Executes a SELECT command to retrieve specific columns from a table in the database.
+     *
+     * @param tableName the name of the table from which records will be retrieved
+     * @param columns   the list of column names to select from the table
+     * @throws IOException if an I/O error occurs during the execution
+     *
+     * <p>Example:</p>
+     * <pre>{@code
+     *
+     * dbApi.select("myTable", List.of("id", "name"));
+     * }</pre>
+     */
+    final synchronized public void select(String tableName, List<String> columns) throws IOException {
+        executeCommand(new SelectCommand(this, activeEditor, tableName, columns));
+    }
+
+    /**
+     * Executes a SELECT command to retrieve specific columns from a table in the database based on a condition.
      *
      * @param tableName the name of the table from which records will be retrieved
      * @param columns   the list of column names to select from the table
@@ -201,29 +235,12 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.select("myTable", List.of("id", "name"), "id = 1");
      * }</pre>
      */
     final synchronized public void select(String tableName, List<String> columns, String condition) throws IOException {
         executeCommand(new SelectCommand(this, activeEditor, tableName, columns, condition));
-    }
-
-    /**
-     * Executes a SELECT command to retrieve all records from a table in the database.
-     *
-     * @param tableName the name of the table from which all records will be retrieved
-     * @param columns   the list of column names to select from the table
-     * @throws IOException if an I/O error occurs during the execution
-     *
-     * <p>Example:</p>
-     * <pre>{@code
-     * 
-     * dbApi.select("myTable", List.of("id", "name"));
-     * }</pre>
-     */
-    final synchronized public void select(String tableName, List<String> columns) throws IOException {
-        executeCommand(new SelectCommand(this, activeEditor, tableName, columns));
     }
 
     /**

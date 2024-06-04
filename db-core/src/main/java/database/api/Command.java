@@ -1,6 +1,13 @@
 package database.api;
 
+import database.system.core.structures.Database;
+import database.system.core.structures.Table;
+
 import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * The Command class represents an abstract command to be executed on the database.
@@ -9,6 +16,7 @@ import java.io.IOException;
 public abstract class Command {
     protected DatabaseAPI databaseAPI;
     protected DatabaseEditor databaseEditor;
+    protected Map<String, Table> backup = new TreeMap<>();;
 
     /**
      * Constructs a new Command instance.
@@ -25,17 +33,21 @@ public abstract class Command {
      * Saves the current database state as a backup.
      */
     public void saveBackup() {
-        databaseEditor.saveDatabaseState();
+        backup = new TreeMap<>();
+        for (Map.Entry<String, Table> entry : databaseEditor.getDatabase().getTables().entrySet()) {
+            String key = entry.getKey();
+            Table originalTable = entry.getValue();
+            Table copiedTable = new Table(originalTable);
+            backup.put(key, copiedTable);
+        }
     }
 
     /**
      * Restores the database state from the backup.
      *
-     * @throws IOException            if an I/O error occurs while restoring the database state
-     * @throws ClassNotFoundException if the class of a serialized object could not be found while restoring
      */
-    public void undo() throws IOException, ClassNotFoundException {
-        databaseEditor.restoreDatabaseState();
+    public void undo() {
+        databaseEditor.restoreDatabaseStateFromBackup(backup);
     }
 
     /**

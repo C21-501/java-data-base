@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,12 +23,11 @@ public class DatabaseAPITest {
         databaseAPI.setActiveEditor(new DatabaseEditor());
         databaseAPI.setHistory(new CommandHistory());
         databaseAPI.getActiveEditor().createDatabase("test_db", "C:\\Users\\Евгений\\IdeaProjects\\java-data-base\\db-core\\src\\test\\resources");
-        databaseAPI.getActiveEditor().saveDatabaseState();
     }
 
     @AfterEach
     public void tearDown() throws IOException {
-        databaseAPI.getActiveEditor().resetDatabaseInstance();
+        databaseAPI.drop("test_db", true);
     }
     
     @Test
@@ -49,7 +49,7 @@ public class DatabaseAPITest {
         // Commit the transaction
         databaseAPI.commit();
         // Drop the "employees" table
-        databaseAPI.drop("employees");
+        databaseAPI.drop("employees", false);
     }
 
     // Successfully create a new table with valid table name and columns
@@ -79,7 +79,7 @@ public class DatabaseAPITest {
         databaseAPI.setHistory(new CommandHistory());
         List<String> columns = List.of("id INTEGER", "name STRING");
         databaseAPI.create("testTable", columns);
-        databaseAPI.drop("testTable");
+        databaseAPI.drop("testTable", false);
         assertFalse(databaseAPI.getActiveEditor().getDdlManager().getDatabase().containsTable("testTable"));
     }
 
@@ -158,7 +158,7 @@ public class DatabaseAPITest {
     public void test_drop_non_existent_table() throws IOException {
         databaseAPI.setHistory(new CommandHistory());
         assertThrows(RuntimeException.class, () -> {
-            databaseAPI.drop("nonExistentTable");
+            databaseAPI.drop("nonExistentTable", false);
         });
     }
 
@@ -269,7 +269,7 @@ public class DatabaseAPITest {
         columns = List.of("id", "name", "age");
         databaseAPI.insert("users", columns, values);
         try {
-            databaseAPI.drop("users");
+            databaseAPI.drop("users", false);
             databaseAPI.undo();
             // Verify that the 'users' table is restored after dropping it
             assertFalse(databaseAPI.getActiveEditor().getDdlManager().getDatabase().containsTable("users"));
@@ -290,17 +290,20 @@ public class DatabaseAPITest {
         databaseAPI.alter("users", null, null, List.of("age"));
         assertEquals(2, history.size());
 
-        databaseAPI.drop("users");
+        databaseAPI.drop("users", false);
         assertEquals(3, history.size());
 
         databaseAPI.undo();
         assertEquals(2, history.size());
+        assertTrue(databaseAPI.getActiveEditor().getDatabase().containsTable("users"));
 
         databaseAPI.undo();
         assertEquals(1, history.size());
+        assertTrue(databaseAPI.getActiveEditor().getDatabase().getTable("users").get().contains("age"));
 
         databaseAPI.undo();
         assertEquals(0, history.size());
+        assertTrue(databaseAPI.getActiveEditor().getDatabase().getTable("users").isEmpty());
     }
 
     // Successfully undo the last executed command
