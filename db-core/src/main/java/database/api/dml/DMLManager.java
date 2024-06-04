@@ -81,4 +81,15 @@ public class DMLManager {
         // Logic for selecting records without a condition
         return database.select(tableName, columns);
     }
+
+    /**
+     * Selects all records from a table in the database without a condition.
+     *
+     * @param tableName the name of the table from which records will be selected
+     * @return a Response object containing the selected records
+     */
+    public Response select(String tableName) {
+        // Logic for selecting records without a condition
+        return database.select(tableName);
+    }
 }
