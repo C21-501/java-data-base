@@ -8,7 +8,7 @@ import database.api.DatabaseEditor;
  * The CommitCommand class represents a command to commit a transaction in the database.
  * It extends the Command class and overrides the execute method to perform the commit operation.
  */
-public class CommitCommand extends Command {
+public final class CommitCommand extends Command {
 
     /**
      * Constructs a new CommitCommand instance.

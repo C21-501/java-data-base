@@ -132,12 +132,12 @@ public class DatabaseTest {
 
         // Test updating non-existent column
         assertThrows(RuntimeException.class, () -> {
-            database.update("table1", "new_value", "non_existent_column = 'value1'");
+            database.update("table1", List.of("column1 = new_value"), "non_existent_column = 'value1'");
         });
 
         // Test updating non-existent table
         assertThrows(RuntimeException.class, () -> {
-            database.update("non_existent_table", "new_value", "column1 = 'value1'");
+            database.update("non_existent_table", List.of("column1 = new_value"), "column1 = 'value1'");
         });
     }
 
@@ -170,7 +170,7 @@ public class DatabaseTest {
         table.insert("column1", 12);
 
         database.createTable("table1", table);
-        database.update("table1", 20, "column1 > 10");
+        database.update("table1", List.of("column1 = 20"), "column1 > 10");
 
         Response response = database.selectFrom("table1", List.of("column1"));
         assertEquals(20, response.get("column1", 0));

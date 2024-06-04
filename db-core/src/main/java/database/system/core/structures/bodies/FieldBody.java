@@ -11,7 +11,16 @@ import java.util.stream.Collectors;
 @Data
 public class FieldBody implements Body {
     private Integer fieldId = 0;
-    public final List<Value> objectList = new ArrayList<>(); // list of values
+    public List<Value> objectList = new ArrayList<>(); // list of values
+
+    public FieldBody(){}
+
+    public FieldBody(FieldBody other) {
+        if (!this.equals(other)){
+            this.fieldId = other.fieldId;
+            this.objectList = new ArrayList<>(other.objectList);
+        }
+    }
 
     public void insertValue(FieldScheme fieldScheme, Object value){
         if (fieldScheme.validate(this, value))
@@ -34,16 +43,14 @@ public class FieldBody implements Body {
         return objectList.get(index);
     }
 
-    public void updateValueIf(Object updatedValue, Predicate<Object> filter) {
+    public void updateById(Object updatedValue, List<Integer> valueIds) {
         objectList.replaceAll(obj -> {
-            if (filter.test(obj.getObject())) {
-                return obj.setObject(updatedValue);
-            } else {
-                return obj;
+            if (valueIds.contains(obj.getId())) {
+                obj.setObject(updatedValue);
             }
+            return obj;
         });
     }
-
 
     public void removeValuesIf(Predicate<Object> filter) {
         objectList.removeIf(value -> filter.test(value.getObject()));

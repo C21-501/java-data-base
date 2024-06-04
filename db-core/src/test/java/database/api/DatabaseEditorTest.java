@@ -6,6 +6,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,17 +18,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class DatabaseEditorTest {
     DatabaseEditor editor;
+    static String path = "C:\\Users\\Евгений\\IdeaProjects\\java-data-base\\db-core\\src\\test\\resources";
 
     @BeforeEach
     public void setUp() {
         editor = new DatabaseEditor();
-        editor.createDatabase("test_db", "C:\\Users\\Евгений\\IdeaProjects\\java-data-base\\db-core\\src\\test\\resources");
-        editor.saveDatabaseState();
+        editor.createDatabase("test_db", path);
     }
 
     @AfterEach
     public void tearDown() throws IOException {
-        editor.resetDatabaseInstance();
+        editor.dropDatabase("test_db" , path);
     }
 
     // Creating a new database instance with a valid name
@@ -80,7 +83,7 @@ public class DatabaseEditorTest {
                 values
         );
         Response response = editor.getDmlManager().select("test_table", List.of("id", "name"), "id = 1");
-        assertEquals(2, response.get("name").size());
+        assertEquals(1, response.get("name").size());
         assertEquals("John", response.get("name",0));
     }
 
@@ -216,5 +219,14 @@ public class DatabaseEditorTest {
         assertEquals("alice", response.get("name",0));
         assertEquals(4, response.get("id",1));
         assertEquals("bob", response.get("name",1));
+    }
+
+    @Test
+    public void test_successfully_drops_existing_database_directory() {
+        String databaseName = "testDb";
+        editor.createDatabase(databaseName);
+        editor.dropDatabase(databaseName);
+        Path databaseDir = Paths.get(databaseName);
+        assertFalse(Files.exists(databaseDir));
     }
 }

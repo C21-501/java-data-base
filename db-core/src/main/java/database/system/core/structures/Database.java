@@ -7,16 +7,13 @@ import lombok.EqualsAndHashCode;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class Database extends DatabaseStructure {
     private static volatile Database instance;
-    private final Map<String, Table> tables = new TreeMap<>();
+    private Map<String, Table> tables = new TreeMap<>();
 
     private Database() {
     }
@@ -154,14 +151,14 @@ public class Database extends DatabaseStructure {
         table.delete(condition);
     }
 
-    public void update(String tableName, Object value, String condition) {
+    public void update(String tableName, List<String> values, String condition) {
         validateTableName(tableName);
-        validateNonNull(value);
+        validateNonNull(values);
         validateNonNull(condition);
         Table table = tables.get(tableName);
         if (table == null)
             throw new RuntimeException(String.format("Error: table '%s' doesn't exist", tableName));
-        table.update(value, condition);
+        table.update(values, condition);
     }
 
     public Response select(String tableName, List<String> columns, String condition) {
@@ -180,6 +177,17 @@ public class Database extends DatabaseStructure {
         Table table = tables.get(tableName);
         if (table == null)
             throw new RuntimeException(String.format("Error: table '%s' doesn't exist", tableName));
+        return table.select(tableName, columns);
+    }
+
+    public Response select(String tableName) {
+        validateTableName(tableName);
+        Table table = tables.get(tableName);
+        if (table == null)
+            throw new RuntimeException(String.format("Error: table '%s' doesn't exist", tableName));
+        List<String> columns = table.getColumns().keySet().stream()
+                .sorted(Comparator.comparingInt(String::length))
+                .toList();
         return table.select(tableName, columns);
     }
 

@@ -11,7 +11,7 @@ import java.util.List;
  * The InsertCommand class represents a command to insert records into a table in the database.
  * It extends the Command class and overrides the execute method to perform the insert operation.
  */
-public class InsertCommand extends Command {
+public final class InsertCommand extends Command {
     private final String tableName;
     private final List<String> columns;
     private final List<Object[]> values;

@@ -22,12 +22,11 @@ public class DatabaseAPITest {
         databaseAPI.setActiveEditor(new DatabaseEditor());
         databaseAPI.setHistory(new CommandHistory());
         databaseAPI.getActiveEditor().createDatabase("test_db", "C:\\Users\\Евгений\\IdeaProjects\\java-data-base\\db-core\\src\\test\\resources");
-        databaseAPI.getActiveEditor().saveDatabaseState();
     }
 
     @AfterEach
     public void tearDown() throws IOException {
-        databaseAPI.getActiveEditor().resetDatabaseInstance();
+        databaseAPI.drop("test_db", true);
     }
     
     @Test
@@ -41,15 +40,18 @@ public class DatabaseAPITest {
         );
         databaseAPI.insert("employees", List.of("id", "name", "age"), values);
         // Select all records from the "employees" table
-        databaseAPI.select("employees", List.of("id", "name", "age"));
+        databaseAPI.select("employees");
+        databaseAPI.getLastSelectResponse().printTable();
         // Begin a new transaction
         databaseAPI.begin();
         // Update the age of employee with id 1 to 32
-        databaseAPI.update("employees", 32, "id = 1");
+        databaseAPI.update("employees", List.of("name = 'John'","age = 18"), "id = 1");
         // Commit the transaction
         databaseAPI.commit();
+        databaseAPI.select("employees");
+        databaseAPI.getLastSelectResponse().printTable();
         // Drop the "employees" table
-        databaseAPI.drop("employees");
+        databaseAPI.drop("employees", false);
     }
 
     // Successfully create a new table with valid table name and columns
@@ -79,7 +81,7 @@ public class DatabaseAPITest {
         databaseAPI.setHistory(new CommandHistory());
         List<String> columns = List.of("id INTEGER", "name STRING");
         databaseAPI.create("testTable", columns);
-        databaseAPI.drop("testTable");
+        databaseAPI.drop("testTable", false);
         assertFalse(databaseAPI.getActiveEditor().getDdlManager().getDatabase().containsTable("testTable"));
     }
 
@@ -158,7 +160,7 @@ public class DatabaseAPITest {
     public void test_drop_non_existent_table() throws IOException {
         databaseAPI.setHistory(new CommandHistory());
         assertThrows(RuntimeException.class, () -> {
-            databaseAPI.drop("nonExistentTable");
+            databaseAPI.drop("nonExistentTable", false);
         });
     }
 
@@ -206,7 +208,6 @@ public class DatabaseAPITest {
     public void test_update_records_valid_value_and_condition() throws IOException {
         String tableName = "table1";
         List<String> columns = Arrays.asList("column1 STRING", "column2 STRING");
-        Object value = "new_value";
         String condition = "column1 = 'old_value'";
 
         // Create table
@@ -219,13 +220,13 @@ public class DatabaseAPITest {
         databaseAPI.insert(tableName, columns, values);
 
         // Update records
-        databaseAPI.update(tableName, value, condition);
+        databaseAPI.update(tableName, List.of("column1 = new_value"), condition);
 
         // Verify
         List<String> selectedColumns = Arrays.asList("column1", "column2");
         String selectCondition = "column1 = 'new_value'";
         assertDoesNotThrow(() -> databaseAPI.select(tableName, selectedColumns, selectCondition));
-        databaseAPI.getLastResponse().printTable();
+        databaseAPI.getLastSelectResponse().printTable();
     }
 
     // Attempt to undo when there are no commands in history
@@ -251,7 +252,7 @@ public class DatabaseAPITest {
             databaseAPI.insert(tableName, columns, values);
 
             // Attempt to update with an invalid condition
-            assertThrows(IllegalArgumentException.class, () -> databaseAPI.update(tableName, "age", "invalid_condition"));
+            assertThrows(IllegalArgumentException.class, () -> databaseAPI.update(tableName, List.of("age = 32"), "invalid_condition"));
         } catch (IOException e) {
             fail("Exception thrown when not expected: %s".formatted(e.getMessage()));
         }
@@ -269,7 +270,7 @@ public class DatabaseAPITest {
         columns = List.of("id", "name", "age");
         databaseAPI.insert("users", columns, values);
         try {
-            databaseAPI.drop("users");
+            databaseAPI.drop("users", false);
             databaseAPI.undo();
             // Verify that the 'users' table is restored after dropping it
             assertFalse(databaseAPI.getActiveEditor().getDdlManager().getDatabase().containsTable("users"));
@@ -290,17 +291,20 @@ public class DatabaseAPITest {
         databaseAPI.alter("users", null, null, List.of("age"));
         assertEquals(2, history.size());
 
-        databaseAPI.drop("users");
+        databaseAPI.drop("users", false);
         assertEquals(3, history.size());
 
         databaseAPI.undo();
         assertEquals(2, history.size());
+        assertTrue(databaseAPI.getActiveEditor().getDatabase().containsTable("users"));
 
         databaseAPI.undo();
         assertEquals(1, history.size());
+        assertTrue(databaseAPI.getActiveEditor().getDatabase().getTable("users").get().contains("age"));
 
         databaseAPI.undo();
         assertEquals(0, history.size());
+        assertTrue(databaseAPI.getActiveEditor().getDatabase().getTable("users").isEmpty());
     }
 
     // Successfully undo the last executed command
@@ -314,5 +318,12 @@ public class DatabaseAPITest {
         } catch (IOException | ClassNotFoundException e) {
             fail("Exception thrown while undoing the command: %s".formatted(e.getMessage()));
         }
+    }
+
+    @Test
+    public void test_rename_existing_database() throws IOException {
+        databaseAPI.alter("test_db", "new_test_db", true);
+        assertEquals("new_test_db", databaseAPI.getActiveEditor().getDatabaseName());
+        databaseAPI.alter("new_test_db", "test_db", true);
     }
 }

@@ -8,23 +8,27 @@ import database.api.DatabaseEditor;
  * The DropCommand class represents a command to drop (delete) a table from the database.
  * It extends the Command class and overrides the execute method to perform the drop operation.
  */
-public class DropCommand extends Command {
-    private final String tableName;
+public final class DropCommand extends Command {
+    private final String name;
+    private final boolean isDatabase;
 
     /**
      * Constructs a new DropCommand instance.
      *
-     * @param databaseAPI     the database API instance to interact with the database
-     * @param databaseEditor  the database editor instance to perform the drop operation
-     * @param tableName       the name of the table to be dropped
+     * @param databaseAPI    the database API instance to interact with the database
+     * @param databaseEditor the database editor instance to perform the drop operation
+     * @param name           the name of the table to be dropped
+     * @param isDatabase     the flag of structure to be dropped
      */
     public DropCommand(
             DatabaseAPI databaseAPI,
             DatabaseEditor databaseEditor,
-            String tableName
+            String name,
+            boolean isDatabase
     ) {
         super(databaseAPI, databaseEditor);
-        this.tableName = tableName;
+        this.name = name;
+        this.isDatabase = isDatabase;
     }
 
     /**
@@ -36,9 +40,9 @@ public class DropCommand extends Command {
     @Override
     public boolean execute() {
         saveBackup();
-        databaseEditor
-                .getDdlManager()
-                .drop(tableName);
+        if (isDatabase)
+            databaseEditor.dropDatabase(name);
+        else databaseEditor.getDdlManager().drop(name);
         return true;
     }
 }

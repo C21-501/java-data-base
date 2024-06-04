@@ -5,19 +5,58 @@ import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The SelectCommand class represents a command to select records from a table in the database.
  * It extends the Command class and overrides the execute method to perform the select operation.
  */
-public class SelectCommand extends Command {
+public final class SelectCommand extends Command {
 
     private final String tableName;
-    private final List<String> columns;
-    private String condition;
+    private final Optional<List<String>> columns;
+    private final Optional<String> condition;
 
     /**
-     * Constructs a new SelectCommand instance with a condition.
+     * Constructs a new SelectCommand instance with tableName only.
+     *
+     * @param databaseAPI     the database API instance to interact with the database
+     * @param databaseEditor  the database editor instance to perform the select operation
+     * @param tableName       the name of the table from which records will be selected
+     */
+    public SelectCommand(
+            DatabaseAPI databaseAPI,
+            DatabaseEditor databaseEditor,
+            String tableName
+    ) {
+        super(databaseAPI, databaseEditor);
+        this.tableName = tableName;
+        this.columns = Optional.empty();
+        this.condition = Optional.empty();
+    }
+
+    /**
+     * Constructs a new SelectCommand instance with columns.
+     *
+     * @param databaseAPI     the database API instance to interact with the database
+     * @param databaseEditor  the database editor instance to perform the select operation
+     * @param tableName       the name of the table from which records will be selected
+     * @param columns         the columns to be selected, represented as a list of strings
+     */
+    public SelectCommand(
+            DatabaseAPI databaseAPI,
+            DatabaseEditor databaseEditor,
+            String tableName,
+            List<String> columns
+    ) {
+        super(databaseAPI, databaseEditor);
+        this.tableName = tableName;
+        this.columns = Optional.of(columns);
+        this.condition = Optional.empty();
+    }
+
+    /**
+     * Constructs a new SelectCommand instance with columns and condition.
      *
      * @param databaseAPI     the database API instance to interact with the database
      * @param databaseEditor  the database editor instance to perform the select operation
@@ -34,27 +73,8 @@ public class SelectCommand extends Command {
     ) {
         super(databaseAPI, databaseEditor);
         this.tableName = tableName;
-        this.columns = columns;
-        this.condition = condition;
-    }
-
-    /**
-     * Constructs a new SelectCommand instance without a condition.
-     *
-     * @param databaseAPI     the database API instance to interact with the database
-     * @param databaseEditor  the database editor instance to perform the select operation
-     * @param tableName       the name of the table from which records will be selected
-     * @param columns         the columns to be selected, represented as a list of strings
-     */
-    public SelectCommand(
-            DatabaseAPI databaseAPI,
-            DatabaseEditor databaseEditor,
-            String tableName,
-            List<String> columns
-    ) {
-        super(databaseAPI, databaseEditor);
-        this.tableName = tableName;
-        this.columns = columns;
+        this.columns = Optional.of(columns);
+        this.condition = Optional.of(condition);
     }
 
     /**
@@ -66,10 +86,13 @@ public class SelectCommand extends Command {
      */
     @Override
     public boolean execute() {
-        if (condition == null)
-            databaseEditor.getDmlManager().select(tableName, columns);
-        else
-            databaseAPI.setLastResponse(databaseEditor.getDmlManager().select(tableName, columns, condition));
+        if (columns.isEmpty() && condition.isEmpty()) {
+            databaseAPI.setLastSelectResponse(databaseEditor.getDmlManager().select(tableName));
+        } else if (condition.isEmpty()) {
+            databaseAPI.setLastSelectResponse(databaseEditor.getDmlManager().select(tableName, columns.get()));
+        } else {
+            databaseAPI.setLastSelectResponse(databaseEditor.getDmlManager().select(tableName, columns.orElse(List.of()), condition.get()));
+        }
         return false;
     }
 }

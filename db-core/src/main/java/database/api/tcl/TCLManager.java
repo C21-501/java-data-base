@@ -1,5 +1,9 @@
 package database.api.tcl;
 
+import database.api.Command;
+import database.api.tcl.commands.BeginCommand;
+import database.api.tcl.commands.CommitCommand;
+import database.api.tcl.commands.RollBackCommand;
 import database.system.core.structures.Database;
 import lombok.Data;
 
@@ -16,7 +20,7 @@ public class TCLManager {
     private Database database;
     private String transactionFile;
     private boolean transactionActive;
-    private Queue<Runnable> commandQueue;
+    private Queue<Command> commandQueue;
 
     /**
      * Constructs a new TCLManager instance.
@@ -60,9 +64,11 @@ public class TCLManager {
             throw new RuntimeException("Error: No active transaction to commit.");
         }
         try {
+            if (commandQueue.isEmpty())
+                throw new RuntimeException("Error: command queue is empty, no command passed.");
             // Execute all commands in the queue
             while (!commandQueue.isEmpty()) {
-                commandQueue.poll().run();
+                commandQueue.poll().execute();
             }
             database.saveState(this.transactionFile); // Assuming saveState method exists in Database class
             File transactionFile = new File(this.transactionFile);
@@ -84,7 +90,6 @@ public class TCLManager {
         if (!transactionActive) {
             throw new RuntimeException("Error: No active transaction to roll back.");
         }
-
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(this.transactionFile))) {
             Database backupDatabase = (Database) ois.readObject();
             database.restore(backupDatabase); // Assuming restore method exists in Database class
@@ -100,9 +105,12 @@ public class TCLManager {
      * @param command the command to be added to the transaction
      * @throws RuntimeException if no active transaction is found
      */
-    public void addCommand(Runnable command) {
+    public void addCommand(Command command) {
         if (!transactionActive) {
             throw new RuntimeException("Error: No active transaction. Cannot add command.");
+        }
+        if (command instanceof BeginCommand || command instanceof CommitCommand || command instanceof RollBackCommand) {
+            throw new RuntimeException(String.format("The TCL command %s can't be executed inside other transaction block", command.getClass().getSimpleName()));
         }
         commandQueue.add(command);
     }

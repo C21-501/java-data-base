@@ -38,12 +38,12 @@ public class DMLManager {
      * Updates records in a table in the database.
      *
      * @param tableName the name of the table in which records will be updated
-     * @param value     the new value to be set in the records
+     * @param values     the new values to be set in the records
      * @param condition the condition to determine which records to update
      */
-    public void update(String tableName, Object value, String condition) {
+    public void update(String tableName, List<String> values, String condition) {
         // Logic for updating records
-        database.update(tableName, value, condition);
+        database.update(tableName, values, condition);
     }
 
     /**
@@ -80,5 +80,16 @@ public class DMLManager {
     public Response select(String tableName, List<String> columns) {
         // Logic for selecting records without a condition
         return database.select(tableName, columns);
+    }
+
+    /**
+     * Selects all records from a table in the database without a condition.
+     *
+     * @param tableName the name of the table from which records will be selected
+     * @return a Response object containing the selected records
+     */
+    public Response select(String tableName) {
+        // Logic for selecting records without a condition
+        return database.select(tableName);
     }
 }

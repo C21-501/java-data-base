@@ -92,7 +92,6 @@ public class Response implements Serializable {
      */
     public void printTable() {
         // Calculate the maximum number of rows
-        System.out.println(tableName);
         int maxRows = responseMap.values().stream()
                 .mapToInt(List::size)
                 .max()
@@ -111,9 +110,15 @@ public class Response implements Serializable {
             columnWidths.put(columnName, maxWidth);
         }
 
-        // Calculate total table width
+        // Calculate the total table width
         int totalWidth = columnWidths.values().stream().mapToInt(Integer::intValue).sum()
                 + columnWidths.size() * 3 + 1;
+        int tableNameWidth = tableName.length();
+        int tableWidthWithHeader = Math.max(totalWidth, tableNameWidth + 4); // +4 for padding and separator
+
+        // Print the table name row
+        printTableNameSeparator(tableNameWidth + 4);
+        System.out.printf("| %s |%n", tableName);
 
         // Print the column headers
         printSeparator(totalWidth);
@@ -142,6 +147,10 @@ public class Response implements Serializable {
     }
 
     private void printSeparator(int width) {
+        System.out.printf("+%s+%n", "-".repeat(width - 2));
+    }
+
+    private void printTableNameSeparator(int width) {
         System.out.printf("+%s+%n", "-".repeat(width - 2));
     }
 

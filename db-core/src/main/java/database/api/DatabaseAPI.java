@@ -49,7 +49,7 @@ public class DatabaseAPI {
     private List<DatabaseEditor> editors;
     private DatabaseEditor activeEditor;
     private CommandHistory history;
-    private Response lastResponse;
+    private Response lastSelectResponse;
 
     /**
      * Creates a new database by executing the CreateCommand.
@@ -77,7 +77,7 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.create("myTable", List.of("id INTEGER", "name STRING"));
      * }</pre>
      */
@@ -112,7 +112,7 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.alter("myTable", List.of("newColumn INTEGER"));
      * dbApi.alter("myTable", null, List.of("column1 STRING", "column2 BOOLEAN"));
      * dbApi.alter("myTable", null, null, List.of("column2"));
@@ -126,34 +126,36 @@ public class DatabaseAPI {
     /**
      * Executes an ALTER command to rename an existing table in the database.
      *
-     * @param tableName    the current name of the table to be renamed
-     * @param newTableName the new name for the table
+     * @param name    the current name of the table or database to be renamed
+     * @param newName the new name for the table or database
+     * @param isDatabase flag
      * @throws IOException if an I/O error occurs during the execution
      *
-     * <p>Example:</p>
-     * <pre>{@code
-     * 
-     * dbApi.alter("oldTableName", "newTableName");
-     * }</pre>
+     *                     <p>Example:</p>
+     *                     <pre>{@code
+     *
+     *                     dbApi.alter("oldTableName", "newTableName", false);
+     *                     }</pre>
      */
-    final synchronized public void alter(String tableName, String newTableName) throws IOException {
-        executeCommand(new AlterCommand(this, activeEditor, tableName, newTableName));
+    final synchronized public void alter(String name, String newName, boolean isDatabase) throws IOException {
+        executeCommand(new AlterCommand(this, activeEditor, name, newName, isDatabase));
     }
 
     /**
      * Executes a DROP command to delete a table from the database.
      *
-     * @param tableName the name of the table to delete
+     * @param name         the name of the table or database to delete
+     * @param isDatabase   the flag
      * @throws IOException if an I/O error occurs during the execution
      *
-     * <p>Example:</p>
-     * <pre>{@code
-     * 
-     * dbApi.drop("myTable");
-     * }</pre>
+     *                     <p>Example:</p>
+     *                     <pre>{@code
+     *
+     *                     dbApi.drop("myTable", false);
+     *                     }</pre>
      */
-    final synchronized public void drop(String tableName) throws IOException {
-        executeCommand(new DropCommand(this, activeEditor, tableName));
+    final synchronized public void drop(String name, boolean isDatabase) throws IOException {
+        executeCommand(new DropCommand(this, activeEditor, name, isDatabase));
     }
 
     /**
@@ -165,7 +167,7 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.delete("myTable", "id = 1");
      * }</pre>
      */
@@ -183,7 +185,7 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.insert("myTable", List.of("id", "name"), List.of(new Object[]{1, "John Doe"}));
      * }</pre>
      */
@@ -192,33 +194,31 @@ public class DatabaseAPI {
     }
 
     /**
-     * Executes a SELECT command to retrieve records from a table in the database.
+     * Executes a SELECT command to retrieve all records from a table in the database.
      *
      * @param tableName the name of the table from which records will be retrieved
-     * @param columns   the list of column names to select from the table
-     * @param condition the condition to filter which records are selected
      * @throws IOException if an I/O error occurs during the execution
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
-     * dbApi.select("myTable", List.of("id", "name"), "id = 1");
+     *
+     * dbApi.select("myTable");
      * }</pre>
      */
-    final synchronized public void select(String tableName, List<String> columns, String condition) throws IOException {
-        executeCommand(new SelectCommand(this, activeEditor, tableName, columns, condition));
+    final synchronized public void select(String tableName) throws IOException {
+        executeCommand(new SelectCommand(this, activeEditor, tableName));
     }
 
     /**
-     * Executes a SELECT command to retrieve all records from a table in the database.
+     * Executes a SELECT command to retrieve specific columns from a table in the database.
      *
-     * @param tableName the name of the table from which all records will be retrieved
+     * @param tableName the name of the table from which records will be retrieved
      * @param columns   the list of column names to select from the table
      * @throws IOException if an I/O error occurs during the execution
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.select("myTable", List.of("id", "name"));
      * }</pre>
      */
@@ -227,21 +227,39 @@ public class DatabaseAPI {
     }
 
     /**
+     * Executes a SELECT command to retrieve specific columns from a table in the database based on a condition.
+     *
+     * @param tableName the name of the table from which records will be retrieved
+     * @param columns   the list of column names to select from the table
+     * @param condition the condition to filter which records are selected
+     * @throws IOException if an I/O error occurs during the execution
+     *
+     * <p>Example:</p>
+     * <pre>{@code
+     *
+     * dbApi.select("myTable", List.of("id", "name"), "id = 1");
+     * }</pre>
+     */
+    final synchronized public void select(String tableName, List<String> columns, String condition) throws IOException {
+        executeCommand(new SelectCommand(this, activeEditor, tableName, columns, condition));
+    }
+
+    /**
      * Executes an UPDATE command to modify records in a table in the database.
      *
      * @param tableName the name of the table in which records will be updated
-     * @param value     the new value to be set in the records
+     * @param values     the new value to be set in the records
      * @param condition the condition to determine which records to update
      * @throws IOException if an I/O error occurs during the execution
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
-     * dbApi.update("myTable", "NewValue", "id = 1");
+     *
+     * dbApi.update("table1", List.of("column1 = 20", "column2 = 'John'",), "id = 10");
      * }</pre>
      */
-    final synchronized public void update(String tableName, Object value, String condition) throws IOException {
-        executeCommand(new UpdateCommand(this, activeEditor, tableName, value, condition));
+    final synchronized public void update(String tableName, List<String> values, String condition) throws IOException {
+        executeCommand(new UpdateCommand(this, activeEditor, tableName, values, condition));
     }
 
     /**
@@ -251,7 +269,7 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.begin();
      * }</pre>
      */
@@ -266,7 +284,7 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.commit();
      * }</pre>
      */
@@ -281,7 +299,7 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.rollback();
      * }</pre>
      */
@@ -290,6 +308,9 @@ public class DatabaseAPI {
     }
 
     private void executeCommand(Command command) throws IOException {
+        if (activeEditor.haveActiveTransactions() && !(command instanceof BeginCommand || command instanceof CommitCommand || command instanceof RollBackCommand)) {
+            activeEditor.collectCommands(command);
+        }
         if (command.execute()) {
             history.push(command);
         }
@@ -303,7 +324,7 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.undo();
      * }</pre>
      */
