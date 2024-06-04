@@ -40,13 +40,16 @@ public class DatabaseAPITest {
         );
         databaseAPI.insert("employees", List.of("id", "name", "age"), values);
         // Select all records from the "employees" table
-        databaseAPI.select("employees", List.of("id", "name", "age"));
+        databaseAPI.select("employees");
+        databaseAPI.getLastSelectResponse().printTable();
         // Begin a new transaction
         databaseAPI.begin();
         // Update the age of employee with id 1 to 32
-        databaseAPI.update("employees", 32, "id = 1");
+        databaseAPI.update("employees", List.of("name = 'John'","age = 18"), "id = 1");
         // Commit the transaction
         databaseAPI.commit();
+        databaseAPI.select("employees");
+        databaseAPI.getLastSelectResponse().printTable();
         // Drop the "employees" table
         databaseAPI.drop("employees", false);
     }
@@ -205,7 +208,6 @@ public class DatabaseAPITest {
     public void test_update_records_valid_value_and_condition() throws IOException {
         String tableName = "table1";
         List<String> columns = Arrays.asList("column1 STRING", "column2 STRING");
-        Object value = "new_value";
         String condition = "column1 = 'old_value'";
 
         // Create table
@@ -218,13 +220,13 @@ public class DatabaseAPITest {
         databaseAPI.insert(tableName, columns, values);
 
         // Update records
-        databaseAPI.update(tableName, value, condition);
+        databaseAPI.update(tableName, List.of("column1 = new_value"), condition);
 
         // Verify
         List<String> selectedColumns = Arrays.asList("column1", "column2");
         String selectCondition = "column1 = 'new_value'";
         assertDoesNotThrow(() -> databaseAPI.select(tableName, selectedColumns, selectCondition));
-        databaseAPI.getLastResponse().printTable();
+        databaseAPI.getLastSelectResponse().printTable();
     }
 
     // Attempt to undo when there are no commands in history
@@ -250,7 +252,7 @@ public class DatabaseAPITest {
             databaseAPI.insert(tableName, columns, values);
 
             // Attempt to update with an invalid condition
-            assertThrows(IllegalArgumentException.class, () -> databaseAPI.update(tableName, "age", "invalid_condition"));
+            assertThrows(IllegalArgumentException.class, () -> databaseAPI.update(tableName, List.of("age = 32"), "invalid_condition"));
         } catch (IOException e) {
             fail("Exception thrown when not expected: %s".formatted(e.getMessage()));
         }

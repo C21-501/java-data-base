@@ -49,7 +49,7 @@ public class DatabaseAPI {
     private List<DatabaseEditor> editors;
     private DatabaseEditor activeEditor;
     private CommandHistory history;
-    private Response lastResponse;
+    private Response lastSelectResponse;
 
     /**
      * Creates a new database by executing the CreateCommand.
@@ -77,7 +77,7 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.create("myTable", List.of("id INTEGER", "name STRING"));
      * }</pre>
      */
@@ -112,7 +112,7 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.alter("myTable", List.of("newColumn INTEGER"));
      * dbApi.alter("myTable", null, List.of("column1 STRING", "column2 BOOLEAN"));
      * dbApi.alter("myTable", null, null, List.of("column2"));
@@ -167,7 +167,7 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.delete("myTable", "id = 1");
      * }</pre>
      */
@@ -185,7 +185,7 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.insert("myTable", List.of("id", "name"), List.of(new Object[]{1, "John Doe"}));
      * }</pre>
      */
@@ -248,18 +248,18 @@ public class DatabaseAPI {
      * Executes an UPDATE command to modify records in a table in the database.
      *
      * @param tableName the name of the table in which records will be updated
-     * @param value     the new value to be set in the records
+     * @param values     the new value to be set in the records
      * @param condition the condition to determine which records to update
      * @throws IOException if an I/O error occurs during the execution
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
-     * dbApi.update("myTable", "NewValue", "id = 1");
+     *
+     * dbApi.update("table1", List.of("column1 = 20", "column2 = 'John'",), "id = 10");
      * }</pre>
      */
-    final synchronized public void update(String tableName, Object value, String condition) throws IOException {
-        executeCommand(new UpdateCommand(this, activeEditor, tableName, value, condition));
+    final synchronized public void update(String tableName, List<String> values, String condition) throws IOException {
+        executeCommand(new UpdateCommand(this, activeEditor, tableName, values, condition));
     }
 
     /**
@@ -269,7 +269,7 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.begin();
      * }</pre>
      */
@@ -284,7 +284,7 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.commit();
      * }</pre>
      */
@@ -299,7 +299,7 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.rollback();
      * }</pre>
      */
@@ -308,6 +308,9 @@ public class DatabaseAPI {
     }
 
     private void executeCommand(Command command) throws IOException {
+        if (activeEditor.haveActiveTransactions() && !(command instanceof BeginCommand || command instanceof CommitCommand || command instanceof RollBackCommand)) {
+            activeEditor.collectCommands(command);
+        }
         if (command.execute()) {
             history.push(command);
         }
@@ -321,7 +324,7 @@ public class DatabaseAPI {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
+     *
      * dbApi.undo();
      * }</pre>
      */

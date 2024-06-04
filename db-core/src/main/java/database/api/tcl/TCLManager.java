@@ -65,7 +65,7 @@ public class TCLManager {
         }
         try {
             if (commandQueue.isEmpty())
-                throw new RuntimeException("Error: command queue is empty, no commands passed");
+                throw new RuntimeException("Error: command queue is empty, no command passed.");
             // Execute all commands in the queue
             while (!commandQueue.isEmpty()) {
                 commandQueue.poll().execute();

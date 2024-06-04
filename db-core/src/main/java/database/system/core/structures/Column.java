@@ -9,7 +9,6 @@ import lombok.EqualsAndHashCode;
 
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -26,6 +25,10 @@ public class Column extends DatabaseStructure {
             this.fieldScheme = new FieldScheme(other.getFieldScheme());
             this.fieldBody = new FieldBody(other.getFieldBody());
         }
+    }
+
+    public Object convertValue(String value) {
+        return fieldScheme.convertValueToValidType(value);
     }
 
     public Column setConstraint(Constraint constraint){
@@ -51,8 +54,8 @@ public class Column extends DatabaseStructure {
         fieldBody.removeValuesById(values.stream().map(Value::getId).toList());
     }
 
-    public void update(Object value, Predicate<Object> filter) {
-        fieldBody.updateValueIf(value, filter);
+    public void update(Object value, List<Integer> valueIds) {
+        fieldBody.updateById(value, valueIds);
     }
 
     public List<Value> select(Predicate<Object> filter) {

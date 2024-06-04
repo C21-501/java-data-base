@@ -43,16 +43,14 @@ public class FieldBody implements Body {
         return objectList.get(index);
     }
 
-    public void updateValueIf(Object updatedValue, Predicate<Object> filter) {
+    public void updateById(Object updatedValue, List<Integer> valueIds) {
         objectList.replaceAll(obj -> {
-            if (filter.test(obj.getObject())) {
-                return obj.setObject(updatedValue);
-            } else {
-                return obj;
+            if (valueIds.contains(obj.getId())) {
+                obj.setObject(updatedValue);
             }
+            return obj;
         });
     }
-
 
     public void removeValuesIf(Predicate<Object> filter) {
         objectList.removeIf(value -> filter.test(value.getObject()));

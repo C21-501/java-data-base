@@ -151,14 +151,14 @@ public class Database extends DatabaseStructure {
         table.delete(condition);
     }
 
-    public void update(String tableName, Object value, String condition) {
+    public void update(String tableName, List<String> values, String condition) {
         validateTableName(tableName);
-        validateNonNull(value);
+        validateNonNull(values);
         validateNonNull(condition);
         Table table = tables.get(tableName);
         if (table == null)
             throw new RuntimeException(String.format("Error: table '%s' doesn't exist", tableName));
-        table.update(value, condition);
+        table.update(values, condition);
     }
 
     public Response select(String tableName, List<String> columns, String condition) {

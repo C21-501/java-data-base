@@ -38,12 +38,12 @@ public class DMLManager {
      * Updates records in a table in the database.
      *
      * @param tableName the name of the table in which records will be updated
-     * @param value     the new value to be set in the records
+     * @param values     the new values to be set in the records
      * @param condition the condition to determine which records to update
      */
-    public void update(String tableName, Object value, String condition) {
+    public void update(String tableName, List<String> values, String condition) {
         // Logic for updating records
-        database.update(tableName, value, condition);
+        database.update(tableName, values, condition);
     }
 
     /**

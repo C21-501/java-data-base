@@ -87,11 +87,11 @@ public final class SelectCommand extends Command {
     @Override
     public boolean execute() {
         if (columns.isEmpty() && condition.isEmpty()) {
-            databaseEditor.getDmlManager().select(tableName);
+            databaseAPI.setLastSelectResponse(databaseEditor.getDmlManager().select(tableName));
         } else if (condition.isEmpty()) {
-            databaseEditor.getDmlManager().select(tableName, columns.get());
+            databaseAPI.setLastSelectResponse(databaseEditor.getDmlManager().select(tableName, columns.get()));
         } else {
-            databaseAPI.setLastResponse(databaseEditor.getDmlManager().select(tableName, columns.orElse(List.of()), condition.get()));
+            databaseAPI.setLastSelectResponse(databaseEditor.getDmlManager().select(tableName, columns.orElse(List.of()), condition.get()));
         }
         return false;
     }

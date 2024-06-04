@@ -163,5 +163,13 @@ public class DatabaseEditor {
             throw new RuntimeException(String.format("Database %s does not exist.%n", name));
         }
     }
+
+    public boolean haveActiveTransactions() {
+        return tclManager.isTransactionActive();
+    }
+
+    public void collectCommands(Command command) {
+        tclManager.addCommand(command);
+    }
 }
 

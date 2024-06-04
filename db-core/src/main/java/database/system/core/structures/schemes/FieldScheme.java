@@ -87,4 +87,33 @@ public class FieldScheme implements Scheme {
     public long getObjectsNumber() {
         return 1;
     }
+
+    public Object convertValueToValidType(String value) {
+        switch (type) {
+            case INTEGER -> {
+                try {
+                    return Integer.valueOf(value);
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException(String.format("Error: Expected INTEGER type, but received: %s.%n", value));
+                }
+            }
+            case STRING -> {
+                return value.replace("'", "");
+            }
+            case REAL -> {
+                try {
+                    return Double.valueOf(value);
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException(String.format("Error: Expected REAL type, but received: %s.%n", value));
+                }
+            }
+            case BOOLEAN -> {
+                if (!"true".equalsIgnoreCase(value) && !"false".equalsIgnoreCase(value)) {
+                    throw new IllegalArgumentException(String.format("Error: Expected BOOLEAN type, but received: %s.%n", value));
+                }
+                return Boolean.valueOf(value);
+            }
+            default -> throw new IllegalArgumentException(String.format("Unknown type: %s.%n", type));
+        }
+    }
 }

@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import java.nio.file.CopyOption;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -166,17 +167,32 @@ public class Table extends DatabaseStructure implements CopyOption {
         return this;
     }
 
-    public Table update(Object value, String condition) {
-        String[] parts = parseCondition(condition);
-        validateConditionFormat(parts);
-        String columnName = parts[0].trim();
-        String operator = parts[1].trim();
-        String filteredValue = parts[2].trim();
-        Predicate<Object> filter = createFilter(columnName, operator, filteredValue);
-        Column column = columns.get(columnName);
-        column.update(value, filter);
+    public Table update(List<String> values, String condition) {
+        String[] conditionParts = parseCondition(condition);
+        validateConditionFormat(conditionParts);
+        String filteredColumnName = conditionParts[0].trim();
+        String operator = conditionParts[1].trim();
+        String value = conditionParts[2].trim();
+        Predicate<Object> filter = createFilter(filteredColumnName, operator, value);
+        Column filteredColumn = columns.get(filteredColumnName);
+        List<Integer> valuesId = filteredColumn.select(filter).stream().map(Value::getId).toList();
+        for (String updateValue : values) {
+            String[] updateParts = updateValue.split("=");
+            if (updateParts.length != 2) {
+                throw new IllegalArgumentException(String.format("Invalid update value format: %s",updateValue));
+            }
+            String columnName = updateParts[0].trim();
+            Column column = columns.get(columnName);
+            if (column == null) {
+                throw new RuntimeException(String.format("Error: column '%s' does not exist", columnName));
+            }
+            Object newValue = column.convertValue(updateParts[1].trim());
+            column.update(newValue, valuesId);
+        }
         return this;
     }
+
+
 
     private String[] parseCondition(String condition) {
         String[] parts = condition.split(" ", 3);
