@@ -50,10 +50,7 @@ public class SQLListener extends SQLGrammarBaseListener {
 
         logger.info("Starting ALTER DB command...");
         try{
-            //вызов функции
-            System.out.println(dbName);
-            System.out.println(newDbName);
-
+            databaseAPI.alter(dbName, newDbName, true);
             logger.info("Success ALTER DB command");
         } catch (Exception e){
             logger.error(e.getMessage());
@@ -79,9 +76,7 @@ public class SQLListener extends SQLGrammarBaseListener {
 
         logger.info("Starting DROP DB command...");
         try{
-            //вызов функции
-            System.out.println(dbName);
-
+            databaseAPI.drop(dbName, true);
             logger.info("Success DROP DB command");
         } catch (Exception e){
             logger.error(e.getMessage());
@@ -98,7 +93,7 @@ public class SQLListener extends SQLGrammarBaseListener {
 
             logger.info("Starting RENAME TABLE command...");
             try{
-                databaseAPI.alter(tableName, newTableName);
+                databaseAPI.alter(tableName, newTableName, false);
                 logger.info("Success RENAME TABLE command");
             } catch (Exception e){
                 logger.error(e.getMessage());
@@ -181,7 +176,7 @@ public class SQLListener extends SQLGrammarBaseListener {
         String tableName = ctx.tableName.getText();
         logger.info("Starting DROP TABLE command...");
         try{
-            databaseAPI.drop(tableName);
+            databaseAPI.drop(tableName, false);
             logger.info("Success DROP TABLE command");
         } catch (Exception e){
             logger.error(e.getMessage());
@@ -284,18 +279,14 @@ public class SQLListener extends SQLGrammarBaseListener {
     @Override
     public void exitUpdateCommand(SQLGrammarParser.UpdateCommandContext ctx) {
         String tableName = ctx.tableName.getText();
-        //List<String> columnsToUpdate = new LinkedList<>();
-        //List<String> values = new LinkedList<>();
         String condition = "";
-        String value = ctx.updateList.literal().getFirst().getText();
+        List<String> values = new LinkedList<>();
+        int sz = Math.min(ctx.updateList.IDENTIFIER().size(), ctx.updateList.literal().size());
+        var c = ctx.updateList;
 
-//        for(var i : ctx.updateList.IDENTIFIER()){
-//            columnsToUpdate.add(i.getText());
-//        }
-//
-//        for(var i : ctx.updateList.literal()){
-//            values.add(i.getText());
-//        }
+        for (int i = 0; i < sz; i++) {
+            values.add(STR."\{c.IDENTIFIER(i).getText()} = \{c.literal(i).getText()}");
+        }
 
         if(ctx.condition() != null){
 //            List<Expression> expressions = new ArrayList<>();
@@ -314,7 +305,7 @@ public class SQLListener extends SQLGrammarBaseListener {
 
         logger.info("Starting UPDATE command ...");
         try{
-            databaseAPI.update(tableName, value, condition);
+            databaseAPI.update(tableName, values, condition);
             logger.info("Success UPDATE command");
         }catch (Exception e){
             logger.error(e.getMessage());
