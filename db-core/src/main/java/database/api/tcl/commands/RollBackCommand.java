@@ -30,7 +30,9 @@ public final class RollBackCommand extends Command {
      */
     @Override
     public boolean execute() {
+        saveBackup();
         databaseEditor.getTclManager().rollback();
-        return true;
+        databaseEditor.saveDatabaseState();
+        return false;
     }
 }

@@ -8,8 +8,8 @@ import database.system.core.structures.Database;
 import lombok.Data;
 
 import java.io.*;
-import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * The TCLManager class manages Transaction Control Language (TCL) operations on the database.
@@ -20,19 +20,18 @@ public class TCLManager {
     private Database database;
     private String transactionFile;
     private boolean transactionActive;
-    private Queue<Command> commandQueue;
+    private static Queue<Command> commandQueue = new LinkedBlockingQueue<>();
 
     /**
      * Constructs a new TCLManager instance.
      *
      * @param database        the database instance to manage transactions
-     * @param transactionFile the file path for storing transaction backups
+     *
      */
-    public TCLManager(Database database, String transactionFile) {
+    public TCLManager(Database database) {
         this.database = database;
-        this.transactionFile = transactionFile;
+        this.transactionFile = database.getFilePath();
         this.transactionActive = false;
-        this.commandQueue = new LinkedList<>();
     }
 
     /**
@@ -70,7 +69,7 @@ public class TCLManager {
             while (!commandQueue.isEmpty()) {
                 commandQueue.poll().execute();
             }
-            database.saveState(this.transactionFile); // Assuming saveState method exists in Database class
+            database.saveStateInFile(this.transactionFile); // Assuming saveState method exists in Database class
             File transactionFile = new File(this.transactionFile);
             if (transactionFile.exists() && !transactionFile.delete()) {
                 System.err.println("Warning: Could not delete transaction backup file.");
@@ -109,9 +108,11 @@ public class TCLManager {
         if (!transactionActive) {
             throw new RuntimeException("Error: No active transaction. Cannot add command.");
         }
-        if (command instanceof BeginCommand || command instanceof CommitCommand || command instanceof RollBackCommand) {
+        else if (command instanceof BeginCommand || command instanceof CommitCommand || command instanceof RollBackCommand) {
             throw new RuntimeException(String.format("The TCL command %s can't be executed inside other transaction block", command.getClass().getSimpleName()));
         }
-        commandQueue.add(command);
+        else {
+            commandQueue.add(command);
+        }
     }
 }

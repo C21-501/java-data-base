@@ -22,9 +22,9 @@ public class FieldBody implements Body {
         }
     }
 
-    public void insertValue(FieldScheme fieldScheme, Object value){
-        if (fieldScheme.validate(this, value))
-            objectList.add(new Value(fieldId++, value));
+    public void insertValue(FieldScheme fieldScheme, Value value){
+        if (fieldScheme.validate(this, value.getObject()))
+            objectList.add(value);
     }
 
     public boolean validate(FieldScheme fieldScheme){
@@ -72,5 +72,11 @@ public class FieldBody implements Body {
     public void removeValuesById(List<Integer> ids) {
         Set<Integer> idSet = new HashSet<>(ids);
         objectList.removeIf(value -> idSet.contains(value.getId()));
+    }
+
+    public void setNull(Set<Integer> ids) {
+        objectList = ids.stream()
+                .map(id -> new Value(id, null))
+                .collect(Collectors.toList());
     }
 }

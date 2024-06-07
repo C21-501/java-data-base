@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
  */
 @Data
 public class Response implements Serializable {
+    public static final String NULL_STRING = "NULL";
     private String tableName;
     private Map<String, List<Value>> responseMap = new TreeMap<>();
     private Set<String> responseColumnsOrder = new LinkedHashSet<>();
@@ -102,7 +103,7 @@ public class Response implements Serializable {
         for (String columnName : responseColumnsOrder) {
             int maxWidth = columnName.length();
             for (Value value : responseMap.get(columnName)) {
-                int length = value.getObject().toString().length();
+                int length = value.getObject() != null ? value.getObject().toString().length(): NULL_STRING.length();
                 if (length > maxWidth) {
                     maxWidth = length;
                 }
@@ -135,10 +136,11 @@ public class Response implements Serializable {
                 List<Value> values = responseMap.get(columnName);
                 int width = columnWidths.get(columnName);
                 if (i < values.size()) {
-                    String value = values.get(i).getObject().toString();
+                    String value = values.get(i).getObject() == null ? NULL_STRING: values.get(i).getObject().toString();
+//                    String value = values.get(i).getObject() == null ? "NULL": String.valueOf(values.get(i).getId());
                     System.out.printf("| %%-%ds ".formatted(width), center(value, width));
                 } else {
-                    System.out.printf("| %%-%ds ".formatted(width), center("", width));
+                    System.out.printf("| %%-%ds ".formatted(width), center(NULL_STRING, width));
                 }
             }
             System.out.println("|");

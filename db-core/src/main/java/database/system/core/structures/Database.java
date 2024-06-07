@@ -8,10 +8,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class Database extends DatabaseStructure {
+    private String filePath;
     private static volatile Database instance;
     private Map<String, Table> tables = new TreeMap<>();
 
@@ -47,99 +49,24 @@ public class Database extends DatabaseStructure {
         return table;
     }
 
-    public Table createTable(String tableName, Table table) {
+    public void createTable(String tableName, Table table) {
         validateTableName(tableName);
         validateNonNull(table);
         if (tables.containsKey(tableName))
             throw new IllegalArgumentException(String.format("Table already exists with name: %s", tableName));
         tables.put(tableName, table);
-        return table;
     }
 
-    public Database dropTable(String tableName) {
+    public void dropTable(String tableName) {
         validateTableName(tableName);
         if (!tables.containsKey(tableName))
             throw new IllegalArgumentException(String.format("Table does not exist: %s", tableName));
         tables.remove(tableName);
-        return this;
     }
 
     public Optional<Table> getTable(String tableName) {
         validateTableName(tableName);
         return Optional.ofNullable(tables.get(tableName));
-    }
-
-    public Database insertInto(String tableName, String[] columnNames, Object[] values) {
-        validateTableName(tableName);
-        validateColumnNames(columnNames);
-        validateValues(values);
-        Table table = tables.get(tableName);
-        if (table == null)
-            throw new RuntimeException(String.format("Error: table '%s' doesn't exist", tableName));
-        for (int i = 0; i < columnNames.length; i++) {
-            table.insert(columnNames[i], values[i]);
-        }
-        return this;
-    }
-
-    public Database insertInto(String tableName, String columnName, Object[] values) {
-        validateTableName(tableName);
-        validateNonNull(columnName);
-        validateValues(values);
-        Table table = tables.get(tableName);
-        if (table == null)
-            throw new RuntimeException(String.format("Error: table '%s' doesn't exist", tableName));
-        Column column = table.getColumn(columnName);
-        for (Object value : values) {
-            column.insert(value);
-        }
-        return this;
-    }
-
-    public Database insertInto(String tableName, String[] columnNames, List<Object[]> firstTableValues) {
-        validateTableName(tableName);
-        validateColumnNames(columnNames);
-        validateNonNull(firstTableValues);
-        Table table = tables.get(tableName);
-        if (table == null)
-            throw new RuntimeException(String.format("Error: table '%s' doesn't not exist", tableName));
-        int i = 0;
-        for (String columnName : columnNames) {
-            Column column = table.getColumn(columnName);
-            for (Object[] row : firstTableValues) {
-                column.insert(row[i]);
-            }
-            i++;
-        }
-        return this;
-    }
-
-    public Database insertInto(String tableName, String columnName, Object value) {
-        validateTableName(tableName);
-        validateNonNull(columnName);
-        validateNonNull(value);
-        Table table = tables.get(tableName);
-        if (table == null)
-            throw new RuntimeException(String.format("Error: table '%s' doesn't not exist", tableName));
-        table.insert(columnName, value);
-        return this;
-    }
-
-    public Response selectFrom(String tableName, List<String> columnNames) {
-        validateTableName(tableName);
-        validateColumnNames(columnNames);
-        Table table = tables.get(tableName);
-        if (table == null)
-            throw new RuntimeException(String.format("Error: table '%s' doesn't not exist", tableName));
-        Response response = new Response(tableName, columnNames);
-        for (String columnName : columnNames) {
-            Column column = table.getColumn(columnName);
-            if (column == null) {
-                throw new RuntimeException(String.format("Error: column '%s' does not exist in table '%s'", columnName, tableName));
-            }
-            response.set(columnName, column.getFieldBody().getValues());
-        }
-        return response;
     }
 
     public void delete(String tableName, String condition) {
@@ -191,13 +118,13 @@ public class Database extends DatabaseStructure {
         return table.select(tableName, columns);
     }
 
-    public void alter(String tableName, List<String>... columnLists) {
+    @SafeVarargs
+    public final void alter(String tableName, List<String>... columnLists) {
         validateTableName(tableName);
         if (columnLists == null || columnLists.length > 3) {
             throw new IllegalArgumentException("Error: Expected three or less lists of columns: newColumns, modifiedColumns, droppedColumns.");
         }
         Table existingTable = getExistingTable(tableName);
-
         switch (columnLists.length) {
             case 1:
                 if (columnLists[0] != null && !columnLists[0].isEmpty()) {
@@ -267,7 +194,7 @@ public class Database extends DatabaseStructure {
             if (!existingTable.contains(columnName)) {
                 if (DataType.validate(columnType)) { // Проверяем, является ли тип данных допустимым
                     DataType dataType = DataType.valueOf(columnType);
-                    Column column = new Column(dataType);
+                    Column column = new Column(dataType, existingTable.getRowIds());
                     existingTable.createColumn(columnName, column);
                 } else {
                     throw new IllegalArgumentException(String.format("Error: Invalid data type: %s", columnType));
@@ -330,24 +257,7 @@ public class Database extends DatabaseStructure {
         }
         // Вставка данных в таблицу
         for (Object[] valueArray : values) {
-            for (int i = 0; i < columns.size(); i++) {
-                String columnName = columns.get(i);
-                Column column = table.getColumn(columnName);
-                if (column == null) {
-                    throw new RuntimeException(String.format("Error: column '%s' doesn't exist in table '%s'", columnName, tableName));
-                }
-                // Проверка типа данных перед вставкой
-                DataType expectedType = column.getFieldScheme().getType();
-                Object value = valueArray[i];
-                DataType actualType = DataType.map(value);
-
-                if (expectedType != actualType) {
-                    throw new IllegalArgumentException(String.format(
-                            "Error: Invalid data type for column '%s'. Expected: %s, but got: %s",
-                            columnName, expectedType, actualType));
-                }
-                column.insert(value);
-            }
+            table.insert(columns, valueArray);
         }
     }
 
@@ -358,28 +268,15 @@ public class Database extends DatabaseStructure {
         }
         // Очистка текущих таблиц
         tables.clear();
-
         // Восстановление таблиц и их данных из резервной копии
         for (Map.Entry<String, Table> entry : backupDatabase.tables.entrySet()) {
             String tableName = entry.getKey();
             Table backupTable = entry.getValue();
-            // Копирование структуры таблицы
-            Table table = new Table();
-            for (Map.Entry<String, Column> columnEntry : backupTable.getColumns().entrySet()) {
-                String columnName = columnEntry.getKey();
-                Column backupColumn = columnEntry.getValue();
-
-                // Копирование схемы и данных столбца
-                Column column = new Column(backupColumn.getFieldScheme().getType());
-                column.getFieldBody().getValues().addAll(backupColumn.getFieldBody().getValues());
-
-                table.createColumn(columnName, column);
-            }
-            tables.put(tableName, table);
+            tables.put(tableName, backupTable);
         }
     }
 
-    public void saveState(String file) throws IOException{
+    public void saveStateInFile(String file) throws IOException{
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
             oos.writeObject(this);
         }
@@ -388,6 +285,7 @@ public class Database extends DatabaseStructure {
     public void alter(String tableName, String newTableName) {
         validateTableName(tableName);
         validateTableName(newTableName);
-        tables.put(newTableName, tables.remove(tableName));
+        Table removedTable = tables.remove(tableName);
+        tables.put(newTableName, removedTable);
     }
 }

@@ -13,17 +13,11 @@ public class Value implements Comparable<Object>, Serializable {
     private Object object;
 
     public Value(Object o) {
-        if (o == null) {
-            throw new NullPointerException("Error: parameter 'o' is null in Value constructor.");
-        }
         this.id = idGenerator.incrementAndGet();
         this.object = o;
     }
 
     public Value(int id, Object o) {
-        if (o == null) {
-            throw new NullPointerException("Error: parameter 'o' is null in Value constructor with id.");
-        }
         this.id = id;
         this.object = o;
     }

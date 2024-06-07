@@ -15,11 +15,11 @@ import java.nio.file.Paths;
 public class DatabaseSerializer extends Serializer {
     private String filePath = STR."\{databaseDirPath}/\{databaseName}";
 
-    public DatabaseSerializer(Database instance, String databaseName) {
-        if (databaseName.isEmpty() || instance == null)
-            throw new NullPointerException("null parameters");
-        super(databaseName);
-    }
+//    public DatabaseSerializer(Database instance, String databaseName) {
+//        if (databaseName.isEmpty() || instance == null)
+//            throw new NullPointerException("null parameters");
+//        super(databaseName);
+//    }
 
     public DatabaseSerializer(Database instance, String dirName, String path){
         if (dirName.isEmpty() || instance == null)
@@ -28,15 +28,22 @@ public class DatabaseSerializer extends Serializer {
     }
 
     @Override
-    public void save(Database database) throws IOException {
-        writeInstanceToFile(filePath,databaseName, database);
+    public void saveInstance(Database database) {
+        try {
+            writeInstanceToFile(database);
+        } catch (IOException e){
+            e.printStackTrace();
+            throw new RuntimeException("Failed to save instance of database to file.");
+        }
     }
 
     @Override
-    public void createDatabaseDirectory(String filePath) {
-        Path directory = Paths.get(String.format("%s/%s",filePath, databaseName));
+    public void createDatabaseDirectoryAndFile(String filePath) {
+        String path = String.format("%s/%s",filePath, databaseName);
+        Path directory = Paths.get(path);
         try {
             Files.createDirectories(directory);
+            createFile(String.format("%s/%s.instance",path, databaseName));
         } catch (IOException e) {
             throw new RuntimeException(String.format("Failed to create directory: %s", directory.getFileName()));
         }
@@ -47,9 +54,8 @@ public class DatabaseSerializer extends Serializer {
         return readFromFile(filePath, databaseName);
     }
 
-    private static void writeInstanceToFile(String filePath, String name, Serializable record) throws IOException {
-        String fileName = STR."\{filePath}/\{name}.instance";
-        createFile(fileName);
+    private static void writeInstanceToFile(Database record) throws IOException {
+        String fileName = record.getFilePath();
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName))) {
             oos.writeObject(record);
         }

@@ -27,7 +27,7 @@ public abstract class Serializer {
         return file.createNewFile();
     }
 
-    abstract void save(Database database) throws IOException;
-    abstract void createDatabaseDirectory(String filePath);
+    abstract void saveInstance(Database database) throws IOException;
+    abstract void createDatabaseDirectoryAndFile(String filePath);
     abstract Database read(String filePath, String databaseName) throws IOException, ClassNotFoundException;
 }

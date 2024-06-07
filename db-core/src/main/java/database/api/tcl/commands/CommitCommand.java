@@ -31,7 +31,9 @@ public final class CommitCommand extends Command {
      */
     @Override
     public boolean execute() {
+        saveBackup();
         databaseEditor.getTclManager().commit();
-        return true;
+        databaseEditor.saveDatabaseState();
+        return false;
     }
 }

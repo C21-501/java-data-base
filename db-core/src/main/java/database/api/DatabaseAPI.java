@@ -310,9 +310,14 @@ public class DatabaseAPI {
     private void executeCommand(Command command) throws IOException {
         if (activeEditor.haveActiveTransactions() && !(command instanceof BeginCommand || command instanceof CommitCommand || command instanceof RollBackCommand)) {
             activeEditor.collectCommands(command);
-        }
-        if (command.execute()) {
-            history.push(command);
+        } else if (activeEditor.haveActiveTransactions() && (command instanceof CommitCommand || command instanceof RollBackCommand)) {
+            if(command.execute()){
+                history.push(command);
+            }
+        } else {
+            if(command.execute()){
+                history.push(command);
+            }
         }
     }
 
@@ -333,5 +338,113 @@ public class DatabaseAPI {
         if (command != null) {
             command.undo();
         }
+    }
+
+    public static void main(String[] args) throws IOException {
+        // Создаем экземпляр DatabaseAPI
+        DatabaseAPI databaseAPI = new DatabaseAPI();
+
+        // Устанавливаем активного редактора и историю команд
+        databaseAPI.setActiveEditor(new DatabaseEditor());
+        databaseAPI.setHistory(new CommandHistory());
+
+        // Создаем базу данных
+        databaseAPI.create("test_database", Optional.empty());
+
+        // Создаем таблицу
+        databaseAPI.create("test_table", List.of("id INTEGER", "name STRING", "age INTEGER"));
+
+        // Вставляем записи
+        databaseAPI.insert("test_table",
+                List.of("id", "name", "age"),
+                List.of(
+                        new Object[]{1, "Alice", 20},
+                        new Object[]{2, "Bob", 25}
+                )
+        );
+
+        // Выбор всех записей
+        databaseAPI.select("test_table");
+        databaseAPI.getLastSelectResponse().printTable();
+
+        // Начинаем транзакцию
+        databaseAPI.begin();
+
+        // Вставляем записи в рамках транзакции
+        databaseAPI.insert("test_table",
+                List.of("id", "name", "age"),
+                List.of(
+                        new Object[]{3, "Tom", 21},
+                        new Object[]{4, "Peter", 18}
+                )
+        );
+
+        // Коммитим транзакцию
+        databaseAPI.commit();
+
+        // Выбор всех записей после коммита
+        databaseAPI.select("test_table");
+        databaseAPI.getLastSelectResponse().printTable();
+
+        // Обновляем записи
+        databaseAPI.update("test_table", List.of("name = 'Alice Smith'", "age = 31"), "id = 1");
+
+        // Удаляем запись
+        databaseAPI.delete("test_table", "id = 2");
+
+        databaseAPI.insert("test_table",
+                List.of("id", "name", "age"),
+                List.of(
+                        new Object[]{5, "Sara", 21},
+                        new Object[]{6, "Connor", 18}
+                )
+        );
+
+        // Выбор всех записей после изменений
+        databaseAPI.select("test_table");
+        databaseAPI.getLastSelectResponse().printTable();
+
+        // Добавляем новый столбец
+        databaseAPI.alter("test_table", List.of("salary REAL"));
+
+        // Выбор всех записей после добавления столбца
+        databaseAPI.select("test_table");
+        databaseAPI.getLastSelectResponse().printTable();
+        // Начинаем транзакцию для демонстрации отката
+        databaseAPI.begin();
+
+        // Вставляем записи в рамках транзакции
+        databaseAPI.insert("test_table",
+                List.of("id", "name", "age", "salary"),
+                List.of(
+                        new Object[]{5, "Sam", 28, 50000.0},
+                        new Object[]{6, "Anna", 24, 60000.0}
+                )
+        );
+        // Откатываем транзакцию
+        databaseAPI.rollback();
+        // Выбор всех записей после отката
+        databaseAPI.select("test_table");
+        databaseAPI.getLastSelectResponse().printTable();
+
+        // Переименовываем таблицу
+        databaseAPI.alter("test_table", "renamed_table", false);
+
+        databaseAPI.insert("renamed_table",
+                List.of("id", "name", "age", "salary"),
+                List.of(
+                        new Object[]{5, "Sam", 28, 50000.0},
+                        new Object[]{6, "Anna", 24, 60000.0}
+                )
+        );
+        // Выбор всех записей из переименованной таблицы
+        databaseAPI.select("renamed_table");
+        databaseAPI.getLastSelectResponse().printTable();
+
+        // Удаляем таблицу
+        databaseAPI.drop("renamed_table", false);
+
+        // Удаляем базу данных
+        databaseAPI.drop("test_database", true);
     }
 }

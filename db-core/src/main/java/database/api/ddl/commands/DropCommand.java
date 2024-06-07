@@ -40,9 +40,12 @@ public final class DropCommand extends Command {
     @Override
     public boolean execute() {
         saveBackup();
-        if (isDatabase)
+        if (isDatabase){
             databaseEditor.dropDatabase(name);
-        else databaseEditor.getDdlManager().drop(name);
+            return false;
+        } else {
+            databaseEditor.getDdlManager().drop(name);
+        }
         return true;
     }
 }

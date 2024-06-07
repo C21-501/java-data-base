@@ -23,17 +23,24 @@ public class DatabaseEditor {
     private TCLManager tclManager;
     private Database database;
     private String databaseName;
-    private String databasePath;
+    private String databasePath = "root";
     private DatabaseSerializer databaseSerializer;
+
+    public DatabaseEditor(){
+        this.database = Database.getInstance();
+//        this.database.setFilePath(String.format("%s/%s/%s.instance",databasePath, databaseName, databaseName));
+        this.setUpManagers();
+    }
 
     public void createDatabase(String databaseName){
         if (databaseName.isEmpty())
             throw  new NullPointerException("Error while creating database : database name is null");
         this.databaseName = databaseName;
-        this.databasePath = databaseName;
         this.database = Database.getInstance();
-        this.databaseSerializer = new DatabaseSerializer(database, databaseName);
-        databaseSerializer.createDatabaseDirectory(databaseName);
+        this.database.setFilePath(String.format("%s/%s/%s.instance", databasePath, databaseName, databaseName));
+        this.databaseSerializer = new DatabaseSerializer(database, databaseName, databasePath);
+        databaseSerializer.createDatabaseDirectoryAndFile(databasePath);
+        databaseSerializer.saveInstance(database);
         this.setUpManagers();
     }
 
@@ -43,28 +50,21 @@ public class DatabaseEditor {
         this.databaseName = databaseName;
         this.databasePath = path;
         this.database = Database.getInstance();
+        this.database.setFilePath(String.format("%s/%s/%s.instance",databasePath, databaseName, databaseName));
         this.databaseSerializer = new DatabaseSerializer(database, databaseName, path);
-        try {
-            databaseSerializer.createDatabaseDirectory(path);
-            databaseSerializer.save(database);
-        } catch (IOException e) {
-            throw new RuntimeException(String.format("Error: can't save instance of database %s", databaseName));
-        }
+        databaseSerializer.createDatabaseDirectoryAndFile(path);
+        databaseSerializer.saveInstance(database);
         this.setUpManagers();
     }
 
     private void setUpManagers() {
         this.ddlManager = new DDLManager(database);
         this.dmlManager = new DMLManager(database);
-        this.tclManager = new TCLManager(database, String.format("%s/%s/%s.instance",databasePath,databaseName,databaseName));
+        this.tclManager = new TCLManager(database);
     }
 
     public void saveDatabaseState() {
-        try {
-            databaseSerializer.save(database);
-        } catch (IOException e) {
-            throw new RuntimeException(String.format("Error while saving database state: %s%n", e.getMessage()));
-        }
+        databaseSerializer.saveInstance(database);
     }
 
     public void restoreDatabaseState() {
@@ -108,6 +108,7 @@ public class DatabaseEditor {
                 throw new RuntimeException(String.format("Error while dropping database: %s%n", e.getMessage()));
             } finally {
                 resetDatabaseInstance();
+                this.databaseName = "";
             }
         } else {
             throw new RuntimeException(String.format("Database %s does not exist.%n", name));
@@ -170,6 +171,10 @@ public class DatabaseEditor {
 
     public void collectCommands(Command command) {
         tclManager.addCommand(command);
+    }
+
+    public boolean isDatabaseExists(){
+        return !databaseName.isEmpty();
     }
 }
 

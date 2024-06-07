@@ -31,7 +31,8 @@ public final class BeginCommand extends Command {
      */
     @Override
     public boolean execute() {
+        databaseEditor.saveDatabaseState();
         databaseEditor.getTclManager().begin();
-        return true;
+        return false;
     }
 }

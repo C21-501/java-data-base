@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 @EqualsAndHashCode(callSuper = true)
@@ -16,8 +18,8 @@ public class Column extends DatabaseStructure {
     private FieldScheme fieldScheme = new FieldScheme();
     private FieldBody fieldBody = new FieldBody();
 
-    public Column(DataType type){
-        fieldScheme.setType(type);
+    public Column(DataType dataType){
+        fieldScheme.setType(dataType);
     }
 
     public Column(Column other) {
@@ -25,6 +27,11 @@ public class Column extends DatabaseStructure {
             this.fieldScheme = new FieldScheme(other.getFieldScheme());
             this.fieldBody = new FieldBody(other.getFieldBody());
         }
+    }
+
+    public Column(DataType dataType, Set<Integer> ids) {
+        fieldScheme.setType(dataType);
+        fieldBody.setNull(ids);
     }
 
     public Object convertValue(String value) {
@@ -37,13 +44,13 @@ public class Column extends DatabaseStructure {
         return this;
     }
 
-    public Column removeConstraint(Constraint constraint){
+    public void removeConstraint(Constraint constraint){
         fieldScheme.removeConstraint(constraint);
-        return this;
     }
 
-    public void insert(Object value) {
-        fieldBody.insertValue(fieldScheme, value);
+    public void insert(Object value, int depth) {
+        Value insertion = new Value(depth, value);
+        fieldBody.insertValue(fieldScheme, insertion);
     }
 
     public void delete(Predicate<Object> filter) {

@@ -5,29 +5,35 @@ import database.system.core.types.DataType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.nio.file.CopyOption;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
+
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class Table extends DatabaseStructure implements CopyOption {
+public class Table extends DatabaseStructure {
+    private AtomicInteger rowId = new AtomicInteger(0);
+    private Set<Integer> rowIds = new TreeSet<>();
     private Map<String, Column> columns = new TreeMap<>();
     private Set<Constraint> constraintSet = new HashSet<>();
 
     public Table(){}
 
     public Table(Table other) {
-        // Deep copy columns
-        for (Map.Entry<String, Column> entry : other.columns.entrySet()) {
-            String key = entry.getKey();
-            Column originalColumn = entry.getValue();
-            Column copiedColumn = new Column(originalColumn); // Assuming Column class has a copy constructor
-            this.columns.put(key, copiedColumn);
+        if (!this.equals(other)){
+            // Deep copy columns
+            for (Map.Entry<String, Column> entry : other.columns.entrySet()) {
+                String key = entry.getKey();
+                Column originalColumn = entry.getValue();
+                Column copiedColumn = new Column(originalColumn); // Assuming Column class has a copy constructor
+                this.columns.put(key, copiedColumn);
+            }
+            // Deep copy constraintSet
+            this.constraintSet = new HashSet<>(other.constraintSet);
+            this.rowIds = new TreeSet<>(other.rowIds);
         }
-        // Deep copy constraintSet
-        this.constraintSet = new HashSet<>(other.constraintSet);
     }
 
     public Column getColumn(String columnName) {
@@ -106,9 +112,28 @@ public class Table extends DatabaseStructure implements CopyOption {
         return this;
     }
 
-    public Table insert(String columnName, Object value) {
-        validateColumnName(columnName, columns);
-        columns.get(columnName).insert(value);
+    public Table insert(List<String> columnNames, Object[] valueArray) {
+        for (int i = 0; i < columnNames.size(); i++) {
+            String columnName = columnNames.get(i);
+            validateColumnName(columnName, columns);
+            Column column = this.getColumn(columnName);
+            if (column == null) {
+                throw new RuntimeException(String.format("Error: column '%s' doesn't exist.", columnName));
+            }
+            // Проверка типа данных перед вставкой
+            DataType expectedType = column.getFieldScheme().getType();
+            Object value = valueArray[i];
+            DataType actualType = DataType.map(value);
+
+            if (expectedType != actualType) {
+                throw new IllegalArgumentException(String.format(
+                        "Error: Invalid data type for column '%s'. Expected: %s, but got: %s",
+                        columnName, expectedType, actualType));
+            }
+            column.insert(value, rowId.get());
+        }
+        rowIds.add(rowId.get());
+        rowId.incrementAndGet(); // Increment depth on insert
         return this;
     }
 
@@ -164,6 +189,10 @@ public class Table extends DatabaseStructure implements CopyOption {
                 column.delete(filter);
             column.deleteOther(deletedObjects);
         }
+        Set<Integer> deletedIds = deletedObjects.stream()
+                .map(Value::getId)
+                .collect(Collectors.toSet());
+        rowIds.removeIf(deletedIds::contains);
         return this;
     }
 
