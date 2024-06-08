@@ -102,12 +102,11 @@ public class SQLListener extends SQLGrammarBaseListener {
             }
 
         } else if(alterCtx.addColumnStatement() != null){
-            String columnName = alterCtx.addColumnStatement().columnName.getText();
-            //String columnType = alterCtx.addColumnStatement().dataType().getText();
+            String column = STR."\{alterCtx.addColumnStatement().columnName.getText()} \{alterCtx.addColumnStatement().dataType().getText()}";
 
             logger.info("Starting ADD COLUMN command...");
             try{
-                List<String> alterColumns = List.of(columnName);
+                List<String> alterColumns = List.of(column);
                 databaseAPI.alter(tableName, alterColumns);
                 logger.info("Success ADD COLUMN command");
             } catch (Exception e){

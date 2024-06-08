@@ -57,7 +57,7 @@ condition: expression (logicalOperator expression)*;
 expression: columnName=IDENTIFIER comparisonOperator value=literal;
 
 // Литералы
-literal: INTEGER | STRING | REAL | BOOLEAN;
+literal: INTEGER | STRING | REAL | 'TRUE' | 'FALSE' | 'NULL';
 
 // Идентификаторы
 IDENTIFIER: [a-zA-Z_] [a-zA-Z0-9_]*;
@@ -66,7 +66,6 @@ IDENTIFIER: [a-zA-Z_] [a-zA-Z0-9_]*;
 INTEGER: '-'? NON_ZERO_DIGIT DIGIT* | '0';
 STRING: '\'' .*? '\'';
 REAL: '-'? NON_ZERO_DIGIT DIGIT* '.' DIGIT+ | '0' '.' DIGIT+;
-BOOLEAN: 'TRUE' | 'FALSE';
 DIGIT: [0-9];
 NON_ZERO_DIGIT: [1-9];
 

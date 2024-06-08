@@ -1,4 +1,4 @@
-// Generated from C:/Users/Alexandr/Desktop/Project/.git/db-core/src/main/java/database/service/tools/grammar/SQLGrammar.g4 by ANTLR 4.13.1
+// Generated from /Users/dmitriykosolobov/university_project/java-data-base/db-core/src/main/java/database/service/tools/grammar/SQLGrammar.g4 by ANTLR 4.13.1
 package database.service.tools.grammar;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
