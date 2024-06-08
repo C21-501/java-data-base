@@ -11,6 +11,8 @@ import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static database.api.utils.Utils.parseValue;
+
 /**
  * SQLListener is an implementation of the SQLGrammarBaseListener that handles
  * various SQL commands such as ALTER, CREATE, DROP, INSERT, DELETE, SELECT, UPDATE,
@@ -188,13 +190,13 @@ public class SQLListener extends SQLGrammarBaseListener {
     public void exitInsertCommand(SQLGrammarParser.InsertCommandContext ctx) {
         String tableName = ctx.tableName.getText();
         List<String> columnsToAdd = new LinkedList<>();
-        List<String> valuesToAdd = new LinkedList<>();
+        List<Object> valuesToAdd = new LinkedList<>();
 
         for(var i : ctx.columnList().IDENTIFIER()){
             columnsToAdd.add(i.getText());
         }
         for(var i : ctx.valueList().literal()){
-            valuesToAdd.add(i.getText());
+            valuesToAdd.add(parseValue(i.getText()));
         }
 
         logger.info("Starting INSERT command ...");

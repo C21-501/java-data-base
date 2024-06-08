@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  * Utility class providing methods for parsing a string into an array of objects.
  */
 public class Utils {
-    private Utils(){}; // Private constructor to prevent instantiation of the class
+    private Utils(){} // Private constructor to prevent instantiation of the class
 
     /**
      * Parses the input string into an array of objects.
@@ -59,7 +59,7 @@ public class Utils {
      * @param value The string value to be parsed.
      * @return The parsed object (Integer, Double, Boolean, or null).
      */
-    private static Object parseValue(String value) {
+    public static Object parseValue(String value) {
         if (value.matches("\\d+\\.\\d+")) {
             return Double.parseDouble(value);
         } else if (value.matches("\\d+")) {
