@@ -66,7 +66,7 @@ public class FieldScheme implements Scheme {
 
     public boolean validate(Body parent, Object value) {
         DataType valueType = map(value);
-        if (valueType != type) {
+        if (valueType != type && value != null) {
             throw new IllegalArgumentException(String.format(
                     "Error: Type mismatch - expected '%s', but got '%s' (%s).",
                     type, valueType, value.getClass().getName()
@@ -98,7 +98,7 @@ public class FieldScheme implements Scheme {
                 }
             }
             case STRING -> {
-                return value.replace("'", "");
+                return value;
             }
             case REAL -> {
                 try {

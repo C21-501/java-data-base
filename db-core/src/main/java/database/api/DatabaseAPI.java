@@ -14,8 +14,14 @@ import database.system.core.structures.Response;
 import lombok.Data;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static database.api.utils.Utils.parseStringToObjectArray;
 
 /**
  * The DatabaseAPI class provides an interface for interacting with the database.
@@ -340,6 +346,9 @@ public class DatabaseAPI {
         }
     }
 
+
+
+
     public static void main(String[] args) throws IOException {
         // Создаем экземпляр DatabaseAPI
         DatabaseAPI databaseAPI = new DatabaseAPI();
@@ -358,8 +367,8 @@ public class DatabaseAPI {
         databaseAPI.insert("test_table",
                 List.of("id", "name", "age"),
                 List.of(
-                        new Object[]{1, "Alice", 20},
-                        new Object[]{2, "Bob", 25}
+                        parseStringToObjectArray("1, 'Alice', 20"),
+                        parseStringToObjectArray("2, 'Bob', 25")
                 )
         );
 
@@ -374,8 +383,8 @@ public class DatabaseAPI {
         databaseAPI.insert("test_table",
                 List.of("id", "name", "age"),
                 List.of(
-                        new Object[]{3, "Tom", 21},
-                        new Object[]{4, "Peter", 18}
+                        parseStringToObjectArray("3, 'Tom', 21"),
+                        parseStringToObjectArray("4, 'Peter', 18")
                 )
         );
 
@@ -395,8 +404,8 @@ public class DatabaseAPI {
         databaseAPI.insert("test_table",
                 List.of("id", "name", "age"),
                 List.of(
-                        new Object[]{5, "Sara", 21},
-                        new Object[]{6, "Connor", 18}
+                        parseStringToObjectArray("5, 'Sara', 21"),
+                        parseStringToObjectArray("6, 'Connor', 18")
                 )
         );
 
@@ -417,8 +426,8 @@ public class DatabaseAPI {
         databaseAPI.insert("test_table",
                 List.of("id", "name", "age", "salary"),
                 List.of(
-                        new Object[]{5, "Sam", 28, 50000.0},
-                        new Object[]{6, "Anna", 24, 60000.0}
+                        parseStringToObjectArray("5, 'Sam', 28, 50000.0"),
+                        parseStringToObjectArray("6, 'Anna', 24, 60000.0")
                 )
         );
         // Откатываем транзакцию
@@ -433,8 +442,8 @@ public class DatabaseAPI {
         databaseAPI.insert("renamed_table",
                 List.of("id", "name", "age", "salary"),
                 List.of(
-                        new Object[]{5, "Sam", 28, 50000.0},
-                        new Object[]{6, "Anna", 24, 60000.0}
+                        parseStringToObjectArray("5, 'Sam', null, 50000.0"),
+                        parseStringToObjectArray("6, 'Anna', 24, 60000.0")
                 )
         );
         // Выбор всех записей из переименованной таблицы

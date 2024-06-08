@@ -103,7 +103,7 @@ public class Response implements Serializable {
         for (String columnName : responseColumnsOrder) {
             int maxWidth = columnName.length();
             for (Value value : responseMap.get(columnName)) {
-                int length = value.getObject() != null ? value.getObject().toString().length(): NULL_STRING.length();
+                int length = value.getObject() != null ? value.getObject().toString().length() : NULL_STRING.length();
                 if (length > maxWidth) {
                     maxWidth = length;
                 }
@@ -112,20 +112,17 @@ public class Response implements Serializable {
         }
 
         // Calculate the total table width
-        int totalWidth = columnWidths.values().stream().mapToInt(Integer::intValue).sum()
-                + columnWidths.size() * 3 + 1;
+        int totalWidth = columnWidths.values().stream().mapToInt(Integer::intValue).sum() + columnWidths.size() * 3 + 1;
         int tableNameWidth = tableName.length();
-        int tableWidthWithHeader = Math.max(totalWidth, tableNameWidth + 4); // +4 for padding and separator
 
         // Print the table name row
         printTableNameSeparator(tableNameWidth + 4);
-        System.out.printf("| %s |%n", tableName);
-
+        System.out.printf("| %s |%n", center(tableName, tableNameWidth));
         // Print the column headers
         printSeparator(totalWidth);
         for (String columnName : responseColumnsOrder) {
             int width = columnWidths.get(columnName);
-            System.out.printf("| %%-%ds ".formatted(width), columnName);
+            System.out.printf("| %s ", center(columnName, width));
         }
         System.out.println("|");
         printSeparator(totalWidth);
@@ -136,11 +133,10 @@ public class Response implements Serializable {
                 List<Value> values = responseMap.get(columnName);
                 int width = columnWidths.get(columnName);
                 if (i < values.size()) {
-                    String value = values.get(i).getObject() == null ? NULL_STRING: values.get(i).getObject().toString();
-//                    String value = values.get(i).getObject() == null ? "NULL": String.valueOf(values.get(i).getId());
-                    System.out.printf("| %%-%ds ".formatted(width), center(value, width));
+                    String value = values.get(i).getObject() == null ? NULL_STRING : values.get(i).getObject().toString();
+                    System.out.printf("| %s ", center(value, width));
                 } else {
-                    System.out.printf("| %%-%ds ".formatted(width), center(NULL_STRING, width));
+                    System.out.printf("| %s ", center(NULL_STRING, width));
                 }
             }
             System.out.println("|");

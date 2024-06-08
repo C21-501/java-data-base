@@ -125,7 +125,7 @@ public class Table extends DatabaseStructure {
             Object value = valueArray[i];
             DataType actualType = DataType.map(value);
 
-            if (expectedType != actualType) {
+            if (expectedType != actualType && value != null) {
                 throw new IllegalArgumentException(String.format(
                         "Error: Invalid data type for column '%s'. Expected: %s, but got: %s",
                         columnName, expectedType, actualType));
