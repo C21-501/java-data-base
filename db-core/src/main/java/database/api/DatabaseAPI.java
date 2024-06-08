@@ -14,12 +14,8 @@ import database.system.core.structures.Response;
 import lombok.Data;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static database.api.utils.Utils.parseStringToObjectArray;
 
@@ -349,7 +345,7 @@ public class DatabaseAPI {
 
 
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] ignoredArgs) throws IOException {
         // Создаем экземпляр DatabaseAPI
         DatabaseAPI databaseAPI = new DatabaseAPI();
 
@@ -442,10 +438,13 @@ public class DatabaseAPI {
         databaseAPI.insert("renamed_table",
                 List.of("id", "name", "age", "salary"),
                 List.of(
-                        parseStringToObjectArray("5, 'Sam', null, 50000.0"),
-                        parseStringToObjectArray("6, 'Anna', 24, 60000.0")
+                        parseStringToObjectArray("7, 'Sam', null, 50000.0"),
+                        parseStringToObjectArray("8, 'Anna', 24, 60000.0")
                 )
         );
+
+        databaseAPI.update("renamed_table", List.of("salary = 50000.0"), "id = 1");
+
         // Выбор всех записей из переименованной таблицы
         databaseAPI.select("renamed_table");
         databaseAPI.getLastSelectResponse().printTable();
