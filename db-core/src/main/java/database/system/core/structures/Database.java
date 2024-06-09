@@ -1,0 +1,291 @@
+package database.system.core.structures;
+
+import database.system.core.types.DataType;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
+@EqualsAndHashCode(callSuper = true)
+@Data
+public class Database extends DatabaseStructure {
+    private String filePath;
+    private static volatile Database instance;
+    private Map<String, Table> tables = new TreeMap<>();
+
+    private Database() {
+    }
+
+    public static Database getInstance() {
+        if (instance == null) {
+            synchronized (Database.class) {
+                if (instance == null) {
+                    instance = new Database();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public static void resetInstance() {
+        instance = null;
+    }
+
+    public boolean containsTable(String tableName) {
+        validateTableName(tableName);
+        return tables.containsKey(tableName);
+    }
+
+    public Table createTable(String tableName) {
+        validateTableName(tableName);
+        if (tables.containsKey(tableName))
+            throw new IllegalArgumentException(String.format("Table already exists with name: %s", tableName));
+        Table table = new Table();
+        tables.put(tableName, table);
+        return table;
+    }
+
+    public void createTable(String tableName, Table table) {
+        validateTableName(tableName);
+        validateNonNull(table);
+        if (tables.containsKey(tableName))
+            throw new IllegalArgumentException(String.format("Table already exists with name: %s", tableName));
+        tables.put(tableName, table);
+    }
+
+    public void dropTable(String tableName) {
+        validateTableName(tableName);
+        if (!tables.containsKey(tableName))
+            throw new IllegalArgumentException(String.format("Table does not exist: %s", tableName));
+        tables.remove(tableName);
+    }
+
+    public Optional<Table> getTable(String tableName) {
+        validateTableName(tableName);
+        return Optional.ofNullable(tables.get(tableName));
+    }
+
+    public void delete(String tableName, String condition) {
+        validateTableName(tableName);
+        validateNonNull(condition);
+        Table table = tables.get(tableName);
+        if (table == null)
+            throw new RuntimeException(String.format("Error: table '%s' doesn't exist", tableName));
+        table.delete(condition);
+    }
+
+    public void update(String tableName, List<String> values, String condition) {
+        validateTableName(tableName);
+        validateNonNull(values);
+        validateNonNull(condition);
+        Table table = tables.get(tableName);
+        if (table == null)
+            throw new RuntimeException(String.format("Error: table '%s' doesn't exist", tableName));
+        table.update(values, condition);
+    }
+
+    public Response select(String tableName, List<String> columns, String condition) {
+        validateTableName(tableName);
+        validateNonNull(columns);
+        validateNonNull(condition);
+        Table table = tables.get(tableName);
+        if (table == null)
+            throw new RuntimeException(String.format("Error: table '%s' doesn't exist", tableName));
+        return table.select(tableName, columns, condition);
+    }
+
+    public Response select(String tableName, List<String> columns) {
+        validateTableName(tableName);
+        validateNonNull(columns);
+        Table table = tables.get(tableName);
+        if (table == null)
+            throw new RuntimeException(String.format("Error: table '%s' doesn't exist", tableName));
+        return table.select(tableName, columns);
+    }
+
+    public Response select(String tableName) {
+        validateTableName(tableName);
+        Table table = tables.get(tableName);
+        if (table == null)
+            throw new RuntimeException(String.format("Error: table '%s' doesn't exist", tableName));
+        List<String> columns = table.getColumns().keySet().stream()
+                .sorted(Comparator.comparingInt(String::length))
+                .toList();
+        return table.select(tableName, columns);
+    }
+
+    @SafeVarargs
+    public final void alter(String tableName, List<String>... columnLists) {
+        validateTableName(tableName);
+        if (columnLists == null || columnLists.length > 3) {
+            throw new IllegalArgumentException("Error: Expected three or less lists of columns: newColumns, modifiedColumns, droppedColumns.");
+        }
+        Table existingTable = getExistingTable(tableName);
+        switch (columnLists.length) {
+            case 1:
+                if (columnLists[0] != null && !columnLists[0].isEmpty()) {
+                    processNewColumns(columnLists[0], existingTable);
+                }
+                break;
+            case 2:
+                if (columnLists[0] != null && !columnLists[0].isEmpty()) {
+                    processNewColumns(columnLists[0], existingTable);
+                }
+                if (columnLists[1] != null && !columnLists[1].isEmpty()) {
+                    processModifiedColumns(columnLists[1], existingTable);
+                }
+                break;
+            case 3:
+                if (columnLists[0] != null && !columnLists[0].isEmpty()) {
+                    processNewColumns(columnLists[0], existingTable);
+                }
+                if (columnLists[1] != null && !columnLists[1].isEmpty()) {
+                    processModifiedColumns(columnLists[1], existingTable);
+                }
+                if (columnLists[2] != null && !columnLists[2].isEmpty()) {
+                    processDroppedColumns(columnLists[2], existingTable);
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid column list index.");
+        }
+        // обновить таблицу в базе данных
+        tables.put(tableName, existingTable);
+    }
+
+    private Table getExistingTable(String tableName) {
+        Table existingTable = tables.get(tableName);
+        if (existingTable == null) {
+            throw new RuntimeException(String.format("Error: table '%s' doesn't exist", tableName));
+        }
+        return existingTable;
+    }
+
+    private void processModifiedColumns(List<String> modifiedColumns, Table existingTable) {
+        for (String modifiedColumn : modifiedColumns) {
+            String[] parts = parseColumnDefinition(modifiedColumn);
+            if (parts.length < 2) {
+                throw new IllegalArgumentException(String.format("Error: Invalid column definition: %s", modifiedColumn));
+            }
+            String columnName = parts[0];
+            String newColumnType = parts[1]; // Предполагаем, что тип столбца указан в строке
+            if (existingTable.contains(columnName)) {
+                // Изменяем тип данных столбца
+                Column column = existingTable.getColumn(columnName);
+                column.getFieldScheme().setType(DataType.valueOf(newColumnType));
+            } else {
+                throw new RuntimeException(String.format("Error: column '%s' doesn't exist", columnName));
+            }
+        }
+    }
+
+    private void processNewColumns(List<String> newColumns, Table existingTable) {
+        for (String newColumn : newColumns) {
+            String[] parts = parseColumnDefinition(newColumn);
+            if (parts.length < 2) {
+                throw new IllegalArgumentException(String.format("Error: Invalid column definition: %s", newColumn));
+            }
+            String columnName = parts[0];
+            String columnType = parts[1];
+            if (!existingTable.contains(columnName)) {
+                if (DataType.validate(columnType)) { // Проверяем, является ли тип данных допустимым
+                    DataType dataType = DataType.valueOf(columnType);
+                    Column column = new Column(dataType, existingTable.getRowIds());
+                    existingTable.createColumn(columnName, column);
+                } else {
+                    throw new IllegalArgumentException(String.format("Error: Invalid data type: %s", columnType));
+                }
+            }
+        }
+    }
+
+    private void processDroppedColumns(List<String> droppedColumns, Table existingTable) {
+        for (String columnName : droppedColumns) {
+            existingTable.dropColumn(columnName);
+        }
+    }
+
+    public void create(String tableName, List<String> columns) {
+        validateTableName(tableName);
+        validateColumnNames(columns);
+        Table table = new Table();
+        for (String columnDefinition : columns) {
+            String[] parts = parseColumnDefinition(columnDefinition);
+            if (parts.length < 2) {
+                throw new IllegalArgumentException(String.format("Error: Invalid column definition: %s. Type is necessary.", columnDefinition));
+            }
+            String columnName = parts[0];
+            String columnType = parts[1];
+            if (DataType.validate(columnType)) {
+                Column column = new Column(DataType.valueOf(columnType));
+                table.createColumn(columnName, column);
+            } else {
+                throw new IllegalArgumentException(String.format("Error: Invalid data type: %s", columnType));
+            }
+        }
+        tables.put(tableName, table);
+    }
+
+    private String[] parseColumnDefinition(String columnDefinition) {
+        return columnDefinition.split("\\s+");
+    }
+
+    public void drop(String tableName) {
+        dropTable(tableName);
+    }
+
+    public void drop(){
+        tables.clear();
+    }
+
+
+    public void insert(String tableName, List<String> columns, List<Object[]> values) {
+        // Проверка, существует ли таблица
+        Table table = tables.get(tableName);
+        if (table == null) {
+            throw new RuntimeException(String.format("Error: table '%s' doesn't exist", tableName));
+        }
+        // Проверка, что количество столбцов соответствует количеству значений
+        for (Object[] valueArray : values) {
+            if (valueArray.length != columns.size()) {
+                throw new IllegalArgumentException("Error: Number of columns and values do not match.");
+            }
+        }
+        // Вставка данных в таблицу
+        for (Object[] valueArray : values) {
+            table.insert(columns, valueArray);
+        }
+    }
+
+    public void restore(Database backupDatabase) {
+        // Проверка на null
+        if (backupDatabase == null) {
+            throw new IllegalArgumentException("Error: Backup database is null.");
+        }
+        // Очистка текущих таблиц
+        tables.clear();
+        // Восстановление таблиц и их данных из резервной копии
+        for (Map.Entry<String, Table> entry : backupDatabase.tables.entrySet()) {
+            String tableName = entry.getKey();
+            Table backupTable = entry.getValue();
+            tables.put(tableName, backupTable);
+        }
+    }
+
+    public void saveStateInFile(String file) throws IOException{
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+            oos.writeObject(this);
+        }
+    }
+
+    public void alter(String tableName, String newTableName) {
+        validateTableName(tableName);
+        validateTableName(newTableName);
+        Table removedTable = tables.remove(tableName);
+        tables.put(newTableName, removedTable);
+    }
+}

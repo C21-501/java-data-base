@@ -1,5 +1,5 @@
 ## Introduction
-This project is being developed by a group of students from MEPHi. The aim of the project is to create a custom database system using Java programming language.
+This project is being developed by a group of students from MEPHi. The aim of the project is to create a custom databaseScheme system using Java programming language.
 
 ## Team Members
 - Alena Gubanova
@@ -18,20 +18,20 @@ This project is being developed by a group of students from MEPHi. The aim of th
   Email: alb1rio@mail.ru
 
 ## Project Description
-The project involves the development of a custom database management system using Java. The system aims to provide functionalities such as data storage, retrieval, manipulation, and querying. The team will be using Java's built-in data structures, libraries, and frameworks to implement the database functionalities.
+The project involves the development of a custom databaseScheme management system using Java. The system aims to provide functionalities such as data storage, retrieval, manipulation, and querying. The team will be using Java's built-in data structures, libraries, and frameworks to implement the databaseScheme functionalities.
 
 ## Goals
-Design and implement the core functionalities of the database system.
-Develop a user-friendly interface for interacting with the database.
+Design and implement the core functionalities of the databaseScheme system.
+Develop a user-friendly interface for interacting with the databaseScheme.
 Ensure the reliability and efficiency of data storage and retrieval processes.
-Test the database system thoroughly to identify and fix any issues or bugs.
+Test the databaseScheme system thoroughly to identify and fix any issues or bugs.
 Document the project thoroughly to facilitate future maintenance and development.
 
 ## Project Structure
-The project will be structured into multiple modules, each responsible for different aspects of the database system such as data storage, indexing, querying, and user interface. The team will collaborate closely to ensure seamless integration of these modules into the final product.
+The project will be structured into multiple modules, each responsible for different aspects of the databaseScheme system such as data storage, indexing, querying, and user interface. The team will collaborate closely to ensure seamless integration of these modules into the final product.
 
 ## Technologies Used
-Java: The primary programming language for developing the database system.
+Java: The primary programming language for developing the databaseScheme system.
 Git: Version control system for managing the project's source code.
 GitHub: Hosting platform for collaboration and project management.
 
