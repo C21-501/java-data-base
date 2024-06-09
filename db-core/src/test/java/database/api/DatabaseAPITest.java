@@ -41,7 +41,7 @@ public class DatabaseAPITest {
         databaseAPI.insert("employees", List.of("id", "name", "age"), values);
         // Select all records from the "employees" table
         databaseAPI.select("employees");
-        databaseAPI.getLastSelectResponse().printTable();
+        databaseAPI.getLastSelectResponse().print();
         // Begin a new transaction
         databaseAPI.begin();
         // Update the age of employee with id 1 to 32
@@ -49,7 +49,7 @@ public class DatabaseAPITest {
         // Commit the transaction
         databaseAPI.commit();
         databaseAPI.select("employees");
-        databaseAPI.getLastSelectResponse().printTable();
+        databaseAPI.getLastSelectResponse().print();
         // Drop the "employees" table
         databaseAPI.drop("employees", false);
     }
@@ -96,7 +96,7 @@ public class DatabaseAPITest {
         databaseAPI.insert("testTable", columns, values);
         databaseAPI.delete("testTable", "id = 1");
         Response result = databaseAPI.getActiveEditor().getDmlManager().select("testTable", columns);
-        result.printTable();
+        result.print();
         assertEquals(1, result.getResponseMap().get("id").size());
     }
 
@@ -110,7 +110,7 @@ public class DatabaseAPITest {
         columns = List.of("id", "name");
         databaseAPI.insert("testTable", columns, values);
         Response result = databaseAPI.getActiveEditor().getDmlManager().select("testTable", columns);
-        result.printTable();
+        result.print();
         assertEquals(2, result.getResponseMap().get("id").size());
     }
 
@@ -128,7 +128,7 @@ public class DatabaseAPITest {
         databaseAPI.insert("testTable", columns, values);
         columns = List.of("id", "name", "surname", "is_boss");
         Response result = databaseAPI.getActiveEditor().getDmlManager().select("testTable", columns, "id = 1");
-        result.printTable();
+        result.print();
         assertEquals(1, result.getResponseMap().get("id").size());
     }
 
@@ -226,7 +226,7 @@ public class DatabaseAPITest {
         List<String> selectedColumns = Arrays.asList("column1", "column2");
         String selectCondition = "column1 = 'new_value'";
         assertDoesNotThrow(() -> databaseAPI.select(tableName, selectedColumns, selectCondition));
-        databaseAPI.getLastSelectResponse().printTable();
+        databaseAPI.getLastSelectResponse().print();
     }
 
     // Attempt to undo when there are no commands in history

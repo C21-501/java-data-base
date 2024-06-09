@@ -166,7 +166,7 @@ public class DatabaseEditorTest {
         System.out.printf("Insertion time for %d records: %d ms%n", largeVolume, insertTime - startTime);
 
         Response response = editor.getDmlManager().select("large_table", List.of("id", "name"), "id < 10");
-        response.printTable();
+        response.print();
 
         long selectTime = System.currentTimeMillis();
         System.out.printf("Selection time for %d records: %d ms%n", largeVolume, selectTime - insertTime);
@@ -213,7 +213,7 @@ public class DatabaseEditorTest {
 
         // Validate data integrity
         Response response = editor.getDmlManager().select("1_table", Arrays.asList("id", "name"));
-        response.printTable();
+        response.print();
         assertEquals(2, response.getResponseMap().size());
         assertEquals(3, response.get("id",0));
         assertEquals("alice", response.get("name",0));

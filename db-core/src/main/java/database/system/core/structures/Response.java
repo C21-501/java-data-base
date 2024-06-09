@@ -1,5 +1,6 @@
 package database.system.core.structures;
 
+import database.system.core.structures.interfaces.Printable;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
  * Provides methods to set values for columns, retrieve values by column and index, and print the table.
  */
 @Data
-public class Response implements Serializable {
+public class Response implements Serializable, Printable {
     public static final String NULL_STRING = "NULL";
     private String tableName;
     private Map<String, List<Value>> responseMap = new TreeMap<>();
@@ -91,7 +92,8 @@ public class Response implements Serializable {
     /**
      * Prints the table with formatted columns and values.
      */
-    public void printTable() {
+    @Override
+    public void print() {
         // Calculate the maximum number of rows
         int maxRows = responseMap.values().stream()
                 .mapToInt(List::size)

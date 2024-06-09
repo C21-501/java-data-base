@@ -11,6 +11,7 @@ import database.api.tcl.commands.BeginCommand;
 import database.api.tcl.commands.CommitCommand;
 import database.api.tcl.commands.RollBackCommand;
 import database.system.core.structures.Response;
+import database.system.core.structures.interfaces.Printable;
 import lombok.Data;
 
 import java.io.IOException;
@@ -47,7 +48,7 @@ import static database.api.utils.Utils.parseStringToObjectArray;
  * }</pre>
  */
 @Data
-public class DatabaseAPI {
+public class DatabaseAPI implements Printable {
     private List<DatabaseEditor> editors;
     private DatabaseEditor activeEditor;
     private CommandHistory history;
@@ -370,7 +371,7 @@ public class DatabaseAPI {
 
         // Выбор всех записей
         databaseAPI.select("test_table");
-        databaseAPI.getLastSelectResponse().printTable();
+        databaseAPI.print();
 
         // Начинаем транзакцию
         databaseAPI.begin();
@@ -389,7 +390,7 @@ public class DatabaseAPI {
 
         // Выбор всех записей после коммита
         databaseAPI.select("test_table");
-        databaseAPI.getLastSelectResponse().printTable();
+        databaseAPI.print();
 
         // Обновляем записи
         databaseAPI.update("test_table", List.of("name = 'Alice Smith'", "age = 31"), "id = 1");
@@ -407,14 +408,14 @@ public class DatabaseAPI {
 
         // Выбор всех записей после изменений
         databaseAPI.select("test_table");
-        databaseAPI.getLastSelectResponse().printTable();
+        databaseAPI.getLastSelectResponse().print();
 
         // Добавляем новый столбец
         databaseAPI.alter("test_table", List.of("salary REAL"));
 
         // Выбор всех записей после добавления столбца
         databaseAPI.select("test_table");
-        databaseAPI.getLastSelectResponse().printTable();
+        databaseAPI.print();
         // Начинаем транзакцию для демонстрации отката
         databaseAPI.begin();
 
@@ -430,7 +431,7 @@ public class DatabaseAPI {
         databaseAPI.rollback();
         // Выбор всех записей после отката
         databaseAPI.select("test_table");
-        databaseAPI.getLastSelectResponse().printTable();
+        databaseAPI.print();
 
         // Переименовываем таблицу
         databaseAPI.alter("test_table", "renamed_table", false);
@@ -447,12 +448,17 @@ public class DatabaseAPI {
 
         // Выбор всех записей из переименованной таблицы
         databaseAPI.select("renamed_table");
-        databaseAPI.getLastSelectResponse().printTable();
+        databaseAPI.print();
 
         // Удаляем таблицу
         databaseAPI.drop("renamed_table", false);
 
         // Удаляем базу данных
         databaseAPI.drop("test_database", true);
+    }
+
+    @Override
+    public void print() {
+        getLastSelectResponse().print();
     }
 }
