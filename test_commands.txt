@@ -1,0 +1,29 @@
+CREATE DATABASE test_database;
+CREATE TABLE test_table (
+    id INTEGER,
+    name STRING,
+    age INTEGER
+);
+INSERT INTO test_table (id, name, age) VALUES (1, 'Alice', 20);
+INSERT INTO test_table (id, name, age) VALUES (2, 'Bob', 25);
+SELECT * FROM test_table;
+INSERT INTO test_table (id, name, age) VALUES (3, 'Tom', 21);
+INSERT INTO test_table (id, name, age) VALUES (4, 'Peter', 18);
+SELECT * FROM test_table;
+UPDATE test_table SET name = 'Alice Smith', age = 31 WHERE id = 1;
+DELETE FROM test_table WHERE id = 2;
+INSERT INTO test_table (id, name, age) VALUES (5, 'Sara', 21);
+INSERT INTO test_table (id, name, age) VALUES (6, 'Connor', 18);
+SELECT * FROM test_table;
+ALTER TABLE test_table ADD COLUMN salary REAL;
+SELECT * FROM test_table;
+INSERT INTO test_table (id, name, age, salary) VALUES (5, 'Sam', 28, 50000.0);
+INSERT INTO test_table (id, name, age, salary) VALUES (6, 'Anna', 24, 60000.0);
+SELECT * FROM test_table;
+ALTER TABLE test_table RENAME TO renamed_table;
+INSERT INTO renamed_table (id, name, age, salary) VALUES (7, 'Sam', NULL, 50000.0);
+INSERT INTO renamed_table (id, name, age, salary) VALUES (8, 'Anna', 24, 60000.0);
+UPDATE renamed_table SET salary = 50000.0 WHERE id = 1;
+SELECT * FROM renamed_table;
+DROP TABLE renamed_table;
+DROP DATABASE test_database;
