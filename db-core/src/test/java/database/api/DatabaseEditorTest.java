@@ -51,7 +51,7 @@ public class DatabaseEditorTest {
     public void test_restore_database_state() {
         editor.saveDatabaseState();
         System.out.println(editor.getDatabase());
-        editor.getDatabase().createTable("new_table");
+        editor.getDatabase().create("new_table");
         editor.restoreDatabaseState();
         System.out.println(editor.getDatabase());
         assertFalse(editor.getDatabase().containsTable("new_table"));

@@ -1,5 +1,6 @@
 package database.system.core.structures;
 
+import database.system.core.constraints.ConstraintFactory;
 import database.system.core.constraints.interfaces.Constraint;
 import database.system.core.types.DataType;
 import lombok.Data;
@@ -42,11 +43,38 @@ public class Table extends DatabaseStructure {
         return columns.get(columnName);
     }
 
-    public void createColumn(String columnName, Column column) {
+    public void create(String columnName, Column column) {
         validateNonNull(columnName);
         validateNonNull(column);
         columns.put(columnName, column);
     }
+
+    public void create(String columnName, String columnType) {
+        validateNonNull(columnName);
+        validateNonNull(columnType);
+        if (DataType.validate(columnType)) {
+            columns.put(columnName, new Column(DataType.valueOf(columnType)));
+        } else {
+            throw new IllegalArgumentException(String.format("Error: Invalid data type: %s", columnType));
+        }
+    }
+
+    public void create(String columnName, String columnType, String[] constraints) {
+        validateNonNull(columnName);
+        validateNonNull(columnType);
+        if (DataType.validate(columnType)) {
+            Column column = new Column(DataType.valueOf(columnType));
+            ConstraintFactory constraintFactory = new ConstraintFactory(columnName, column);
+            for (String constraint : constraints) {
+                Constraint constraintObj = constraintFactory.createConstraint(constraint);
+                column.addConstraint(constraintObj);
+            }
+            columns.put(columnName, column);
+        } else {
+            throw new IllegalArgumentException(String.format("Error: Invalid data type: %s", columnType));
+        }
+    }
+
 
     public void dropColumn(String columnName) {
         validateColumnName(columnName, columns);

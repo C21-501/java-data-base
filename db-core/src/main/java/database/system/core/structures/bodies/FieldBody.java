@@ -23,13 +23,13 @@ public class FieldBody implements Body {
     }
 
     public void insertValue(FieldScheme fieldScheme, Value value){
-        if (fieldScheme.validate(this, value.getObject()))
+        if (fieldScheme.validate(value.getObject()))
             objectList.add(value);
     }
 
     public boolean validate(FieldScheme fieldScheme){
         for (Value value: objectList){
-            if (!fieldScheme.validate(this, value.getObject()))
+            if (!fieldScheme.validate(value.getObject()))
                 return false;
         }
         return true;

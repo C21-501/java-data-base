@@ -3,11 +3,14 @@ package database.system.core.structures;
 import database.system.core.types.DataType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -39,7 +42,7 @@ public class Database extends DatabaseStructure {
         return tables.containsKey(tableName);
     }
 
-    public Table createTable(String tableName) {
+    public Table create(String tableName) {
         validateTableName(tableName);
         if (tables.containsKey(tableName))
             throw new IllegalArgumentException(String.format("Table already exists with name: %s", tableName));
@@ -48,7 +51,7 @@ public class Database extends DatabaseStructure {
         return table;
     }
 
-    public void dropTable(String tableName) {
+    public void drop(String tableName) {
         validateTableName(tableName);
         if (!tables.containsKey(tableName))
             throw new IllegalArgumentException(String.format("Table does not exist: %s", tableName));
@@ -186,7 +189,7 @@ public class Database extends DatabaseStructure {
                 if (DataType.validate(columnType)) { // Проверяем, является ли тип данных допустимым
                     DataType dataType = DataType.valueOf(columnType);
                     Column column = new Column(dataType, existingTable.getRowIds(),null);
-                    existingTable.createColumn(columnName, column);
+                    existingTable.create(columnName, column);
                 } else {
                     throw new IllegalArgumentException(String.format("Error: Invalid data type: %s", columnType));
                 }
@@ -208,25 +211,54 @@ public class Database extends DatabaseStructure {
             String[] parts = parseColumnDefinition(columnDefinition);
             if (parts.length < 2) {
                 throw new IllegalArgumentException(String.format("Error: Invalid column definition: %s. Type is necessary.", columnDefinition));
-            }
-            String columnName = parts[0];
-            String columnType = parts[1];
-            if (DataType.validate(columnType)) {
-                Column column = new Column(DataType.valueOf(columnType));
-                table.createColumn(columnName, column);
+            } else if (parts.length == 2) {
+                String columnName = parts[0];
+                String columnType = parts[1];
+                table.create(columnName, columnType);
             } else {
-                throw new IllegalArgumentException(String.format("Error: Invalid data type: %s", columnType));
+                String columnName = parts[0];
+                String columnType = parts[1];
+                String[] constraints = Arrays.copyOfRange(parts, 2, parts.length);
+                table.create(columnName, columnType, constraints);
             }
         }
         tables.put(tableName, table);
     }
 
-    private String[] parseColumnDefinition(String columnDefinition) {
-        return columnDefinition.split("\\s+");
-    }
+    String @NotNull[] parseColumnDefinition(String columnDefinition) {
+        // Regex pattern to capture column name, column type, and constraints
+        String regex = "\\s*(\\w+)\\s+(\\w+)(.*)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(columnDefinition.trim());
 
-    public void drop(String tableName) {
-        dropTable(tableName);
+        if (matcher.matches()) {
+            String columnName = matcher.group(1);
+            String columnType = matcher.group(2);
+            String constraints = matcher.group(3).trim();
+
+            List<String> constraintsList = new ArrayList<>();
+
+            // Split constraints respecting spaces within CHECK constraints and handling foreign key constraints
+            String[] constraintParts = constraints.split("(?=\\bNOT\\s+NULL\\b|\\bPRIMARY\\s+KEY\\b|\\bUNIQUE\\b|\\bCHECK\\b)");
+
+            for (String part : constraintParts) {
+                part = part.trim();
+                if (!part.isEmpty()) {
+                    constraintsList.add(part);
+                }
+            }
+
+            String[] result = new String[constraintsList.size() + 2];
+            result[0] = columnName;
+            result[1] = columnType;
+
+            // Copy elements from constraintsList into result array starting from index 2
+            System.arraycopy(constraintsList.toArray(new String[0]), 0, result, 2, constraintsList.size());
+
+            return result;
+        } else {
+            throw new IllegalArgumentException(String.format("Error: Invalid column definition format: %s.%n", columnDefinition));
+        }
     }
 
     public void drop(){

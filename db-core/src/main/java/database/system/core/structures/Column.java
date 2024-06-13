@@ -30,7 +30,7 @@ public class Column extends DatabaseStructure {
 
     public Column(DataType dataType, Set<Integer> ids, Object defaultValue) {
         fieldScheme.setType(dataType);
-        if (fieldScheme.validate(fieldBody,defaultValue))
+        if (fieldScheme.validate(defaultValue))
             fieldBody.setByDefault(ids, defaultValue);
     }
 
@@ -38,7 +38,7 @@ public class Column extends DatabaseStructure {
         return fieldScheme.convertValueToValidType(value);
     }
 
-    public Column setConstraint(Constraint constraint){
+    public Column addConstraint(Constraint constraint){
         fieldScheme.addConstraint(constraint);
         fieldBody.validate(fieldScheme);
         return this;

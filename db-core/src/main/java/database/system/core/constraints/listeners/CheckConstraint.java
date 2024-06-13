@@ -1,24 +1,26 @@
 package database.system.core.constraints.listeners;
 
 import database.system.core.constraints.interfaces.Constraint;
-import database.system.core.structures.bodies.Body;
+import lombok.EqualsAndHashCode;
 
 import java.util.function.Predicate;
 
+@EqualsAndHashCode(callSuper = false)
+public class CheckConstraint extends Constraint {
+    Predicate<Object> predicate;
 
-public record CheckConstraint(Predicate<Object> predicate) implements Constraint {
-    public CheckConstraint {
+    public CheckConstraint(String columnName, Predicate<Object> predicate) {
+        super(columnName);
         if (predicate == null)
-            throw new NullPointerException("`predicate` or `constraintName` is null");
+            throw new NullPointerException("'predicate' is null");
+        this.predicate = predicate;
     }
 
     @Override
-    public boolean check(Body parent, Object value) {
-        if (value == null)
-            throw new NullPointerException("`value` parameter is null");
+    public boolean check(Object value) {
         if (predicate.test(value))
             return true;
-        throw new RuntimeException(STR."CheckConstraint violation: The value '\{value}' does not satisfy the specified predicate");
+        throw new RuntimeException(String.format("CheckConstraint violation: The value '%s' does not satisfy the specified predicate", value));
     }
 }
 

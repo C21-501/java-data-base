@@ -56,4 +56,8 @@ public abstract class DatabaseStructure implements Serializable {
             throw new NullPointerException(String.format("Error: Parameter is '%s'", obj));
         }
     }
+
+    protected void validateConstraints(Object obj) {
+
+    }
 }

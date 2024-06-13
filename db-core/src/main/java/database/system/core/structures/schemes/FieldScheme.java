@@ -64,7 +64,7 @@ public class FieldScheme implements Scheme {
         );
     }
 
-    public boolean validate(Body parent, Object value) {
+    public boolean validate(Object value) {
         DataType valueType = map(value);
         if (valueType != type && value != null) {
             throw new IllegalArgumentException(String.format(
@@ -73,7 +73,7 @@ public class FieldScheme implements Scheme {
             ));
         }
         for (Constraint constraint : constraintSet) {
-            if (!constraint.check(parent, value)) {
+            if (!constraint.check(value)) {
                 throw new IllegalArgumentException(String.format(
                         "Error: Constraint violation - %s failed for value '%s'.",
                         constraint.getClass().getName(), value
