@@ -9,7 +9,6 @@ import lombok.EqualsAndHashCode;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 @EqualsAndHashCode(callSuper = true)
@@ -29,9 +28,10 @@ public class Column extends DatabaseStructure {
         }
     }
 
-    public Column(DataType dataType, Set<Integer> ids) {
+    public Column(DataType dataType, Set<Integer> ids, Object defaultValue) {
         fieldScheme.setType(dataType);
-        fieldBody.setNull(ids);
+        if (fieldScheme.validate(fieldBody,defaultValue))
+            fieldBody.setByDefault(ids, defaultValue);
     }
 
     public Object convertValue(String value) {
@@ -69,9 +69,7 @@ public class Column extends DatabaseStructure {
         return fieldBody.selectValuesIf(filter);
     }
 
-    public List<Value> selectOther(List<Value> values) {
-        return fieldBody.selectValuesById(values.stream().map(Value::getId).toList());
-    }
+    public List<Value> selectOther(Set<Integer> ids) {return fieldBody.selectValuesById(ids);}
 
     public List<Value> selectAll() {
         return fieldBody.getValues();

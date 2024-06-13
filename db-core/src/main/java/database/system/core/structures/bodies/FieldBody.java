@@ -62,10 +62,9 @@ public class FieldBody implements Body {
                 .collect(Collectors.toList());
     }
 
-    public List<Value> selectValuesById(List<Integer> ids) {
-        Set<Integer> idSet = new HashSet<>(ids);
+    public List<Value> selectValuesById(Set<Integer> ids) {
         return objectList.stream()
-                .filter(value -> idSet.contains(value.getId()))
+                .filter(value -> ids.contains(value.getId()))
                 .collect(Collectors.toList());
     }
 
@@ -74,9 +73,9 @@ public class FieldBody implements Body {
         objectList.removeIf(value -> idSet.contains(value.getId()));
     }
 
-    public void setNull(Set<Integer> ids) {
+    public void setByDefault(Set<Integer> ids, Object value) {
         objectList = ids.stream()
-                .map(id -> new Value(id, null))
+                .map(id -> new Value(id, value))
                 .collect(Collectors.toList());
     }
 }

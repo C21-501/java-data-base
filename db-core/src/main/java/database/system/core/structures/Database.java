@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -47,14 +46,6 @@ public class Database extends DatabaseStructure {
         Table table = new Table();
         tables.put(tableName, table);
         return table;
-    }
-
-    public void createTable(String tableName, Table table) {
-        validateTableName(tableName);
-        validateNonNull(table);
-        if (tables.containsKey(tableName))
-            throw new IllegalArgumentException(String.format("Table already exists with name: %s", tableName));
-        tables.put(tableName, table);
     }
 
     public void dropTable(String tableName) {
@@ -194,7 +185,7 @@ public class Database extends DatabaseStructure {
             if (!existingTable.contains(columnName)) {
                 if (DataType.validate(columnType)) { // Проверяем, является ли тип данных допустимым
                     DataType dataType = DataType.valueOf(columnType);
-                    Column column = new Column(dataType, existingTable.getRowIds());
+                    Column column = new Column(dataType, existingTable.getRowIds(),null);
                     existingTable.createColumn(columnName, column);
                 } else {
                     throw new IllegalArgumentException(String.format("Error: Invalid data type: %s", columnType));

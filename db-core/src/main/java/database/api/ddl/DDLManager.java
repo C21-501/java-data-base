@@ -38,7 +38,8 @@ public class DDLManager {
      * @param tableName   the name of the table to be altered
      * @param alterColumns the columns to be altered, represented as an array of lists of strings
      */
-    public void alter(String tableName, List<String>... alterColumns) {
+    @SafeVarargs
+    public final void alter(String tableName, List<String>... alterColumns) {
         database.alter(tableName, alterColumns);
     }
 

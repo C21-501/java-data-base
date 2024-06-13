@@ -11,6 +11,7 @@ import java.util.Optional;
  * The CreateCommand class represents a command to create a new table or database in the database system.
  * It extends the Command class and overrides the execute method to perform the creation operation.
  */
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public final class CreateCommand extends Command {
     private final String tableName;
     private final List<String> columns;

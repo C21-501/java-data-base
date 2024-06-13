@@ -1,6 +1,7 @@
 package database.api;
 
 import database.system.core.structures.Table;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.io.IOException;
@@ -12,10 +13,11 @@ import java.util.TreeMap;
  * It provides methods to save a database state as backup, undo a command, and execute the command.
  */
 @ToString
+@EqualsAndHashCode
 public abstract class Command {
     protected DatabaseAPI databaseAPI;
     protected DatabaseEditor databaseEditor;
-    protected Map<String, Table> backup = new TreeMap<>();;
+    protected Map<String, Table> backup = new TreeMap<>();
 
     /**
      * Constructs a new Command instance.

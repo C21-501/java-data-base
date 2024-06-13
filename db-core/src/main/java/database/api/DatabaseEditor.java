@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Stream;
 
+@SuppressWarnings("ALL")
 @Data
 public class DatabaseEditor {
     private DDLManager ddlManager;

@@ -74,6 +74,18 @@ public class Response implements Serializable, Printable {
     }
 
     /**
+     * Retrieves the IDs from the specified column.
+     *
+     * @param columnName The name of the column.
+     * @return A set of IDs from the specified column.
+     */
+    public Set<Integer> getIds(String columnName) {
+        return get(columnName).stream()
+                .map(Value::getId)
+                .collect(Collectors.toCollection(TreeSet::new));
+    }
+
+    /**
      * Retrieves the value at the specified index for the specified column.
      *
      * @param columnName The name of the column.
@@ -93,7 +105,7 @@ public class Response implements Serializable, Printable {
      * Prints the table with formatted columns and values.
      */
     @Override
-    public void print() {
+    public synchronized void print() {
         // Calculate the maximum number of rows
         int maxRows = responseMap.values().stream()
                 .mapToInt(List::size)

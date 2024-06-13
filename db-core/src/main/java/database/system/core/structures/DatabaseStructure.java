@@ -1,12 +1,14 @@
 package database.system.core.structures;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
 public abstract class DatabaseStructure implements Serializable {
-    protected static final long serialVersionUID = 1494292840007224912L;
+    @Serial
+    private static final long serialVersionUID = 1494292840007224912L;
     
     protected void validateTableName(String tableName) {
         if (tableName == null || tableName.isEmpty()) {

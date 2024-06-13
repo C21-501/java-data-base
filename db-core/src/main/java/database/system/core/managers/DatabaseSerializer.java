@@ -13,13 +13,7 @@ import java.nio.file.Paths;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class DatabaseSerializer extends Serializer {
-    private String filePath = STR."\{databaseDirPath}/\{databaseName}";
-
-//    public DatabaseSerializer(Database instance, String databaseName) {
-//        if (databaseName.isEmpty() || instance == null)
-//            throw new NullPointerException("null parameters");
-//        super(databaseName);
-//    }
+    private String filePath = String.format("%s/%s",databaseDirPath,databaseName);
 
     public DatabaseSerializer(Database instance, String dirName, String path){
         if (dirName.isEmpty() || instance == null)
@@ -32,7 +26,6 @@ public class DatabaseSerializer extends Serializer {
         try {
             writeInstanceToFile(database);
         } catch (IOException e){
-            e.printStackTrace();
             throw new RuntimeException("Failed to save instance of database to file.");
         }
     }
@@ -62,7 +55,7 @@ public class DatabaseSerializer extends Serializer {
     }
 
     private static Database readFromFile(String filePath, String databaseName) throws IOException, ClassNotFoundException, FileNotFoundException {
-        String fileName = STR."\{filePath}/\{databaseName}/\{databaseName}.instance";
+        String fileName = String.format("/%s/%s/%s.instance",filePath,databaseName,databaseName);
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))) {
             return (Database) ois.readObject();
         }

@@ -32,6 +32,7 @@ public class Table extends DatabaseStructure {
             }
             // Deep copy constraintSet
             this.constraintSet = new HashSet<>(other.constraintSet);
+            this.rowId = other.rowId;
             this.rowIds = new TreeSet<>(other.rowIds);
         }
     }
@@ -41,37 +42,15 @@ public class Table extends DatabaseStructure {
         return columns.get(columnName);
     }
 
-    public Table createColumn(String columnName, DataType type) {
-        validateNonNull(columnName);
-        columns.put(columnName, new Column(type));
-        return this;
-    }
-
-    public Table createColumn(String columnName, Column column) {
+    public void createColumn(String columnName, Column column) {
         validateNonNull(columnName);
         validateNonNull(column);
         columns.put(columnName, column);
-        return this;
     }
 
     public void dropColumn(String columnName) {
         validateColumnName(columnName, columns);
         columns.remove(columnName);
-    }
-
-    public Table renameField(String oldColumnName, String newColumnName) {
-        validateColumnName(oldColumnName, columns);
-        validateNonNull(newColumnName);
-        Column removedFieldScheme = columns.remove(oldColumnName);
-        columns.put(newColumnName, removedFieldScheme);
-        return this;
-    }
-
-    public Table updateField(String columnName, Column newFieldScheme) {
-        validateColumnName(columnName, columns);
-        validateNonNull(newFieldScheme);
-        columns.replace(columnName, newFieldScheme);
-        return this;
     }
 
     public Table addConstraint(String columnName, Constraint constraint) {
@@ -87,28 +66,6 @@ public class Table extends DatabaseStructure {
         validateNonNull(constraint);
         Column column = columns.get(columnName);
         column.removeConstraint(constraint);
-        return this;
-    }
-
-    public boolean containsValues(Object value) {
-        return columns.containsValue((Column) value);
-    }
-
-    public long getObjectsNumber() {
-        return columns.size();
-    }
-
-    public void renameColumn(String oldColumnName, String newColumnName) {
-        validateColumnName(oldColumnName, columns);
-        validateNonNull(newColumnName);
-        Column removed = columns.remove(oldColumnName);
-        columns.put(newColumnName, removed);
-    }
-
-    public Table updateColumn(String columnName, Column column) {
-        validateColumnName(columnName, columns);
-        validateNonNull(column);
-        columns.replace(columnName, column);
         return this;
     }
 
@@ -165,7 +122,7 @@ public class Table extends DatabaseStructure {
             }
             if (filteredColumnName.equals(columnName))
                 response.set(filteredColumnName, column.select(filter));
-            response.set(columnName, column.selectOther(response.get(filteredColumnName)));
+            response.set(columnName, column.selectOther(response.getIds(filteredColumnName)));
         }
         return response;
     }
