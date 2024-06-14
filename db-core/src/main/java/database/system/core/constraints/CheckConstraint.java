@@ -9,7 +9,7 @@ public class CheckConstraint extends Constraint {
     Predicate<Object> predicate;
 
     public CheckConstraint(String columnName, Predicate<Object> predicate) {
-        super(CheckConstraint.class.getSimpleName().toLowerCase(),columnName);
+        super(CheckConstraint.class.getSimpleName(),columnName);
         if (predicate == null)
             throw new NullPointerException("Error: 'predicate' is null");
         this.predicate = predicate;

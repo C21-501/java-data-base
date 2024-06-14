@@ -7,7 +7,7 @@ public class UniqueConstraint extends Constraint {
     Column column;
 
     public UniqueConstraint(String columnName, Column column) {
-        super(UniqueConstraint.class.getSimpleName().toLowerCase(),columnName, column);
+        super(UniqueConstraint.class.getSimpleName(),columnName, column);
         this.column = column;
     }
 

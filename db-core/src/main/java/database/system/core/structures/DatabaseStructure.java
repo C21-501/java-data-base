@@ -57,7 +57,15 @@ public abstract class DatabaseStructure implements Serializable {
         }
     }
 
-    protected void validateConstraints(Object obj) {
-
+    protected void validateConstraints(String constraintName, Column column) {
+        if (constraintName == null || !column.containsConstraint(constraintName)) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "Error: Constraint '%s' does not exist. Available constraints for column are: %s",
+                            constraintName,
+                            String.join(", ", column.getConstraints())
+                    )
+            );
+        }
     }
 }

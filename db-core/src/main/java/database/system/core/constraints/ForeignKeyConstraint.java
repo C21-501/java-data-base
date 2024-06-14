@@ -8,7 +8,7 @@ public class ForeignKeyConstraint extends Constraint {
     private final String referenceColumnName;
 
     public ForeignKeyConstraint(String columnName, Column column, Table referenceTable, String referenceColumnName) {
-        super(ForeignKeyConstraint.class.getSimpleName().toLowerCase(), columnName, column);
+        super(ForeignKeyConstraint.class.getSimpleName(), columnName, column);
         this.referenceTable = referenceTable;
         this.referenceColumnName = referenceColumnName;
     }

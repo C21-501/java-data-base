@@ -75,7 +75,11 @@ public class Column extends DatabaseStructure {
         return fieldBody.getValues();
     }
 
-    public boolean containsConstraint(Class<DefaultConstraint> defaultConstraintClass) {
-        return columnScheme.contains(defaultConstraintClass);
+    public boolean containsConstraint(String constraintName) {
+        return columnScheme.contains(constraintName);
+    }
+
+    public CharSequence getConstraints() {
+        return columnScheme.getConstraintHashMap().keySet().toString();
     }
 }

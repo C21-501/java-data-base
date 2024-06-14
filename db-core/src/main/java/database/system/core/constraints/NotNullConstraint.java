@@ -5,7 +5,7 @@ import database.system.core.structures.Column;
 
 public class NotNullConstraint extends Constraint {
     public NotNullConstraint(String columnName, Column table){
-        super(NotNullConstraint.class.getSimpleName().toLowerCase(), columnName, table);
+        super(NotNullConstraint.class.getSimpleName(), columnName, table);
     }
 
     @Override

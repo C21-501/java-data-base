@@ -7,10 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,8 +34,8 @@ public class DatabaseAPITest {
         databaseAPI.create("employees", List.of("id INTEGER PRIMARY KEY", "name STRING UNIQUE", "age INTEGER NOT NULL CHECK (age >= 18)"));
         // Insert records into the "employees" table
         List<Object[]> values = List.of(
-                new Object[]{1, "John", 30},
-                new Object[]{2, "Alice", 25}
+                new Object[]{1, "'John'", 30},
+                new Object[]{2, "'Alice'", 25}
         );
         databaseAPI.insert("employees", List.of("id", "name", "age"), values);
         // Select all records from the "employees" table
@@ -50,6 +47,13 @@ public class DatabaseAPITest {
         databaseAPI.update("employees", List.of("name = 'John'","age = 18"), "id = 1");
         // Commit the transaction
         databaseAPI.commit();
+
+        assertThrows(RuntimeException.class,()->databaseAPI.insert("employees", List.of("id", "name", "age"), Collections.singletonList(new Object[]{3, "'Petra'", 15})));
+
+        databaseAPI.alter("employees", null, null, List.of("age age_check_age_constraint"));
+
+        databaseAPI.insert("employees", List.of("id", "name", "age"), Collections.singletonList(new Object[]{4, "'Tom'", 15}));
+
         databaseAPI.select("employees");
         databaseAPI.getLastSelectResponse().print(OUTPUT_TYPE.CONSOLE, Optional.empty());
         // Drop the "employees" table

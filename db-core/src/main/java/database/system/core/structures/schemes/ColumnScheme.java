@@ -65,6 +65,10 @@ public class ColumnScheme implements Scheme {
         );
     }
 
+    public boolean contains(String constraintName) {
+        return constraintHashMap.get(constraintName) != null;
+    }
+
     public boolean validate(Object value) {
         DataType valueType = map(value);
         if (valueType != type && value != null) {

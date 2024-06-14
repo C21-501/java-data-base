@@ -100,9 +100,7 @@ public class Table extends DatabaseStructure {
                 }
                 column.insert(value, rowId.get());
             } else {
-                if (column.containsConstraint(DefaultConstraint.class)) {
-                    column.insert(column.getColumnScheme().getValueByDefault(), rowId.get());
-                }
+                column.insert(column.getColumnScheme().getValueByDefault(), rowId.get());
             }
         }
         rowIds.add(rowId.get());
@@ -271,6 +269,7 @@ public class Table extends DatabaseStructure {
         validateColumnNames(List.of(columnName));
         Column column = getColumn(columnName);
         for (String constraint: constraintNames){
+            validateConstraints(constraint, column);
             column.removeConstraint(constraint);
         }
     }

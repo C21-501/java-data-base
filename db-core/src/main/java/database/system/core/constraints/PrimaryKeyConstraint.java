@@ -6,7 +6,7 @@ import database.system.core.structures.Column;
 public class PrimaryKeyConstraint extends Constraint {
 
     public PrimaryKeyConstraint(String columnName, Column table) {
-        super(PrimaryKeyConstraint.class.getSimpleName().toLowerCase(),columnName, table);
+        super(PrimaryKeyConstraint.class.getSimpleName(),columnName, table);
     }
 
     @Override

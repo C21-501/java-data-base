@@ -8,7 +8,7 @@ import static database.system.core.types.DataType.map;
 public class DefaultConstraint extends Constraint {
 
     public DefaultConstraint(String columnName, Column column, Object defaultValue) {
-        super(DefaultConstraint.class.getSimpleName().toLowerCase(),columnName, column);
+        super(DefaultConstraint.class.getSimpleName(),columnName, column);
         DataType valueType = map(defaultValue);
         if (column.getColumnScheme().getType() != valueType && defaultValue != null) {
             throw new IllegalArgumentException(String.format(

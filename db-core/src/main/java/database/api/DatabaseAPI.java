@@ -131,9 +131,10 @@ public class DatabaseAPI implements Printable {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * dbApi.alter("myTable", List.of("newColumn INTEGER"));
-     * dbApi.alter("myTable", null, List.of("column1 STRING", "column2 BOOLEAN"));
+     * dbApi.alter("myTable", List.of("newColumn INTEGER NOT NULL"));
+     * dbApi.alter("myTable", null, List.of("column1 STRING UNIQUE NOT NULL", "column2 BOOLEAN DEFAULT true"));
      * dbApi.alter("myTable", null, null, List.of("column2"));
+     * dbApi.alter("myTable", null, null, List.of("column2 column2_checkconstraint"));
      * }</pre>
      */
     @SafeVarargs
