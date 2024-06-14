@@ -107,7 +107,29 @@ public class SQLListener extends SQLGrammarBaseListener {
             }
 
         } else if(alterCtx.addColumnStatement() != null){
-            String column = STR."\{alterCtx.addColumnStatement().columnName.getText()} \{alterCtx.addColumnStatement().dataType().getText()}";
+            String column;
+            if(alterCtx.addColumnStatement().columnDefinition().columnConstraint() != null){
+                StringBuilder constraint = new StringBuilder();
+                for(var i : alterCtx.addColumnStatement().columnDefinition().columnConstraint()){
+                    if(i.check() != null){
+                        var expression = i.check().condition().expression(0);
+                        constraint.append("CHECK ( ")
+                                .append(STR."\{expression.columnName.getText()} ")
+                                .append(STR."\{expression.comparisonOperator().getText()} ")
+                                .append(expression.value.getText())
+                                .append(" ) ");
+                    } else if(i.foreignKey() != null){
+                        constraint.append("REFERENCES ")
+                                .append(STR."\{i.foreignKey().tableName.getText()} ( ")
+                                .append(STR."\{i.foreignKey().columnName.getText()} ) ");
+                    } else {
+                        constraint.append(STR."\{i.getText()} ");
+                    }
+                }
+                column = STR."\{alterCtx.addColumnStatement().columnDefinition().columnName.getText()} \{alterCtx.addColumnStatement().columnDefinition().dataType().getText()} \{constraint.toString()}";
+            } else {
+                column = STR."\{alterCtx.addColumnStatement().columnDefinition().columnName.getText()} \{alterCtx.addColumnStatement().columnDefinition().dataType().getText()}";
+            }
 
             logger.info("Starting ADD COLUMN command...");
             try{
@@ -139,32 +161,30 @@ public class SQLListener extends SQLGrammarBaseListener {
         List<String> columnsToAdd = new LinkedList<>();
 
         for(var i : ctx.createTableStatement().columnDefinition()) {
-//            String constraint = null;
-//            List<Expression> expressions = new ArrayList<>();
-//            List<String> logicalOperator = new ArrayList<>();
-//
-//            if(i.columnConstraint() != null) {
-//
-//                if(i.columnConstraint().check() != null) {
-//                    constraint = "CHECK";
-//
-//                    for(var j : i.columnConstraint().check().condition().expression()){
-//                        expressions.add(new Expression(j.columnName.getText(),j.comparisonOperator().getText(),j.value.getText()));
-//                    }
-//                    for(var j : i.columnConstraint().check().condition().logicalOperator()){
-//                        logicalOperator.add(j.getText());
-//                    }
-//
-//                } else if(i.columnConstraint().foreignKey() != null) {
-//                    constraint = "REFERENCES";
-//                    String foreignTableName = i.columnConstraint().foreignKey().tableName.getText();
-//                    String foreignColumnName = i.columnConstraint().foreignKey().columnName.getText();
-//
-//                } else {
-//                    constraint = i.columnConstraint().getText();
-//                }
-//            }
-            columnsToAdd.add(STR."\{i.columnName.getText()} \{i.dataType().getText()}");
+            String column;
+            if(i.columnConstraint() != null){
+                StringBuilder constraint = new StringBuilder();
+                for(var j : i.columnConstraint()){
+                    if(j.check() != null){
+                        var expression = j.check().condition().expression(0);
+                        constraint.append("CHECK ( ")
+                                .append(STR."\{expression.columnName.getText()} ")
+                                .append(STR."\{expression.comparisonOperator().getText()} ")
+                                .append(expression.value.getText())
+                                .append(" ) ");
+                    } else if(j.foreignKey() != null){
+                        constraint.append("REFERENCES ")
+                                .append(STR."\{j.foreignKey().tableName.getText()} ( ")
+                                .append(STR."\{j.foreignKey().columnName.getText()} ) ");
+                    } else {
+                        constraint.append(STR."\{j.getText()} ");
+                    }
+                }
+                column = STR."\{i.columnName.getText()} \{i.dataType().getText()} \{constraint.toString()}";
+            } else {
+                column = STR."\{i.columnName.getText()} \{i.dataType().getText()}";
+            }
+            columnsToAdd.add(column);
         }
 
         logger.info("Starting CREATE TABLE command...");
@@ -361,7 +381,11 @@ public class SQLListener extends SQLGrammarBaseListener {
     public void exitHelpCommand(SQLGrammarParser.HelpCommandContext ctx) {
         logger.info("Starting HELP command ...");
         try{
-            databaseAPI.help(Optional.empty());
+            Optional<String> commandName = Optional.empty();
+            if(ctx.commandName() != null){
+                commandName = Optional.of(ctx.commandName().getText());
+            }
+            databaseAPI.help(commandName);
             logger.info("Success HELP command");
         }catch (Exception e){
             logger.error(e.getMessage());

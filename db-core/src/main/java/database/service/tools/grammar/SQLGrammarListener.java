@@ -238,6 +238,16 @@ public interface SQLGrammarListener extends ParseTreeListener {
 	 */
 	void exitHelpCommand(SQLGrammarParser.HelpCommandContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link SQLGrammarParser#commandName}.
+	 * @param ctx the parse tree
+	 */
+	void enterCommandName(SQLGrammarParser.CommandNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SQLGrammarParser#commandName}.
+	 * @param ctx the parse tree
+	 */
+	void exitCommandName(SQLGrammarParser.CommandNameContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link SQLGrammarParser#selectElements}.
 	 * @param ctx the parse tree
 	 */

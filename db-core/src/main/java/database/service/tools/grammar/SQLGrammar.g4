@@ -42,7 +42,8 @@ commitCommand: 'COMMIT';
 rollbackCommand: 'ROLLBACK';
 
 // Правила для HELP команды
-helpCommand: 'HELP';
+helpCommand : 'HELP' (commandName)?;
+commandName : 'CREATE'|'ALTER'|'DROP'|'SELECT'|'INSERT'|'UPDATE'|'DELETE'|'BEGIN'|'COMMIT'|'ROLLBACK'|'CONSTRAINTS';
 
 // Правила для элементов запроса SELECT
 selectElements: ('*' | selectElement (',' selectElement)*);
@@ -83,12 +84,12 @@ alterDatabaseStatement: 'RENAME TO' newName=IDENTIFIER;
 alterTableStatement: renameTableStatement | addColumnStatement | dropColumnStatement;
 
 renameTableStatement: 'RENAME TO' newName=IDENTIFIER;
-addColumnStatement: 'ADD' 'COLUMN' columnName=IDENTIFIER dataType;
+addColumnStatement: 'ADD' 'COLUMN' columnDefinition;
 dropColumnStatement: 'DROP' 'COLUMN' columnName=IDENTIFIER;
 
 // Реализация поддержки команд CREATE TABLE
 createTableStatement: '(' columnDefinition (',' columnDefinition)* ')';
-columnDefinition: columnName=IDENTIFIER dataType columnConstraint?;
+columnDefinition: columnName=IDENTIFIER dataType columnConstraint*;
 dataType: 'INTEGER' | 'REAL' | 'STRING' | 'BOOLEAN';
 columnConstraint: check | foreignKey |'PRIMARY KEY' | 'NOT NULL' | 'UNIQUE';
 check: 'CHECK' '('condition')';
