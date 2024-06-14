@@ -10,15 +10,16 @@ import database.api.dml.commands.UpdateCommand;
 import database.api.tcl.commands.BeginCommand;
 import database.api.tcl.commands.CommitCommand;
 import database.api.tcl.commands.RollBackCommand;
+import database.api.utils.OUTPUT_TYPE;
 import database.system.core.structures.Response;
 import database.system.core.structures.interfaces.Printable;
 import lombok.Data;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
-import static database.api.utils.Utils.parseStringToObjectArray;
 
 /**
  * The DatabaseAPI class provides an interface for interacting with the database.
@@ -344,7 +345,8 @@ public class DatabaseAPI implements Printable {
     }
 
     @Override
-    public void print() {
-        getLastSelectResponse().print();
+    public void print(OUTPUT_TYPE outputType, Optional<String> filePath) {
+        if (Objects.nonNull(lastSelectResponse))
+            getLastSelectResponse().print(outputType, filePath);
     }
 }

@@ -1,10 +1,14 @@
 package database.system.core.structures;
 
+import database.api.utils.OUTPUT_TYPE;
 import database.system.core.structures.interfaces.Printable;
 import lombok.Data;
 
-import java.io.Serializable;
+import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -102,10 +106,27 @@ public class Response implements Serializable, Printable {
     }
 
     /**
-     * Prints the table with formatted columns and values.
+     * Prints the table with formatted columns and values to the specified output.
+     *
+     * @param outputType The type of output: "console" or "file".
+     * @param filePath   The file path if outputType is "file"; ignored otherwise.
      */
     @Override
-    public synchronized void print() {
+    public synchronized void print(OUTPUT_TYPE outputType, Optional<String> filePath) {
+        PrintStream out = System.out;
+        if (outputType.equals(OUTPUT_TYPE.FILE) && filePath.isPresent()) {
+            try {
+                out = new PrintStream(new FileOutputStream(filePath.get(),true));
+                // Print the current date and time at the beginning of the file
+                LocalDateTime now = LocalDateTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                out.printf("Date: %s%n", now.format(formatter));
+                out.println();
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException("File not found: %s".formatted(filePath), e);
+            }
+        }
+
         // Calculate the maximum number of rows
         int maxRows = responseMap.values().stream()
                 .mapToInt(List::size)
@@ -130,16 +151,16 @@ public class Response implements Serializable, Printable {
         int tableNameWidth = tableName.length();
 
         // Print the table name row
-        printTableNameSeparator(tableNameWidth + 4);
-        System.out.printf("| %s |%n", center(tableName, tableNameWidth));
+        printTableNameSeparator(out, tableNameWidth + 4);
+        out.printf("| %s |%n", center(tableName, tableNameWidth));
         // Print the column headers
-        printSeparator(totalWidth);
+        printSeparator(out, totalWidth);
         for (String columnName : responseColumnsOrder) {
             int width = columnWidths.get(columnName);
-            System.out.printf("| %s ", center(columnName, width));
+            out.printf("| %s ", center(columnName, width));
         }
-        System.out.println("|");
-        printSeparator(totalWidth);
+        out.println("|");
+        printSeparator(out, totalWidth);
 
         // Print the rows
         for (int i = 0; i < maxRows; i++) {
@@ -148,22 +169,26 @@ public class Response implements Serializable, Printable {
                 int width = columnWidths.get(columnName);
                 if (i < values.size()) {
                     String value = values.get(i).getObject() == null ? NULL_STRING : values.get(i).getObject().toString();
-                    System.out.printf("| %s ", center(value, width));
+                    out.printf("| %s ", center(value, width));
                 } else {
-                    System.out.printf("| %s ", center(NULL_STRING, width));
+                    out.printf("| %s ", center(NULL_STRING, width));
                 }
             }
-            System.out.println("|");
-            printSeparator(totalWidth);
+            out.println("|");
+            printSeparator(out, totalWidth);
+        }
+
+        if (out != System.out) {
+            out.close();
         }
     }
 
-    private void printSeparator(int width) {
-        System.out.printf("+%s+%n", "-".repeat(width - 2));
+    private void printSeparator(PrintStream out, int width) {
+        out.printf("+%s+%n", "-".repeat(width - 2));
     }
 
-    private void printTableNameSeparator(int width) {
-        System.out.printf("+%s+%n", "-".repeat(width - 2));
+    private void printTableNameSeparator(PrintStream out, int width) {
+        out.printf("+%s+%n", "-".repeat(width - 2));
     }
 
     private String center(String text, int width) {
