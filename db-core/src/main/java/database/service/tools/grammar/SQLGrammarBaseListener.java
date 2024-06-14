@@ -281,6 +281,18 @@ public class SQLGrammarBaseListener implements SQLGrammarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterHelpCommand(SQLGrammarParser.HelpCommandContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitHelpCommand(SQLGrammarParser.HelpCommandContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterSelectElements(SQLGrammarParser.SelectElementsContext ctx) { }
 	/**
 	 * {@inheritDoc}
