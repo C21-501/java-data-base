@@ -1,5 +1,7 @@
 package database.api;
 
+import database.api.utils.OUTPUT_TYPE;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +17,9 @@ public class DatabaseAPIExample {
         databaseAPI.setActiveEditor(new DatabaseEditor());
         databaseAPI.setHistory(new CommandHistory());
 
+        databaseAPI.help(Optional.of("CREATE"));
+
+        databaseAPI.help(Optional.of("INVALID COMMAND"));
         // Создаем базу данных
         databaseAPI.create("test_database", Optional.empty());
 
@@ -32,7 +37,7 @@ public class DatabaseAPIExample {
 
         // Выбор всех записей
         databaseAPI.select("test_table");
-        databaseAPI.print();
+        databaseAPI.print(OUTPUT_TYPE.CONSOLE, Optional.empty());
 
         // Начинаем транзакцию
         databaseAPI.begin();
@@ -51,7 +56,7 @@ public class DatabaseAPIExample {
 
         // Выбор всех записей после коммита
         databaseAPI.select("test_table");
-        databaseAPI.print();
+        databaseAPI.print(OUTPUT_TYPE.CONSOLE, Optional.empty());
 
         // Обновляем записи
         databaseAPI.update("test_table", List.of("name = 'Alice Smith'", "age = 31"), "id = 1");
@@ -69,14 +74,14 @@ public class DatabaseAPIExample {
 
         // Выбор всех записей после изменений
         databaseAPI.select("test_table");
-        databaseAPI.getLastSelectResponse().print();
+        databaseAPI.print(OUTPUT_TYPE.FILE, Optional.of("output.txt"));
 
         // Добавляем новый столбец
         databaseAPI.alter("test_table", List.of("salary REAL"));
 
         // Выбор всех записей после добавления столбца
         databaseAPI.select("test_table");
-        databaseAPI.print();
+        databaseAPI.print(OUTPUT_TYPE.FILE, Optional.of("output.txt"));
         // Начинаем транзакцию для демонстрации отката
         databaseAPI.begin();
 
@@ -92,7 +97,7 @@ public class DatabaseAPIExample {
         databaseAPI.rollback();
         // Выбор всех записей после отката
         databaseAPI.select("test_table");
-        databaseAPI.print();
+        databaseAPI.print(OUTPUT_TYPE.FILE, Optional.of("output.txt"));
 
         // Переименовываем таблицу
         databaseAPI.alter("test_table", "renamed_table", false);
@@ -109,7 +114,7 @@ public class DatabaseAPIExample {
 
         // Выбор всех записей из переименованной таблицы
         databaseAPI.select("renamed_table");
-        databaseAPI.print();
+        databaseAPI.print(OUTPUT_TYPE.FILE, Optional.of("output.txt"));
 
         // Удаляем таблицу
         databaseAPI.drop("renamed_table", false);

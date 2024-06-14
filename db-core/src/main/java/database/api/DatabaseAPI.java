@@ -7,6 +7,7 @@ import database.api.dml.commands.DeleteCommand;
 import database.api.dml.commands.InsertCommand;
 import database.api.dml.commands.SelectCommand;
 import database.api.dml.commands.UpdateCommand;
+import database.api.help.commands.HelpCommand;
 import database.api.tcl.commands.BeginCommand;
 import database.api.tcl.commands.CommitCommand;
 import database.api.tcl.commands.RollBackCommand;
@@ -19,7 +20,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 
 /**
  * The DatabaseAPI class provides an interface for interacting with the database.
@@ -56,6 +56,23 @@ public class DatabaseAPI implements Printable {
     private Response lastSelectResponse;
 
     /**
+     * Displays help information for a specific command if provided, otherwise for all commands.
+     *
+     * @param command an optional command name for which help is requested; if not provided, help for all commands is displayed
+     * @throws IOException if an I/O error occurs during the execution
+     *
+     * <p>Example:</p>
+     * <pre>{@code
+     * dbApi.help(Optional.of("select"));
+     * dbApi.help(Optional.empty());
+     * }</pre>
+     */
+
+    final public void help(@SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> command) throws IOException {
+        executeCommand(new HelpCommand(this, activeEditor, command));
+    }
+
+    /**
      * Creates a new database by executing the CreateCommand.
      *
      * @param databaseName the name of the database to be created
@@ -64,7 +81,6 @@ public class DatabaseAPI implements Printable {
      *
      * <p>Example:</p>
      * <pre>{@code
-     * 
      * dbApi.create("myDatabase", Optional.of("/path/to/database"));
      * }</pre>
      */
@@ -81,7 +97,6 @@ public class DatabaseAPI implements Printable {
      *
      * <p>Example:</p>
      * <pre>{@code
-     *
      * dbApi.create("myTable", List.of("id INTEGER", "name STRING"));
      * }</pre>
      */
@@ -116,7 +131,6 @@ public class DatabaseAPI implements Printable {
      *
      * <p>Example:</p>
      * <pre>{@code
-     *
      * dbApi.alter("myTable", List.of("newColumn INTEGER"));
      * dbApi.alter("myTable", null, List.of("column1 STRING", "column2 BOOLEAN"));
      * dbApi.alter("myTable", null, null, List.of("column2"));
@@ -128,35 +142,33 @@ public class DatabaseAPI implements Printable {
     }
 
     /**
-     * Executes an ALTER command to rename an existing table in the database.
+     * Executes an ALTER command to rename an existing table or database in the database.
      *
      * @param name    the current name of the table or database to be renamed
      * @param newName the new name for the table or database
-     * @param isDatabase flag
+     * @param isDatabase flag indicating if the rename is for a database
      * @throws IOException if an I/O error occurs during the execution
      *
-     *                     <p>Example:</p>
-     *                     <pre>{@code
-     *
-     *                     dbApi.alter("oldTableName", "newTableName", false);
-     *                     }</pre>
+     * <p>Example:</p>
+     * <pre>{@code
+     * dbApi.alter("oldTableName", "newTableName", false);
+     * }</pre>
      */
     final synchronized public void alter(String name, String newName, boolean isDatabase) throws IOException {
         executeCommand(new AlterCommand(this, activeEditor, name, newName, isDatabase));
     }
 
     /**
-     * Executes a DROP command to delete a table from the database.
+     * Executes a DROP command to delete a table or database from the database.
      *
      * @param name         the name of the table or database to delete
-     * @param isDatabase   the flag
+     * @param isDatabase   the flag indicating if the drop is for a database
      * @throws IOException if an I/O error occurs during the execution
      *
-     *                     <p>Example:</p>
-     *                     <pre>{@code
-     *
-     *                     dbApi.drop("myTable", false);
-     *                     }</pre>
+     * <p>Example:</p>
+     * <pre>{@code
+     * dbApi.drop("myTable", false);
+     * }</pre>
      */
     final synchronized public void drop(String name, boolean isDatabase) throws IOException {
         executeCommand(new DropCommand(this, activeEditor, name, isDatabase));
@@ -171,7 +183,6 @@ public class DatabaseAPI implements Printable {
      *
      * <p>Example:</p>
      * <pre>{@code
-     *
      * dbApi.delete("myTable", "id = 1");
      * }</pre>
      */
@@ -189,7 +200,6 @@ public class DatabaseAPI implements Printable {
      *
      * <p>Example:</p>
      * <pre>{@code
-     *
      * dbApi.insert("myTable", List.of("id", "name"), List.of(new Object[]{1, "John Doe"}));
      * }</pre>
      */
@@ -205,7 +215,6 @@ public class DatabaseAPI implements Printable {
      *
      * <p>Example:</p>
      * <pre>{@code
-     *
      * dbApi.select("myTable");
      * }</pre>
      */
@@ -222,7 +231,6 @@ public class DatabaseAPI implements Printable {
      *
      * <p>Example:</p>
      * <pre>{@code
-     *
      * dbApi.select("myTable", List.of("id", "name"));
      * }</pre>
      */
@@ -240,7 +248,6 @@ public class DatabaseAPI implements Printable {
      *
      * <p>Example:</p>
      * <pre>{@code
-     *
      * dbApi.select("myTable", List.of("id", "name"), "id = 1");
      * }</pre>
      */
@@ -252,14 +259,13 @@ public class DatabaseAPI implements Printable {
      * Executes an UPDATE command to modify records in a table in the database.
      *
      * @param tableName the name of the table in which records will be updated
-     * @param values     the new value to be set in the records
+     * @param values    the list of new values to be set in the records
      * @param condition the condition to determine which records to update
      * @throws IOException if an I/O error occurs during the execution
      *
      * <p>Example:</p>
      * <pre>{@code
-     *
-     * dbApi.update("table1", List.of("column1 = 20", "column2 = 'John'",), "id = 10");
+     * dbApi.update("table1", List.of("column1 = 20", "column2 = 'John'"), "id = 10");
      * }</pre>
      */
     final synchronized public void update(String tableName, List<String> values, String condition) throws IOException {
@@ -273,7 +279,6 @@ public class DatabaseAPI implements Printable {
      *
      * <p>Example:</p>
      * <pre>{@code
-     *
      * dbApi.begin();
      * }</pre>
      */
@@ -288,7 +293,6 @@ public class DatabaseAPI implements Printable {
      *
      * <p>Example:</p>
      * <pre>{@code
-     *
      * dbApi.commit();
      * }</pre>
      */
@@ -303,7 +307,6 @@ public class DatabaseAPI implements Printable {
      *
      * <p>Example:</p>
      * <pre>{@code
-     *
      * dbApi.rollback();
      * }</pre>
      */
@@ -311,15 +314,22 @@ public class DatabaseAPI implements Printable {
         executeCommand(new RollBackCommand(this, activeEditor));
     }
 
+    /**
+     * Executes the given command. If a transaction is active, the command is collected for later execution.
+     * Otherwise, it is executed immediately and added to the command history if successful.
+     *
+     * @param command the command to execute
+     * @throws IOException if an I/O error occurs during the execution
+     */
     private void executeCommand(Command command) throws IOException {
         if (activeEditor.haveActiveTransactions() && !(command instanceof BeginCommand || command instanceof CommitCommand || command instanceof RollBackCommand)) {
             activeEditor.collectCommands(command);
         } else if (activeEditor.haveActiveTransactions() && (command instanceof CommitCommand || command instanceof RollBackCommand)) {
-            if(command.execute()){
+            if (command.execute()) {
                 history.push(command);
             }
         } else {
-            if(command.execute()){
+            if (command.execute()) {
                 history.push(command);
             }
         }
@@ -333,7 +343,6 @@ public class DatabaseAPI implements Printable {
      *
      * <p>Example:</p>
      * <pre>{@code
-     *
      * dbApi.undo();
      * }</pre>
      */
@@ -344,6 +353,12 @@ public class DatabaseAPI implements Printable {
         }
     }
 
+    /**
+     * Prints the last SELECT response using the specified output type and optional file path.
+     *
+     * @param outputType the output type (e.g., CONSOLE, FILE)
+     * @param filePath   an optional file path where the output should be written if the output type is FILE
+     */
     @Override
     public void print(OUTPUT_TYPE outputType, Optional<String> filePath) {
         if (Objects.nonNull(lastSelectResponse))

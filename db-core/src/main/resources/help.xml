@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<commands>
+    <command>
+        <name>CREATE</name>
+        <description>
+            Commands to create tables. Input includes table name, column descriptions (names and data types),
+            and constraints (PRIMARY KEY, FOREIGN KEY, UNIQUE, NOT NULL, CHECK).
+        </description>
+        <example>
+            CREATE TABLE students (
+                id INTEGER PRIMARY KEY,
+                name STRING NOT NULL,
+                age INTEGER,
+                grade STRING
+            );
+        </example>
+    </command>
+    <command>
+        <name>ALTER</name>
+        <description>
+            Commands to modify the structure of existing tables. Input includes table name, columns to modify,
+            new column names, and new constraints.
+        </description>
+        <example>
+            ALTER TABLE students ADD COLUMN email STRING;
+        </example>
+    </command>
+    <command>
+        <name>DROP</name>
+        <description>
+            Commands to delete tables. Input includes the name of the table to be deleted.
+        </description>
+        <example>
+            DROP TABLE students;
+        </example>
+    </command>
+    <command>
+        <name>SELECT</name>
+        <description>
+            Commands to retrieve data from tables. Input includes table name, list of columns to select, filter conditions,
+            sorting parameters, and row limit.
+        </description>
+        <example>
+            SELECT name, age FROM students WHERE grade = 'A' ORDER BY age;
+        </example>
+    </command>
+    <command>
+        <name>INSERT</name>
+        <description>
+            Commands to insert data into tables. Input includes table name, list of columns, and corresponding values.
+        </description>
+        <example>
+            INSERT INTO students (name, age, grade) VALUES ('John Doe', 20, 'A');
+        </example>
+    </command>
+    <command>
+        <name>UPDATE</name>
+        <description>
+            Commands to update data in tables. Input includes table name, columns to update, new values, and filter conditions.
+        </description>
+        <example>
+            UPDATE students SET grade = 'B' WHERE name = 'John Doe';
+        </example>
+    </command>
+    <command>
+        <name>DELETE</name>
+        <description>
+            Commands to delete data from tables. Input includes table name and filter conditions to determine which records to delete.
+        </description>
+        <example>
+            DELETE FROM students WHERE age &lt; 18;
+        </example>
+    </command>
+    <command>
+        <name>BEGIN</name>
+        <description>
+            Commands to start a transaction. Input may include transaction labels or other parameters if necessary.
+        </description>
+        <example>
+            BEGIN TRANSACTION;
+        </example>
+    </command>
+    <command>
+        <name>COMMIT</name>
+        <description>
+            Commands to commit a transaction. Input includes confirmation of transaction completion.
+        </description>
+        <example>
+            COMMIT;
+        </example>
+    </command>
+    <command>
+        <name>ROLLBACK</name>
+        <description>
+            Commands to roll back a transaction. Input includes specifying the transaction to be rolled back.
+        </description>
+        <example>
+            ROLLBACK;
+        </example>
+    </command>
+    <command>
+        <name>CONSTRAINTS</name>
+        <description>
+            Constraints and Validation:
+            Input data for insertion and update are checked for compliance with established constraints.
+            data types:
+
+                - INTEGER,
+                - STRING,
+                - BOOLEAN,
+                - REAL.
+
+            integrity constraints:
+
+                - NOT NULL,
+                - UNIQUE,
+                - PRIMARY KEY,
+                - FOREIGN KEY,
+                - CHECK.
+        </description>
+    </command>
+</commands>
