@@ -143,6 +143,12 @@ public interface SQLGrammarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitRollbackCommand(SQLGrammarParser.RollbackCommandContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link SQLGrammarParser#helpCommand}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHelpCommand(SQLGrammarParser.HelpCommandContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link SQLGrammarParser#selectElements}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

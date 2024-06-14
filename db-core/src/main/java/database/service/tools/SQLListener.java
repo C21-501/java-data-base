@@ -1,6 +1,7 @@
 package database.service.tools;
 
 import database.api.DatabaseAPI;
+import database.api.utils.OUTPUT_TYPE;
 import database.service.tools.grammar.SQLGrammarBaseListener;
 import database.service.tools.grammar.SQLGrammarParser;
 
@@ -21,9 +22,13 @@ import static database.api.utils.Utils.parseValue;
 public class SQLListener extends SQLGrammarBaseListener {
     private final Logger logger = LogManager.getLogger(SQLListener.class);
     private final DatabaseAPI databaseAPI;
+    private final OUTPUT_TYPE outputType;
+    private final Optional<String> filePath;
 
-    public SQLListener(DatabaseAPI databaseAPI) {
+    public SQLListener(DatabaseAPI databaseAPI, OUTPUT_TYPE outputType, Optional<String> filePath) {
         this.databaseAPI = databaseAPI;
+        this.outputType = outputType;
+        this.filePath = filePath;
     }
 
 //    /**
@@ -266,11 +271,14 @@ public class SQLListener extends SQLGrammarBaseListener {
 
         logger.info("Starting SELECT command ...");
         try{
-            if(condition.isEmpty()){
+            if(columnsToSelect.isEmpty()) {
+                databaseAPI.select(tableName);
+            } else if(condition.isEmpty()){
                 databaseAPI.select(tableName, columnsToSelect);
             } else {
                 databaseAPI.select(tableName, columnsToSelect, condition);
             }
+            databaseAPI.print(outputType, filePath);
             logger.info("Success SELECT command");
         }catch (Exception e){
             logger.error(e.getMessage());
@@ -344,6 +352,17 @@ public class SQLListener extends SQLGrammarBaseListener {
         try{
             databaseAPI.rollback();
             logger.info("Success ROLLBACK command");
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
+    }
+
+    @Override
+    public void exitHelpCommand(SQLGrammarParser.HelpCommandContext ctx) {
+        logger.info("Starting HELP command ...");
+        try{
+            databaseAPI.help(Optional.empty());
+            logger.info("Success HELP command");
         }catch (Exception e){
             logger.error(e.getMessage());
         }

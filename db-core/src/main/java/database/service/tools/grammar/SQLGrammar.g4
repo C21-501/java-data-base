@@ -6,7 +6,7 @@ grammar SQLGrammar;
 start: sqlCommands EOF;
 
 // Правила для одиночной команды
-sqlCommand: ddlCommand | dmlCommand | tclCommand;
+sqlCommand: ddlCommand | dmlCommand | tclCommand | helpCommand;
 
 // Правила для последовательности команд, разделенных ';'
 sqlCommands: sqlCommand (';' sqlCommand)* ';'?;
@@ -40,6 +40,9 @@ tclCommand: beginCommand | commitCommand | rollbackCommand;
 beginCommand: 'BEGIN';
 commitCommand: 'COMMIT';
 rollbackCommand: 'ROLLBACK';
+
+// Правила для HELP команды
+helpCommand: 'HELP';
 
 // Правила для элементов запроса SELECT
 selectElements: ('*' | selectElement (',' selectElement)*);

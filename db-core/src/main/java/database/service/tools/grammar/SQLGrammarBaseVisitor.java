@@ -172,6 +172,13 @@ public class SQLGrammarBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitHelpCommand(SQLGrammarParser.HelpCommandContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitSelectElements(SQLGrammarParser.SelectElementsContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
