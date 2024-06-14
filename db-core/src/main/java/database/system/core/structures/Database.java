@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class Database extends DatabaseStructure {
@@ -170,7 +171,7 @@ public class Database extends DatabaseStructure {
             if (existingTable.contains(columnName)) {
                 // Изменяем тип данных столбца
                 Column column = existingTable.getColumn(columnName);
-                column.getFieldScheme().setType(DataType.valueOf(newColumnType));
+                column.getColumnScheme().setType(DataType.valueOf(newColumnType));
             } else {
                 throw new RuntimeException(String.format("Error: column '%s' doesn't exist", columnName));
             }

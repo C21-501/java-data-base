@@ -82,7 +82,7 @@ public class HELPManager {
         return "";
     }
 
-    private void printFormattedText(String text, boolean indent) {
+    private void printFormattedText(String text, boolean ignoredIndent) {
         if (text == null || text.isEmpty()) {
             return;
         }
@@ -92,18 +92,5 @@ public class HELPManager {
         for (String line : lines) {
             System.out.printf("%s%n", line);
         }
-    }
-
-    public static void main(String[] args) {
-        String filePath = "help.xml"; // The file should be in src/main/resources
-        HELPManager helpManager = new HELPManager(filePath);
-
-        // Example usage:
-        System.out.println("Printing help for SELECT command:");
-        helpManager.printCommandHelp("SELECT");
-        System.out.println();
-
-        System.out.println("Printing help for all commands:");
-        helpManager.printAllCommandsHelp();
     }
 }

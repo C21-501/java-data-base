@@ -1,16 +1,18 @@
-package database.system.core.constraints.listeners;
+package database.system.core.constraints;
 
-import database.system.core.constraints.interfaces.Constraint;
 import database.system.core.structures.Column;
 
 
 public class UniqueConstraint extends Constraint {
+    Column column;
+
     public UniqueConstraint(String columnName, Column column) {
-        super(columnName, column);
+        super(UniqueConstraint.class.getSimpleName().toLowerCase(),columnName, column);
+        this.column = column;
     }
 
     @Override
-    public boolean check(Object value) {
+    public boolean serve(Object value) {
         boolean exists = column.getFieldBody()
                 .getValues()
                 .stream()
@@ -18,6 +20,6 @@ public class UniqueConstraint extends Constraint {
         if (!exists) {
             return true;
         }
-        throw new RuntimeException(STR."UniqueConstraint violation: Value '\{value}' already exists in the table");
+        throw new RuntimeException(String.format("UniqueConstraint violation: Value '%s' already exists in the table", value));
     }
 }

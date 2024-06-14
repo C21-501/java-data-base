@@ -192,9 +192,9 @@ public class Response implements Serializable, Printable {
     }
 
     private String center(String text, int width) {
-        int padding = width - text.length();
+        int padding = Math.max(width - text.length(), 0);
         int paddingLeft = padding / 2;
-        int paddingRight = padding - paddingLeft;
+        int paddingRight = Math.max(padding - paddingLeft, 0);
         return " ".repeat(paddingLeft) + text + " ".repeat(paddingRight);
     }
 }

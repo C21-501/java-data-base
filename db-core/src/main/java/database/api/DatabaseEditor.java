@@ -2,7 +2,9 @@ package database.api;
 
 import database.api.ddl.DDLManager;
 import database.api.dml.DMLManager;
+import database.api.help.HELPManager;
 import database.api.tcl.TCLManager;
+import database.monitor.Config;
 import database.system.core.managers.DatabaseSerializer;
 import database.system.core.structures.Database;
 import database.system.core.structures.Table;
@@ -22,6 +24,7 @@ public class DatabaseEditor {
     private DDLManager ddlManager;
     private DMLManager dmlManager;
     private TCLManager tclManager;
+    private HELPManager helpManager;
     private Database database;
     private String databaseName;
     private String databasePath = "root";
@@ -62,6 +65,7 @@ public class DatabaseEditor {
         this.ddlManager = new DDLManager(database);
         this.dmlManager = new DMLManager(database);
         this.tclManager = new TCLManager(database);
+        this.helpManager = new HELPManager(Config.HELP_FILE_PATH);
     }
 
     public void saveDatabaseState() {
@@ -117,9 +121,11 @@ public class DatabaseEditor {
     }
 
     public void restoreDatabaseStateFromBackup(Map<String, Table> backup) {
+        String path = database.getFilePath();
         resetDatabaseInstance();
         database = Database.getInstance();
         database.setTables(backup);
+        database.setFilePath(path);
         saveDatabaseState();
     }
 

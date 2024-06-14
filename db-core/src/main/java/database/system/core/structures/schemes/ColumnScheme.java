@@ -1,7 +1,6 @@
 package database.system.core.structures.schemes;
 
-import database.system.core.constraints.interfaces.Constraint;
-import database.system.core.structures.bodies.Body;
+import database.system.core.constraints.Constraint;
 import database.system.core.types.DataType;
 import lombok.Data;
 
@@ -10,19 +9,20 @@ import java.util.*;
 import static database.system.core.types.DataType.map;
 
 @Data
-public class FieldScheme implements Scheme {
+public class ColumnScheme implements Scheme {
     private DataType type;
+    private Object valueByDefault = null;
     private Set<Constraint> constraintSet = new HashSet<>();
 
-    public FieldScheme() {}
+    public ColumnScheme() {}
 
-    public FieldScheme(DataType type) {
+    public ColumnScheme(DataType type) {
         if (type == null)
             throw new NullPointerException("Error: parameter 'type' is null.");
         this.type = type;
     }
 
-    public FieldScheme(DataType type, Set<Constraint> constraintSet) {
+    public ColumnScheme(DataType type, Set<Constraint> constraintSet) {
         if (type == null)
             throw new NullPointerException("Error: parameter 'type' is null.");
         if (constraintSet == null || constraintSet.isEmpty())
@@ -31,9 +31,10 @@ public class FieldScheme implements Scheme {
         this.constraintSet = constraintSet;
     }
 
-    public FieldScheme(FieldScheme other) {
+    public ColumnScheme(ColumnScheme other) {
         if (!this.equals(other)){
             this.type = other.type;
+            this.valueByDefault = other.valueByDefault;
             this.constraintSet = new HashSet<>(other.constraintSet);
         }
     }
@@ -73,7 +74,7 @@ public class FieldScheme implements Scheme {
             ));
         }
         for (Constraint constraint : constraintSet) {
-            if (!constraint.check(value)) {
+            if (!constraint.serve(value)) {
                 throw new IllegalArgumentException(String.format(
                         "Error: Constraint violation - %s failed for value '%s'.",
                         constraint.getClass().getName(), value

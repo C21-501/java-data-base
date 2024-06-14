@@ -1,7 +1,9 @@
 package database.system.core.structures;
 
+import database.api.utils.OUTPUT_TYPE;
 import database.system.core.constraints.ConstraintFactory;
-import database.system.core.constraints.interfaces.Constraint;
+import database.system.core.constraints.Constraint;
+import database.system.core.constraints.DefaultConstraint;
 import database.system.core.types.DataType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -38,6 +40,7 @@ public class Table extends DatabaseStructure {
         }
     }
 
+
     public Column getColumn(String columnName) {
         validateColumnName(columnName, columns);
         return columns.get(columnName);
@@ -64,9 +67,8 @@ public class Table extends DatabaseStructure {
         validateNonNull(columnType);
         if (DataType.validate(columnType)) {
             Column column = new Column(DataType.valueOf(columnType));
-            ConstraintFactory constraintFactory = new ConstraintFactory(columnName, column);
             for (String constraint : constraints) {
-                Constraint constraintObj = constraintFactory.createConstraint(constraint);
+                Constraint constraintObj = ConstraintFactory.createConstraint(column, columnName, constraint);
                 column.addConstraint(constraintObj);
             }
             columns.put(columnName, column);
@@ -85,7 +87,7 @@ public class Table extends DatabaseStructure {
         validateColumnName(columnName, columns);
         validateNonNull(constraint);
         Column column = columns.get(columnName);
-        column.getFieldScheme().addConstraint(constraint);
+        column.getColumnScheme().addConstraint(constraint);
         return this;
     }
 
@@ -98,29 +100,36 @@ public class Table extends DatabaseStructure {
     }
 
     public Table insert(List<String> columnNames, Object[] valueArray) {
-        for (int i = 0; i < columnNames.size(); i++) {
-            String columnName = columnNames.get(i);
+        for (String columnName : columnNames) {
             validateColumnName(columnName, columns);
-            Column column = this.getColumn(columnName);
-            if (column == null) {
-                throw new RuntimeException(String.format("Error: column '%s' doesn't exist.", columnName));
-            }
-            // Проверка типа данных перед вставкой
-            DataType expectedType = column.getFieldScheme().getType();
-            Object value = valueArray[i];
-            DataType actualType = DataType.map(value);
-
-            if (expectedType != actualType && value != null) {
-                throw new IllegalArgumentException(String.format(
-                        "Error: Invalid data type for column '%s'. Expected: %s, but got: %s",
-                        columnName, expectedType, actualType));
-            }
-            column.insert(value, rowId.get());
         }
+        for (Map.Entry<String, Column> entry : columns.entrySet()) {
+            String columnName = entry.getKey();
+            Column column = entry.getValue();
+            int columnIndex = columnNames.indexOf(columnName);
+            if (columnIndex != -1) {
+                DataType expectedType = column.getColumnScheme().getType();
+                Object value = valueArray[columnIndex];
+                DataType actualType = DataType.map(value);
+                if (expectedType != actualType && value != null) {
+                    throw new IllegalArgumentException(String.format(
+                            "Error: Invalid data type for column '%s'. Expected: %s, but got: %s",
+                            columnName, expectedType, actualType)
+                    );
+                }
+                column.insert(value, rowId.get());
+            } else {
+                if (column.containsConstraint(DefaultConstraint.class)) {
+                    column.insert(column.getColumnScheme().getValueByDefault(), columnIndex);
+                }
+            }
+        }
+        // Добавляем текущий rowId в множество rowIds и инкрементируем rowId
         rowIds.add(rowId.get());
-        rowId.incrementAndGet(); // Increment depth on insert
+        rowId.incrementAndGet();
         return this;
     }
+
 
     public Response select(String tableName, List<String> columnNames) {
         Response response = new Response(tableName, columnNames);
@@ -222,9 +231,9 @@ public class Table extends DatabaseStructure {
         Column column = columns.get(columnName);
 
         return switch (operator) {
-            case "=" -> obj -> compareValues(column.getFieldScheme().getType(), obj, value) == 0;
-            case "<" -> obj -> compareValues(column.getFieldScheme().getType(), obj, value) < 0;
-            case ">" -> obj -> compareValues(column.getFieldScheme().getType(), obj, value) > 0;
+            case "=" -> obj -> compareValues(column.getColumnScheme().getType(), obj, value) == 0;
+            case "<" -> obj -> compareValues(column.getColumnScheme().getType(), obj, value) < 0;
+            case ">" -> obj -> compareValues(column.getColumnScheme().getType(), obj, value) > 0;
             default -> throw new IllegalArgumentException(String.format("Error: Unsupported operator '%s'", operator));
         };
     }

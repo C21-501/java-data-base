@@ -24,7 +24,7 @@ public class DatabaseSerializer extends Serializer {
     @Override
     public void saveInstance(Database database) {
         try {
-            writeInstanceToFile(database);
+            writeInstanceToFile(database.getFilePath(), database);
         } catch (IOException e){
             throw new RuntimeException("Failed to save instance of database to file.");
         }
@@ -47,9 +47,8 @@ public class DatabaseSerializer extends Serializer {
         return readFromFile(filePath, databaseName);
     }
 
-    private static void writeInstanceToFile(Database record) throws IOException {
-        String fileName = record.getFilePath();
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName))) {
+    private static void writeInstanceToFile(String filepath, Database record) throws IOException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filepath))) {
             oos.writeObject(record);
         }
     }

@@ -1,13 +1,5 @@
 package database.system.core.constraints.listeners;
 
-import database.system.core.structures.schemes.FieldScheme;
-import database.system.core.types.DataType;
-import org.junit.jupiter.api.Test;
-
-import java.util.function.Predicate;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 public class CheckConstraintTest {
     // CheckConstraint can be instantiated with a Field object and a Predicate object.
 //    @Test

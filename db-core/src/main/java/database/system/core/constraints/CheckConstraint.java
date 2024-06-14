@@ -1,6 +1,5 @@
-package database.system.core.constraints.listeners;
+package database.system.core.constraints;
 
-import database.system.core.constraints.interfaces.Constraint;
 import lombok.EqualsAndHashCode;
 
 import java.util.function.Predicate;
@@ -10,14 +9,14 @@ public class CheckConstraint extends Constraint {
     Predicate<Object> predicate;
 
     public CheckConstraint(String columnName, Predicate<Object> predicate) {
-        super(columnName);
+        super(CheckConstraint.class.getSimpleName().toLowerCase(),columnName);
         if (predicate == null)
-            throw new NullPointerException("'predicate' is null");
+            throw new NullPointerException("Error: 'predicate' is null");
         this.predicate = predicate;
     }
 
     @Override
-    public boolean check(Object value) {
+    public boolean serve(Object value) {
         if (predicate.test(value))
             return true;
         throw new RuntimeException(String.format("CheckConstraint violation: The value '%s' does not satisfy the specified predicate", value));

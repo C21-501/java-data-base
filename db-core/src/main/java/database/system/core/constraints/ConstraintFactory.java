@@ -1,35 +1,18 @@
 package database.system.core.constraints;
 
-import database.system.core.constraints.interfaces.Constraint;
-import database.system.core.constraints.listeners.CheckConstraint;
-import database.system.core.constraints.listeners.NotNullConstraint;
-import database.system.core.constraints.listeners.PrimaryKeyConstraint;
-import database.system.core.constraints.listeners.UniqueConstraint;
 import database.system.core.structures.Column;
 import database.system.core.types.DataType;
-import lombok.Data;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.function.Predicate;
 
-@Data
 public class ConstraintFactory {
-    private String columnName;
-    private String constraintName;
-    private Column column;
 
-    public ConstraintFactory(String columnName, Column column) {
-        this.columnName = columnName;
-        this.column = column;
-    }
+    private ConstraintFactory() {}
 
-    public ConstraintFactory(String columnName, String constraintName) {
-        this.columnName = columnName;
-        this.constraintName = constraintName;
-    }
-
-    public Constraint createConstraint(String definition) {
+    public static Constraint createConstraint(Column column, String columnName, String definition) {
         if (definition.equalsIgnoreCase("NOT NULL")) {
             return new NotNullConstraint(columnName, column);
         }
@@ -48,12 +31,17 @@ public class ConstraintFactory {
             return new CheckConstraint(columnName, predicate);
         }
 
+        if (definition.toUpperCase().startsWith("DEFAULT")) {
+            String defaultValue = definition.substring(definition.indexOf(" ") + 1);
+            Object parsedDefaultValue = parseOperand(defaultValue);
+            return new DefaultConstraint(columnName, column, parsedDefaultValue);
+        }
+
         throw new IllegalArgumentException(String.format("Error: Unsupported constraint '%s'", definition));
     }
 
     public static @NotNull Predicate<Object> createCheckPredicate(String columnName, String condition) {
         condition = condition.trim();
-        // Split the condition into parts based on comparison operators and values
         String[] parts = condition.split("\\s+", 3);
         if (parts.length != 3) {
             throw new IllegalArgumentException(String.format("Error: Invalid CHECK constraint condition '%s'", condition));
@@ -85,9 +73,7 @@ public class ConstraintFactory {
         };
     }
 
-
     private static String convertLikePatternToRegex(String likePattern) {
-        // Escape special regex characters and convert SQL LIKE pattern to regex pattern
         String regex = likePattern
                 .replace(".", "\\.")
                 .replace("%", ".*")
@@ -111,7 +97,6 @@ public class ConstraintFactory {
     }
 
     private static int compareValues(Object value, String operator, Object parsedRightOperand) {
-        // Evaluate the value against the parsedRightOperand based on operator
         if (value instanceof Number && parsedRightOperand instanceof Number) {
             double val1 = ((Number) value).doubleValue();
             double val2 = ((Number) parsedRightOperand).doubleValue();
@@ -129,7 +114,6 @@ public class ConstraintFactory {
                 default -> throw new IllegalArgumentException(String.format("Error: Unsupported operator '%s' for string comparison", operator));
             };
         } else if (value instanceof Boolean && parsedRightOperand instanceof Boolean) {
-            // Directly compare boolean values
             if (operator.equalsIgnoreCase("="))
                 return value.equals(parsedRightOperand) ? 0 : -1;
             throw new IllegalArgumentException(String.format("Error: Unsupported operator '%s' for boolean comparison", operator));
@@ -141,47 +125,36 @@ public class ConstraintFactory {
         }
     }
 
-
     public static void main(String[] args) {
-        // Пример создания фабрики с указанием имени столбца и типа данных
-        Column column = new Column(DataType.INTEGER);
-        ConstraintFactory factory = new ConstraintFactory("col1", column);
-
-        // Создание ограничения NOT NULL для столбца col1
-        Constraint constraint1 = factory.createConstraint("NOT NULL");
+        Column table1 = new Column(DataType.INTEGER);
+        Constraint constraint1 = ConstraintFactory.createConstraint(table1, "col1", "NOT NULL");
         System.out.printf("Constraint 1: %s%n", constraint1.getClass().getSimpleName());
 
-        // Создание ограничения PRIMARY KEY для столбца col1
-        Constraint constraint2 = factory.createConstraint("PRIMARY KEY");
+        Constraint constraint2 = ConstraintFactory.createConstraint(table1, "col1", "PRIMARY KEY");
         System.out.printf("Constraint 2: %s%n", constraint2.getClass().getSimpleName());
 
-        // Создание ограничения UNIQUE для столбца col1
-        Constraint constraint3 = factory.createConstraint("UNIQUE");
+        Constraint constraint3 = ConstraintFactory.createConstraint(table1, "col1", "UNIQUE");
         System.out.printf("Constraint 3: %s%n", constraint3.getClass().getSimpleName());
 
-        // Создание ограничения CHECK для столбца col1 (числовое условие)
-        // Условие: значение в столбце col1 должно быть больше 1
-        Constraint constraint4 = factory.createConstraint("CHECK (col1 > 1)");
+        Constraint constraint4 = ConstraintFactory.createConstraint(table1, "col1", "CHECK (col1 > 1)");
         System.out.printf("Constraint 4: %s%n", constraint4.getClass().getSimpleName());
 
-        // Создание ограничения CHECK для столбца col1 (строковое условие)
-        // Условие: значение в столбце col1 должно быть равно 'abc'
-        Constraint constraint5 = factory.createConstraint("CHECK (col1 = 'abc')");
+        Constraint constraint5 = ConstraintFactory.createConstraint(table1, "col1", "CHECK (col1 = 'abc')");
         System.out.printf("Constraint 5: %s%n", constraint5.getClass().getSimpleName());
 
-        // Создание ограничения CHECK для столбца col1 (логическое условие)
-        // Условие: значение в столбце col1 должно быть равно true
-        Constraint constraint6 = factory.createConstraint("CHECK (col1 = true)");
+        Constraint constraint6 = ConstraintFactory.createConstraint(table1, "col1", "CHECK (col1 = true)");
         System.out.printf("Constraint 6: %s%n", constraint6.getClass().getSimpleName());
 
-        // Демонстрация работы созданных CHECK ограничений
+        Constraint constraint7 = ConstraintFactory.createConstraint(table1, "col1", "DEFAULT 42");
+        System.out.printf("Constraint 7: %s%n", constraint7.getClass().getSimpleName());
+
         Predicate<Object> checkPredicate1 = ConstraintFactory.createCheckPredicate("col1", "col1 > 1");
         System.out.printf("Check Predicate result for col1 = 2: %s%n", checkPredicate1.test(2)); // true
         System.out.printf("Check Predicate result for col1 = 1: %s%n", checkPredicate1.test(1)); // false
 
         Predicate<Object> checkPredicate2 = ConstraintFactory.createCheckPredicate("col1", "col1 = 'abc'");
-        System.out.printf("Check Predicate result for col1 = 'abc': %s%n", checkPredicate2.test("'abc'")); // true
-        System.out.printf("Check Predicate result for col1 = 'xyz': %s%n", checkPredicate2.test("'xyz'")); // false
+        System.out.printf("Check Predicate result for col1 = 'abc': %s%n", checkPredicate2.test("abc")); // true
+        System.out.printf("Check Predicate result for col1 = 'xyz': %s%n", checkPredicate2.test("xyz")); // false
 
         Predicate<Object> checkPredicate3 = ConstraintFactory.createCheckPredicate("col1", "col1 = true");
         System.out.printf("Check Predicate result for col1 = true: %s%n", checkPredicate3.test(true)); // true

@@ -1,7 +1,7 @@
 package database.system.core.structures.bodies;
 
 import database.system.core.structures.Value;
-import database.system.core.structures.schemes.FieldScheme;
+import database.system.core.structures.schemes.ColumnScheme;
 import lombok.Data;
 
 import java.util.*;
@@ -22,14 +22,14 @@ public class FieldBody implements Body {
         }
     }
 
-    public void insertValue(FieldScheme fieldScheme, Value value){
-        if (fieldScheme.validate(value.getObject()))
+    public void insertValue(ColumnScheme columnScheme, Value value){
+        if (columnScheme.validate(value.getObject()))
             objectList.add(value);
     }
 
-    public boolean validate(FieldScheme fieldScheme){
+    public boolean validate(ColumnScheme columnScheme){
         for (Value value: objectList){
-            if (!fieldScheme.validate(value.getObject()))
+            if (!columnScheme.validate(value.getObject()))
                 return false;
         }
         return true;

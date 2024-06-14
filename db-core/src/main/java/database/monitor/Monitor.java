@@ -59,48 +59,48 @@ public class Monitor {
         }
     }
 
-    public static void main(String[] args) {
-        DatabaseAPI databaseAPI;
-        databaseAPI = new DatabaseAPI();
-        databaseAPI.setActiveEditor(new DatabaseEditor());
-        databaseAPI.setHistory(new CommandHistory());
-        final java.util.Scanner scanner = new java.util.Scanner(System.in);
-        Config config = new Config();
-        System.out.println("Greetings traveler!");
-        System.out.println("Choose the working mode: Command Line Interface (CLI) or File System (FS), or type HELP to check our cool commands");
-        boolean flag = true;
-        boolean mainFlag = true;
-        while (mainFlag) {
-            String input = scanner.nextLine();
-            if (input.equalsIgnoreCase("CLI")) {
-                System.out.println("You chose Command Line Interface.");
-                while (flag) {
-                    System.out.println("Enter a command, or type ':q' to quit:");
-                    readCommandsFromCommandLine(databaseAPI);
-                    break;
-                }
-                break;
-            } else if (input.equalsIgnoreCase("FS")) {
-                System.out.println("You chose File System.");
-                System.out.println("Enter the file name:");
-                String fileName = in.next();
-                try {
-                    readCommandsFromFile(fileName, databaseAPI);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                break;
-            } else if (input.equalsIgnoreCase("HELP")) {
-                for (String command : config.getCommands()) {
-                    System.out.println(command);
-                }
-                System.out.println("Choose the working mode: Command Line Interface (CLI) or File System (FS), or type HELP to check our cool commands");
-            } else {
-                System.out.println("Invalid choice.");
-            }
-        }
-
-    }
+//    public static void main(String[] args) {
+//        DatabaseAPI databaseAPI;
+//        databaseAPI = new DatabaseAPI();
+//        databaseAPI.setActiveEditor(new DatabaseEditor());
+//        databaseAPI.setHistory(new CommandHistory());
+//        final java.util.Scanner scanner = new java.util.Scanner(System.in);
+//        Config config = new Config();
+//        System.out.println("Greetings traveler!");
+//        System.out.println("Choose the working mode: Command Line Interface (CLI) or File System (FS), or type HELP to check our cool commands");
+//        boolean flag = true;
+//        boolean mainFlag = true;
+//        while (mainFlag) {
+//            String input = scanner.nextLine();
+//            if (input.equalsIgnoreCase("CLI")) {
+//                System.out.println("You chose Command Line Interface.");
+//                while (flag) {
+//                    System.out.println("Enter a command, or type ':q' to quit:");
+//                    readCommandsFromCommandLine(databaseAPI);
+//                    break;
+//                }
+//                break;
+//            } else if (input.equalsIgnoreCase("FS")) {
+//                System.out.println("You chose File System.");
+//                System.out.println("Enter the file name:");
+//                String fileName = in.next();
+//                try {
+//                    readCommandsFromFile(fileName, databaseAPI);
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//                break;
+//            } else if (input.equalsIgnoreCase("HELP")) {
+//                for (String command  {
+//                    System.out.println(command);
+//                }
+//                System.out.println("Choose the working mode: Command Line Interface (CLI) or File System (FS), or type HELP to check our cool commands");
+//            } else {
+//                System.out.println("Invalid choice.");
+//            }
+//        }
+//
+//    }
 
     /*private static void runCommandInThread(String command) {
         Thread commandThread = new Thread(() -> {

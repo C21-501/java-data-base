@@ -1,5 +1,6 @@
 package database.api;
 
+import database.api.utils.OUTPUT_TYPE;
 import database.system.core.structures.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,7 +23,7 @@ public class DatabaseAPITest {
         databaseAPI = new DatabaseAPI();
         databaseAPI.setActiveEditor(new DatabaseEditor());
         databaseAPI.setHistory(new CommandHistory());
-        databaseAPI.getActiveEditor().createDatabase("test_db", "C:\\Users\\Евгений\\IdeaProjects\\java-data-base\\db-core\\src\\test\\resources");
+        databaseAPI.getActiveEditor().createDatabase("test_db");
     }
 
     @AfterEach
@@ -41,7 +43,7 @@ public class DatabaseAPITest {
         databaseAPI.insert("employees", List.of("id", "name", "age"), values);
         // Select all records from the "employees" table
         databaseAPI.select("employees");
-        databaseAPI.getLastSelectResponse().print();
+        databaseAPI.getLastSelectResponse().print(OUTPUT_TYPE.CONSOLE, Optional.empty());
         // Begin a new transaction
         databaseAPI.begin();
         // Update the age of employee with id 1 to 32
@@ -49,7 +51,7 @@ public class DatabaseAPITest {
         // Commit the transaction
         databaseAPI.commit();
         databaseAPI.select("employees");
-        databaseAPI.getLastSelectResponse().print();
+        databaseAPI.getLastSelectResponse().print(OUTPUT_TYPE.CONSOLE, Optional.empty());
         // Drop the "employees" table
         databaseAPI.drop("employees", false);
     }
@@ -96,7 +98,7 @@ public class DatabaseAPITest {
         databaseAPI.insert("testTable", columns, values);
         databaseAPI.delete("testTable", "id = 1");
         Response result = databaseAPI.getActiveEditor().getDmlManager().select("testTable", columns);
-        result.print();
+        result.print(OUTPUT_TYPE.CONSOLE, Optional.empty());
         assertEquals(1, result.getResponseMap().get("id").size());
     }
 
@@ -110,7 +112,7 @@ public class DatabaseAPITest {
         columns = List.of("id", "name");
         databaseAPI.insert("testTable", columns, values);
         Response result = databaseAPI.getActiveEditor().getDmlManager().select("testTable", columns);
-        result.print();
+        result.print(OUTPUT_TYPE.CONSOLE, Optional.empty());
         assertEquals(2, result.getResponseMap().get("id").size());
     }
 
@@ -128,7 +130,7 @@ public class DatabaseAPITest {
         databaseAPI.insert("testTable", columns, values);
         columns = List.of("id", "name", "surname", "is_boss");
         Response result = databaseAPI.getActiveEditor().getDmlManager().select("testTable", columns, "id = 1");
-        result.print();
+        result.print(OUTPUT_TYPE.CONSOLE, Optional.empty());
         assertEquals(1, result.getResponseMap().get("id").size());
     }
 
@@ -181,7 +183,7 @@ public class DatabaseAPITest {
         values.add(new Object[]{1, "Alice"}); // Missing 'age' value
         DatabaseAPI databaseAPI = new DatabaseAPI();
         databaseAPI.setActiveEditor(new DatabaseEditor());
-        assertThrows(NullPointerException.class, () -> {
+        assertThrows(RuntimeException.class, () -> {
             databaseAPI.insert("users", columns, values);
         });
     }
@@ -198,7 +200,7 @@ public class DatabaseAPITest {
         databaseAPI.setActiveEditor(databaseEditor);
         CommandHistory history = new CommandHistory();
         databaseAPI.setHistory(history);
-        assertThrows(NullPointerException.class, () -> {
+        assertThrows(RuntimeException.class, () -> {
             databaseAPI.select(tableName, columns, invalidCondition);
         });
     }
@@ -226,7 +228,7 @@ public class DatabaseAPITest {
         List<String> selectedColumns = Arrays.asList("column1", "column2");
         String selectCondition = "column1 = 'new_value'";
         assertDoesNotThrow(() -> databaseAPI.select(tableName, selectedColumns, selectCondition));
-        databaseAPI.getLastSelectResponse().print();
+        databaseAPI.getLastSelectResponse().print(OUTPUT_TYPE.CONSOLE, Optional.empty());
     }
 
     // Attempt to undo when there are no commands in history

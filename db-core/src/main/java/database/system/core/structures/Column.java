@@ -1,56 +1,56 @@
 package database.system.core.structures;
 
-import database.system.core.constraints.interfaces.Constraint;
+import database.system.core.constraints.Constraint;
+import database.system.core.constraints.DefaultConstraint;
 import database.system.core.structures.bodies.FieldBody;
-import database.system.core.structures.schemes.FieldScheme;
+import database.system.core.structures.schemes.ColumnScheme;
 import database.system.core.types.DataType;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
+
+@Getter
 public class Column extends DatabaseStructure {
-    private FieldScheme fieldScheme = new FieldScheme();
+    private ColumnScheme columnScheme = new ColumnScheme();
     private FieldBody fieldBody = new FieldBody();
 
     public Column(DataType dataType){
-        fieldScheme.setType(dataType);
+        columnScheme.setType(dataType);
     }
 
     public Column(Column other) {
         if (!this.equals(other)){
-            this.fieldScheme = new FieldScheme(other.getFieldScheme());
+            this.columnScheme = new ColumnScheme(other.getColumnScheme());
             this.fieldBody = new FieldBody(other.getFieldBody());
         }
     }
 
     public Column(DataType dataType, Set<Integer> ids, Object defaultValue) {
-        fieldScheme.setType(dataType);
-        if (fieldScheme.validate(defaultValue))
+        columnScheme.setType(dataType);
+        if (columnScheme.validate(defaultValue))
             fieldBody.setByDefault(ids, defaultValue);
     }
 
     public Object convertValue(String value) {
-        return fieldScheme.convertValueToValidType(value);
+        return columnScheme.convertValueToValidType(value);
     }
 
     public Column addConstraint(Constraint constraint){
-        fieldScheme.addConstraint(constraint);
-        fieldBody.validate(fieldScheme);
+        columnScheme.addConstraint(constraint);
+        fieldBody.validate(columnScheme);
         return this;
     }
 
     public void removeConstraint(Constraint constraint){
-        fieldScheme.removeConstraint(constraint);
+        columnScheme.removeConstraint(constraint);
     }
 
     public void insert(Object value, int depth) {
         Value insertion = new Value(depth, value);
-        fieldBody.insertValue(fieldScheme, insertion);
+        fieldBody.insertValue(columnScheme, insertion);
     }
 
     public void delete(Predicate<Object> filter) {
@@ -73,5 +73,9 @@ public class Column extends DatabaseStructure {
 
     public List<Value> selectAll() {
         return fieldBody.getValues();
+    }
+
+    public boolean containsConstraint(Class<DefaultConstraint> defaultConstraintClass) {
+        return columnScheme.contains(defaultConstraintClass);
     }
 }

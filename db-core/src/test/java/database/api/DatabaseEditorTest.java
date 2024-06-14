@@ -1,5 +1,6 @@
 package database.api;
 
+import database.api.utils.OUTPUT_TYPE;
 import database.system.core.structures.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -166,7 +168,7 @@ public class DatabaseEditorTest {
         System.out.printf("Insertion time for %d records: %d ms%n", largeVolume, insertTime - startTime);
 
         Response response = editor.getDmlManager().select("large_table", List.of("id", "name"), "id < 10");
-        response.print();
+        response.print(OUTPUT_TYPE.CONSOLE, Optional.empty());
 
         long selectTime = System.currentTimeMillis();
         System.out.printf("Selection time for %d records: %d ms%n", largeVolume, selectTime - insertTime);
@@ -213,7 +215,7 @@ public class DatabaseEditorTest {
 
         // Validate data integrity
         Response response = editor.getDmlManager().select("1_table", Arrays.asList("id", "name"));
-        response.print();
+        response.print(OUTPUT_TYPE.CONSOLE, Optional.empty());
         assertEquals(2, response.getResponseMap().size());
         assertEquals(3, response.get("id",0));
         assertEquals("alice", response.get("name",0));

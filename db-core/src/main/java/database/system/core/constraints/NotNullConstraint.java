@@ -1,17 +1,15 @@
-package database.system.core.constraints.listeners;
+package database.system.core.constraints;
 
-import database.system.core.constraints.interfaces.Constraint;
 import database.system.core.structures.Column;
 
 
 public class NotNullConstraint extends Constraint {
-
-    public NotNullConstraint(String columnName, Column column){
-        super(columnName, column);
+    public NotNullConstraint(String columnName, Column table){
+        super(NotNullConstraint.class.getSimpleName().toLowerCase(), columnName, table);
     }
 
     @Override
-    public boolean check(Object value) {
+    public boolean serve(Object value) {
         if (value == null)
             throw new NullPointerException(STR."NotNullConstraint violation: Value \{value} is null");
         return true;
