@@ -26,6 +26,7 @@ public class DatabaseSerializer extends Serializer {
         try {
             writeInstanceToFile(database.getFilePath(), database);
         } catch (IOException e){
+            e.printStackTrace(System.err);
             throw new RuntimeException("Failed to save instance of database to file.");
         }
     }

@@ -12,7 +12,7 @@ import static database.system.core.types.DataType.map;
 public class ColumnScheme implements Scheme {
     private DataType type;
     private Object valueByDefault = null;
-    private Set<Constraint> constraintSet = new HashSet<>();
+    private Map<String,Constraint> constraintHashMap = new TreeMap<>();
 
     public ColumnScheme() {}
 
@@ -22,45 +22,45 @@ public class ColumnScheme implements Scheme {
         this.type = type;
     }
 
-    public ColumnScheme(DataType type, Set<Constraint> constraintSet) {
+    public ColumnScheme(DataType type, Map<String,Constraint> constraintHashMap) {
         if (type == null)
             throw new NullPointerException("Error: parameter 'type' is null.");
-        if (constraintSet == null || constraintSet.isEmpty())
+        if (constraintHashMap == null || constraintHashMap.isEmpty())
             throw new NullPointerException("Error: parameter 'constraintSet' is null or empty.");
         this.type = type;
-        this.constraintSet = constraintSet;
+        this.constraintHashMap = constraintHashMap;
     }
 
     public ColumnScheme(ColumnScheme other) {
         if (!this.equals(other)){
             this.type = other.type;
             this.valueByDefault = other.valueByDefault;
-            this.constraintSet = new HashSet<>(other.constraintSet);
+            this.constraintHashMap = new HashMap<>(other.constraintHashMap);
         }
     }
 
     public void addConstraint(Constraint constraint) {
         if (constraint == null)
             throw new NullPointerException("Error: parameter 'constraint' is null.");
-        constraintSet.add(constraint);
+        constraintHashMap.put(constraint.getConstraintName(), constraint);
     }
 
-    public void removeConstraint(Constraint constraint) {
-        if (constraint == null)
+    public void removeConstraint(String constraintName) {
+        if (constraintName == null)
             throw new NullPointerException("Error: parameter 'constraint' is null.");
-        constraintSet.remove(constraint);
+        constraintHashMap.remove(constraintName);
     }
 
     public boolean contains(Constraint constraint) {
         if (constraint == null)
             throw new NullPointerException("Error: parameter 'constraint' is null.");
-        return constraintSet.contains(constraint);
+        return constraintHashMap.containsValue(constraint);
     }
 
     public boolean contains(Class<?> constraintClass) {
         if (constraintClass == null)
             throw new NullPointerException("Error: parameter 'constraintClass' is null.");
-        return constraintSet.stream().anyMatch(
+        return constraintHashMap.values().stream().anyMatch(
                 (constraint) -> constraint.getClass().equals(constraintClass)
         );
     }
@@ -73,7 +73,7 @@ public class ColumnScheme implements Scheme {
                     type, valueType, value.getClass().getName()
             ));
         }
-        for (Constraint constraint : constraintSet) {
+        for (Constraint constraint : constraintHashMap.values()) {
             if (!constraint.serve(value)) {
                 throw new IllegalArgumentException(String.format(
                         "Error: Constraint violation - %s failed for value '%s'.",

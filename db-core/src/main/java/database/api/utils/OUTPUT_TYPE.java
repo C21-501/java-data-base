@@ -1,6 +1,8 @@
 package database.api.utils;
 
-public enum OUTPUT_TYPE {
+import java.io.Serializable;
+
+public enum OUTPUT_TYPE implements Serializable {
     CONSOLE,
     FILE
 }

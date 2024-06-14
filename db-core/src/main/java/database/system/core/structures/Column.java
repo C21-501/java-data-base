@@ -44,8 +44,8 @@ public class Column extends DatabaseStructure {
         return this;
     }
 
-    public void removeConstraint(Constraint constraint){
-        columnScheme.removeConstraint(constraint);
+    public void removeConstraint(String constraintName){
+        columnScheme.removeConstraint(constraintName);
     }
 
     public void insert(Object value, int depth) {

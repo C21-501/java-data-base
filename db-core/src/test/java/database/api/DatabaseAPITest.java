@@ -34,7 +34,7 @@ public class DatabaseAPITest {
     @Test
     public void test_example_with_all_commands() throws IOException {
         // Create a new table named "employees" with columns "id INTEGER", "name STRING", "age INTEGER"
-        databaseAPI.create("employees", List.of("id INTEGER", "name STRING", "age INTEGER"));
+        databaseAPI.create("employees", List.of("id INTEGER PRIMARY KEY", "name STRING UNIQUE", "age INTEGER NOT NULL CHECK (age >= 18)"));
         // Insert records into the "employees" table
         List<Object[]> values = List.of(
                 new Object[]{1, "John", 30},
@@ -59,8 +59,7 @@ public class DatabaseAPITest {
     // Successfully create a new table with valid table name and columns
     @Test
     public void test_create_table_with_valid_name_and_columns() throws IOException {
-        databaseAPI.setHistory(new CommandHistory());
-        List<String> columns = List.of("id INTEGER", "name STRING");
+        List<String> columns = List.of("id INTEGER PRIMARY KEY", "name STRING NOT NULL");
         databaseAPI.create("testTable", columns);
         assertTrue(databaseAPI.getActiveEditor().getDdlManager().getDatabase().containsTable("testTable"));
     }
@@ -68,10 +67,9 @@ public class DatabaseAPITest {
     // Successfully alter an existing table with valid modifications
     @Test
     public void test_alter_table_with_valid_modifications() throws IOException {
-        databaseAPI.setHistory(new CommandHistory());
         List<String> columns = List.of("id INTEGER", "name STRING");
         databaseAPI.create("testTable", columns);
-        List<String> addColumn = List.of("age INTEGER");
+        List<String> addColumn = List.of("age INTEGER CHECK (age > 18)");
         databaseAPI.alter("testTable", addColumn);
         assertTrue(databaseAPI.getActiveEditor().getDdlManager().getDatabase().containsTable("testTable"));
         assertTrue(databaseAPI.getActiveEditor().getDdlManager().getDatabase().getTable("testTable").get().contains("age"));
@@ -80,7 +78,6 @@ public class DatabaseAPITest {
     // Successfully drop an existing table with a valid table name
     @Test
     public void test_drop_table_with_valid_name() throws IOException {
-        databaseAPI.setHistory(new CommandHistory());
         List<String> columns = List.of("id INTEGER", "name STRING");
         databaseAPI.create("testTable", columns);
         databaseAPI.drop("testTable", false);
@@ -90,8 +87,7 @@ public class DatabaseAPITest {
     // Successfully delete records from a table with a valid condition
     @Test
     public void test_delete_records_with_valid_condition() throws IOException {
-        databaseAPI.setHistory(new CommandHistory());
-        List<String> columns = List.of("id INTEGER", "name STRING");
+        List<String> columns = List.of("id INTEGER PRIMARY KEY", "name STRING");
         List<Object[]> values = List.of(new Object[]{1, "John"}, new Object[]{2, "Jane"});
         databaseAPI.create("testTable", columns);
         columns = List.of("id", "name");
@@ -99,13 +95,12 @@ public class DatabaseAPITest {
         databaseAPI.delete("testTable", "id = 1");
         Response result = databaseAPI.getActiveEditor().getDmlManager().select("testTable", columns);
         result.print(OUTPUT_TYPE.CONSOLE, Optional.empty());
-        assertEquals(1, result.getResponseMap().get("id").size());
+        assertEquals(2, result.get("id", 0));
     }
 
     // Successfully insert records into a table with valid columns and values
     @Test
     public void test_insert_records_with_valid_columns_and_values() throws IOException {
-        databaseAPI.setHistory(new CommandHistory());
         List<String> columns = List.of("id INTEGER", "name STRING");
         List<Object[]> values = List.of(new Object[]{1, "John"}, new Object[]{2, "Jane"});
         databaseAPI.create("testTable", columns);
@@ -119,38 +114,33 @@ public class DatabaseAPITest {
     // Successfully select records from a table with valid columns and condition
     @Test
     public void test_select_records_with_valid_columns_and_condition() throws IOException {
-        databaseAPI.setHistory(new CommandHistory());
-        List<String> columns = List.of("id INTEGER", "name STRING", "surname STRING", "salary INTEGER", "is_boss BOOLEAN");
+        List<String> columns = List.of("id INTEGER", "name STRING", "surname STRING", "salary INTEGER", "is_boss BOOLEAN DEFAULT false");
         List<Object[]> values = List.of(
-                new Object[]{1, "John", "Doe", 50000, false},
-                new Object[]{2, "Jane", "Smith", 60000, true}
+                new Object[]{1, "John", "Doe", 50000},
+                new Object[]{2, "Jane", "Smith", 60000}
         );
         databaseAPI.create("testTable", columns);
-        columns = List.of("id", "name", "surname", "salary", "is_boss");
+        columns = List.of("id", "name", "surname", "salary");
         databaseAPI.insert("testTable", columns, values);
         columns = List.of("id", "name", "surname", "is_boss");
-        Response result = databaseAPI.getActiveEditor().getDmlManager().select("testTable", columns, "id = 1");
-        result.print(OUTPUT_TYPE.CONSOLE, Optional.empty());
-        assertEquals(1, result.getResponseMap().get("id").size());
+        databaseAPI.select("testTable", columns, "id = 1");
+        databaseAPI.print(OUTPUT_TYPE.CONSOLE, Optional.empty());
+        assertEquals(false, databaseAPI.getLastSelectResponse().get("is_boss", 0));
     }
 
     // Attempt to create a table with an empty or null table name
     @Test
     public void test_create_table_with_empty_or_null_name() {
-        databaseAPI.setHistory(new CommandHistory());
         List<String> columns = List.of("id INTEGER", "name STRING");
         assertThrows(NullPointerException.class, () -> {
             databaseAPI.create("", columns);
         });
-        assertThrows(NullPointerException.class, () -> {
-            databaseAPI.create(null, columns);
-        });
+        assertThrows(NullPointerException.class, () -> databaseAPI.create(null, columns));
     }
 
     // Attempt to alter a table with invalid column modifications
     @Test
     public void test_alter_table_with_invalid_modifications() throws IOException {
-        databaseAPI.setHistory(new CommandHistory());
         List<String> columns = List.of("id INTEGER", "name STRING");
         assertThrows(RuntimeException.class, () -> {
             databaseAPI.alter("nonExistentTable", columns);
@@ -160,7 +150,6 @@ public class DatabaseAPITest {
     // Attempt to drop a table that does not exist
     @Test
     public void test_drop_non_existent_table() throws IOException {
-        databaseAPI.setHistory(new CommandHistory());
         assertThrows(RuntimeException.class, () -> {
             databaseAPI.drop("nonExistentTable", false);
         });
@@ -169,7 +158,6 @@ public class DatabaseAPITest {
     // Attempt to delete records with an invalid condition
     @Test
     public void test_delete_records_with_invalid_condition() throws IOException {
-        databaseAPI.setHistory(new CommandHistory());
         assertThrows(RuntimeException.class, () -> {
             databaseAPI.delete("testTable", "invalidCondition");
         });
@@ -200,9 +188,7 @@ public class DatabaseAPITest {
         databaseAPI.setActiveEditor(databaseEditor);
         CommandHistory history = new CommandHistory();
         databaseAPI.setHistory(history);
-        assertThrows(RuntimeException.class, () -> {
-            databaseAPI.select(tableName, columns, invalidCondition);
-        });
+        assertThrows(RuntimeException.class, () -> databaseAPI.select(tableName, columns, invalidCondition));
     }
 
     // Successfully update records in a table with valid value and condition
@@ -234,8 +220,6 @@ public class DatabaseAPITest {
     // Attempt to undo when there are no commands in history
     @Test
     public void test_undo_with_no_commands_in_history() {
-        DatabaseAPI databaseAPI = new DatabaseAPI();
-        databaseAPI.setHistory(new CommandHistory());
         assertDoesNotThrow(databaseAPI::undo);
     }
 

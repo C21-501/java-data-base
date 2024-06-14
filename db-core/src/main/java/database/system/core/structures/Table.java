@@ -1,6 +1,5 @@
 package database.system.core.structures;
 
-import database.api.utils.OUTPUT_TYPE;
 import database.system.core.constraints.ConstraintFactory;
 import database.system.core.constraints.Constraint;
 import database.system.core.constraints.DefaultConstraint;
@@ -20,7 +19,6 @@ public class Table extends DatabaseStructure {
     private AtomicInteger rowId = new AtomicInteger(0);
     private Set<Integer> rowIds = new TreeSet<>();
     private Map<String, Column> columns = new TreeMap<>();
-    private Set<Constraint> constraintSet = new HashSet<>();
 
     public Table(){}
 
@@ -34,7 +32,6 @@ public class Table extends DatabaseStructure {
                 this.columns.put(key, copiedColumn);
             }
             // Deep copy constraintSet
-            this.constraintSet = new HashSet<>(other.constraintSet);
             this.rowId = other.rowId;
             this.rowIds = new TreeSet<>(other.rowIds);
         }
@@ -83,22 +80,6 @@ public class Table extends DatabaseStructure {
         columns.remove(columnName);
     }
 
-    public Table addConstraint(String columnName, Constraint constraint) {
-        validateColumnName(columnName, columns);
-        validateNonNull(constraint);
-        Column column = columns.get(columnName);
-        column.getColumnScheme().addConstraint(constraint);
-        return this;
-    }
-
-    public Table dropConstraint(String columnName, Constraint constraint) {
-        validateColumnName(columnName, columns);
-        validateNonNull(constraint);
-        Column column = columns.get(columnName);
-        column.removeConstraint(constraint);
-        return this;
-    }
-
     public Table insert(List<String> columnNames, Object[] valueArray) {
         for (String columnName : columnNames) {
             validateColumnName(columnName, columns);
@@ -120,11 +101,10 @@ public class Table extends DatabaseStructure {
                 column.insert(value, rowId.get());
             } else {
                 if (column.containsConstraint(DefaultConstraint.class)) {
-                    column.insert(column.getColumnScheme().getValueByDefault(), columnIndex);
+                    column.insert(column.getColumnScheme().getValueByDefault(), rowId.get());
                 }
             }
         }
-        // Добавляем текущий rowId в множество rowIds и инкрементируем rowId
         rowIds.add(rowId.get());
         rowId.incrementAndGet();
         return this;
@@ -190,7 +170,7 @@ public class Table extends DatabaseStructure {
         return this;
     }
 
-    public Table update(List<String> values, String condition) {
+    public void update(List<String> values, String condition) {
         String[] conditionParts = parseCondition(condition);
         validateConditionFormat(conditionParts);
         String filteredColumnName = conditionParts[0].trim();
@@ -212,7 +192,6 @@ public class Table extends DatabaseStructure {
             Object newValue = column.convertValue(updateParts[1].trim());
             column.update(newValue, valuesId);
         }
-        return this;
     }
 
 
@@ -262,5 +241,37 @@ public class Table extends DatabaseStructure {
     public boolean contains(String columnName) {
         validateNonNull(columnName);
         return columns.containsKey(columnName);
+    }
+
+    public void modify(String columnName, String newColumnType) {
+        if (contains(columnName)) {
+            Column column = getColumn(columnName);
+            if (!column.getFieldBody().objectList.isEmpty())
+                throw new RuntimeException(String.format("Error: can't change column type to '%s' because column it isn't empty", newColumnType));
+            else
+                column.getColumnScheme().setType(DataType.valueOf(newColumnType));
+        } else {
+            throw new RuntimeException(String.format("Error: column '%s' doesn't exist", columnName));
+        }
+    }
+
+    public void modify(String columnName,  String[] constraints) {
+        validateColumnNames(List.of(columnName));
+        Column column = getColumn(columnName);
+        if (!column.getFieldBody().objectList.isEmpty())
+            throw new RuntimeException(String.format("Error: can't add constraints to column '%s' because column it isn't empty", columnName));
+        else
+            for (String constraint : constraints) {
+                Constraint constraintObj = ConstraintFactory.createConstraint(column, columnName, constraint);
+                column.addConstraint(constraintObj);
+            }
+    }
+
+    public void drop(String columnName, String[] constraintNames) {
+        validateColumnNames(List.of(columnName));
+        Column column = getColumn(columnName);
+        for (String constraint: constraintNames){
+            column.removeConstraint(constraint);
+        }
     }
 }

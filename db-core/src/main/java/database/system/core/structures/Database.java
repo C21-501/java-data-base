@@ -167,47 +167,49 @@ public class Database extends DatabaseStructure {
                 throw new IllegalArgumentException(String.format("Error: Invalid column definition: %s", modifiedColumn));
             }
             String columnName = parts[0];
-            String newColumnType = parts[1]; // Предполагаем, что тип столбца указан в строке
-            if (existingTable.contains(columnName)) {
-                // Изменяем тип данных столбца
-                Column column = existingTable.getColumn(columnName);
-                column.getColumnScheme().setType(DataType.valueOf(newColumnType));
+            String parameter = parts[1];
+            if (DataType.validate(parameter)){
+                existingTable.modify(columnName, parameter);
             } else {
-                throw new RuntimeException(String.format("Error: column '%s' doesn't exist", columnName));
+                String[] constraints = Arrays.copyOfRange(parts, 1, parts.length);
+                existingTable.modify(columnName, constraints);
             }
         }
     }
 
     private void processNewColumns(List<String> newColumns, Table existingTable) {
-        for (String newColumn : newColumns) {
-            String[] parts = parseColumnDefinition(newColumn);
-            if (parts.length < 2) {
-                throw new IllegalArgumentException(String.format("Error: Invalid column definition: %s", newColumn));
-            }
-            String columnName = parts[0];
-            String columnType = parts[1];
-            if (!existingTable.contains(columnName)) {
-                if (DataType.validate(columnType)) { // Проверяем, является ли тип данных допустимым
-                    DataType dataType = DataType.valueOf(columnType);
-                    Column column = new Column(dataType, existingTable.getRowIds(),null);
-                    existingTable.create(columnName, column);
-                } else {
-                    throw new IllegalArgumentException(String.format("Error: Invalid data type: %s", columnType));
-                }
+        create(existingTable, newColumns);
+    }
+
+    private void processDroppedColumns(List<String> droppedColumns, Table existingTable) {
+        for (String modifiedColumn : droppedColumns) {
+            String[] parts = parseColumnDefinition(modifiedColumn);
+            if (parts.length < 1) {
+                throw new IllegalArgumentException(String.format("Error: Invalid column definition: %s", modifiedColumn));
+            } else if (parts.length == 1) {
+                existingTable.dropColumn(parts[0]);
+            } else {
+                String columnName = parts[0];
+                String[] constraints = Arrays.copyOfRange(parts, 1, parts.length);
+                existingTable.drop(columnName, constraints);
             }
         }
     }
 
-    private void processDroppedColumns(List<String> droppedColumns, Table existingTable) {
-        for (String columnName : droppedColumns) {
-            existingTable.dropColumn(columnName);
-        }
+    public void create(Table existingTable, List<String> newColumns) {
+        validateColumnNames(newColumns);
+        processCreateNewColumns(newColumns, existingTable);
     }
 
     public void create(String tableName, List<String> columns) {
         validateTableName(tableName);
         validateColumnNames(columns);
         Table table = new Table();
+        processCreateNewColumns(columns, table);
+        tables.put(tableName, table);
+    }
+
+    private void processCreateNewColumns(List<String> columns, Table table) {
         for (String columnDefinition : columns) {
             String[] parts = parseColumnDefinition(columnDefinition);
             if (parts.length < 2) {
@@ -220,13 +222,13 @@ public class Database extends DatabaseStructure {
                 String columnName = parts[0];
                 String columnType = parts[1];
                 String[] constraints = Arrays.copyOfRange(parts, 2, parts.length);
-                table.create(columnName, columnType, constraints);
+                table.create(columnName,columnType, constraints);
             }
         }
-        tables.put(tableName, table);
     }
 
-    String @NotNull[] parseColumnDefinition(String columnDefinition) {
+
+    private String @NotNull[] parseColumnDefinition(String columnDefinition) {
         // Regex pattern to capture column name, column type, and constraints
         String regex = "\\s*(\\w+)\\s+(\\w+)(.*)";
         Pattern pattern = Pattern.compile(regex);
@@ -258,7 +260,7 @@ public class Database extends DatabaseStructure {
 
             return result;
         } else {
-            throw new IllegalArgumentException(String.format("Error: Invalid column definition format: %s.%n", columnDefinition));
+            return new String[]{columnDefinition};
         }
     }
 
