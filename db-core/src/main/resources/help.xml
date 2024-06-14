@@ -117,6 +117,8 @@
                 - PRIMARY KEY,
                 - FOREIGN KEY,
                 - CHECK.
+
+            by default all constraints have name like 'constraint_name_column_constraint'
         </description>
     </command>
 </commands>
