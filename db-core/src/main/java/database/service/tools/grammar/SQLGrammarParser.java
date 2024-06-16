@@ -1,17 +1,16 @@
 // Generated from /Users/dmitriykosolobov/university_project/java-data-base/db-core/src/main/java/database/service/tools/grammar/SQLGrammar.g4 by ANTLR 4.13.1
 package database.service.tools.grammar;
+import database.service.tools.SQLErrorStrategy;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.misc.*;
 import org.antlr.v4.runtime.tree.*;
 import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue"})
 public class SQLGrammarParser extends Parser {
 	static { RuntimeMetaData.checkVersion("4.13.1", RuntimeMetaData.VERSION); }
+	{ _errHandler = new SQLErrorStrategy(); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -166,15 +165,16 @@ public class SQLGrammarParser extends Parser {
 			setState(91);
 			match(EOF);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -256,15 +256,16 @@ public class SQLGrammarParser extends Parser {
 			default:
 				throw new NoViableAltException(this);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -334,15 +335,16 @@ public class SQLGrammarParser extends Parser {
 			}
 
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -407,15 +409,16 @@ public class SQLGrammarParser extends Parser {
 			default:
 				throw new NoViableAltException(this);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -468,15 +471,16 @@ public class SQLGrammarParser extends Parser {
 				}
 				break;
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -529,15 +533,16 @@ public class SQLGrammarParser extends Parser {
 				}
 				break;
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -590,15 +595,16 @@ public class SQLGrammarParser extends Parser {
 				}
 				break;
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -643,15 +649,16 @@ public class SQLGrammarParser extends Parser {
 			setState(130);
 			alterDatabaseStatement();
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -691,15 +698,16 @@ public class SQLGrammarParser extends Parser {
 			setState(134);
 			((CreateDbCommandContext)_localctx).dbName = match(IDENTIFIER);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -739,15 +747,16 @@ public class SQLGrammarParser extends Parser {
 			setState(138);
 			((DropDbCommandContext)_localctx).dbName = match(IDENTIFIER);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -792,15 +801,16 @@ public class SQLGrammarParser extends Parser {
 			setState(143);
 			alterTableStatement();
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -845,15 +855,16 @@ public class SQLGrammarParser extends Parser {
 			setState(148);
 			createTableStatement();
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -893,15 +904,16 @@ public class SQLGrammarParser extends Parser {
 			setState(152);
 			((DropTableCommandContext)_localctx).tableName = match(IDENTIFIER);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -976,15 +988,16 @@ public class SQLGrammarParser extends Parser {
 			default:
 				throw new NoViableAltException(this);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -1038,15 +1051,16 @@ public class SQLGrammarParser extends Parser {
 			}
 
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -1104,15 +1118,17 @@ public class SQLGrammarParser extends Parser {
 			setState(174);
 			match(T__10);
 			}
+
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -1174,15 +1190,16 @@ public class SQLGrammarParser extends Parser {
 			}
 
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -1244,15 +1261,16 @@ public class SQLGrammarParser extends Parser {
 			}
 
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -1317,15 +1335,16 @@ public class SQLGrammarParser extends Parser {
 			default:
 				throw new NoViableAltException(this);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -1359,15 +1378,16 @@ public class SQLGrammarParser extends Parser {
 			setState(197);
 			match(T__16);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -1401,15 +1421,16 @@ public class SQLGrammarParser extends Parser {
 			setState(199);
 			match(T__17);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -1443,15 +1464,16 @@ public class SQLGrammarParser extends Parser {
 			setState(201);
 			match(T__18);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -1499,15 +1521,16 @@ public class SQLGrammarParser extends Parser {
 			}
 
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -1550,15 +1573,16 @@ public class SQLGrammarParser extends Parser {
 				consume();
 			}
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -1631,15 +1655,16 @@ public class SQLGrammarParser extends Parser {
 				throw new NoViableAltException(this);
 			}
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -1675,15 +1700,16 @@ public class SQLGrammarParser extends Parser {
 			setState(220);
 			((SelectElementContext)_localctx).columnName = match(IDENTIFIER);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -1756,15 +1782,16 @@ public class SQLGrammarParser extends Parser {
 			}
 			}
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -1819,15 +1846,16 @@ public class SQLGrammarParser extends Parser {
 				_la = _input.LA(1);
 			}
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -1884,15 +1912,16 @@ public class SQLGrammarParser extends Parser {
 				_la = _input.LA(1);
 			}
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -1955,15 +1984,16 @@ public class SQLGrammarParser extends Parser {
 				_la = _input.LA(1);
 			}
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -2010,15 +2040,16 @@ public class SQLGrammarParser extends Parser {
 			setState(261);
 			((ExpressionContext)_localctx).value = literal();
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -2064,15 +2095,16 @@ public class SQLGrammarParser extends Parser {
 				consume();
 			}
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -2115,15 +2147,16 @@ public class SQLGrammarParser extends Parser {
 				consume();
 			}
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -2166,15 +2199,16 @@ public class SQLGrammarParser extends Parser {
 				consume();
 			}
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -2212,15 +2246,16 @@ public class SQLGrammarParser extends Parser {
 			setState(270);
 			((AlterDatabaseStatementContext)_localctx).newName = match(IDENTIFIER);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -2285,15 +2320,16 @@ public class SQLGrammarParser extends Parser {
 			default:
 				throw new NoViableAltException(this);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -2331,15 +2367,16 @@ public class SQLGrammarParser extends Parser {
 			setState(278);
 			((RenameTableStatementContext)_localctx).newName = match(IDENTIFIER);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -2380,15 +2417,16 @@ public class SQLGrammarParser extends Parser {
 			setState(282);
 			columnDefinition();
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -2428,15 +2466,16 @@ public class SQLGrammarParser extends Parser {
 			setState(286);
 			((DropColumnStatementContext)_localctx).columnName = match(IDENTIFIER);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -2497,15 +2536,16 @@ public class SQLGrammarParser extends Parser {
 			setState(297);
 			match(T__10);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -2567,15 +2607,16 @@ public class SQLGrammarParser extends Parser {
 				_la = _input.LA(1);
 			}
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -2618,15 +2659,16 @@ public class SQLGrammarParser extends Parser {
 				consume();
 			}
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -2702,15 +2744,16 @@ public class SQLGrammarParser extends Parser {
 			default:
 				throw new NoViableAltException(this);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -2753,15 +2796,16 @@ public class SQLGrammarParser extends Parser {
 			setState(319);
 			match(T__10);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 
@@ -2809,15 +2853,16 @@ public class SQLGrammarParser extends Parser {
 			setState(325);
 			match(T__10);
 			}
+			exitRule();
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
 			_errHandler.reportError(this, re);
 			_errHandler.recover(this, re);
 		}
-		finally {
-			exitRule();
-		}
+//		finally {
+//			exitRule();
+//		}
 		return _localctx;
 	}
 

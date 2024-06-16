@@ -3,13 +3,18 @@ package database.service.tools;
 import database.api.CommandHistory;
 import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
+import database.api.utils.OUTPUT_TYPE;
 import database.service.tools.grammar.SQLGrammarLexer;
 import database.service.tools.grammar.SQLGrammarParser;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ConsoleErrorListener;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * The Scanner class provides methods to read and parse SQL commands from a file or from the command line.
@@ -18,6 +23,7 @@ import java.io.IOException;
 public class Scanner {
 
     private static final java.util.Scanner in = new java.util.Scanner(System.in);
+    private static final Logger logger = LogManager.getLogger(Scanner.class);
 
     /**
      * Reads SQL commands from a file and parses them.
@@ -29,12 +35,15 @@ public class Scanner {
         CharStream stream = CharStreams.fromFileName(fileName);
         SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
         SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
-        parser.addParseListener(new SQLListener(databaseAPI));
+
+        parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
+
+        parser.addParseListener(new SQLListener(databaseAPI, OUTPUT_TYPE.CONSOLE, Optional.empty()));
 
         try{
             parser.start();
-        } catch (Exception ignored){
-
+        } catch (Exception e){
+            logger.error(e.getMessage());
         }
     }
 
@@ -54,12 +63,15 @@ public class Scanner {
         //CharStream stream = CharStreams.fromStream(System.in);
         SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
         SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
-        parser.addParseListener(new SQLListener(databaseAPI));
+
+        parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
+
+        parser.addParseListener(new SQLListener(databaseAPI,OUTPUT_TYPE.CONSOLE,Optional.empty()));
 
         try{
             parser.start();
-        } catch (Exception ignored){
-
+        } catch (Exception e){
+            logger.error(e.getMessage());
         }
     }
 
