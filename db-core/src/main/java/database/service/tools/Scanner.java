@@ -38,7 +38,7 @@ public class Scanner {
 
         parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
 
-        parser.addParseListener(new SQLListener(databaseAPI, OUTPUT_TYPE.CONSOLE, Optional.empty()));
+        parser.addParseListener(new SQLListener(databaseAPI, OUTPUT_TYPE.FILE, Optional.of("result.txt")));
 
         try{
             parser.start();
@@ -66,7 +66,7 @@ public class Scanner {
 
         parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
 
-        parser.addParseListener(new SQLListener(databaseAPI,OUTPUT_TYPE.CONSOLE,Optional.empty()));
+        parser.addParseListener(new SQLListener(databaseAPI, OUTPUT_TYPE.FILE, Optional.of("result.txt")));
 
         try{
             parser.start();
