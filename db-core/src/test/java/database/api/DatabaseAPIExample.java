@@ -117,9 +117,9 @@ public class DatabaseAPIExample {
         databaseAPI.print(OUTPUT_TYPE.FILE, Optional.of("output.txt"));
 
         // Удаляем таблицу
-        databaseAPI.drop("renamed_table", false);
+//        databaseAPI.drop("renamed_table", false);
 
         // Удаляем базу данных
-        databaseAPI.drop("test_database", true);
+//        databaseAPI.drop("test_database", true);
     }
 }

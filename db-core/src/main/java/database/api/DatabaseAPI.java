@@ -7,7 +7,7 @@ import database.api.dml.commands.DeleteCommand;
 import database.api.dml.commands.InsertCommand;
 import database.api.dml.commands.SelectCommand;
 import database.api.dml.commands.UpdateCommand;
-import database.api.help.commands.HelpCommand;
+import database.api.utils.commands.HelpCommand;
 import database.api.tcl.commands.BeginCommand;
 import database.api.tcl.commands.CommitCommand;
 import database.api.tcl.commands.RollBackCommand;

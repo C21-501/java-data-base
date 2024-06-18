@@ -2,7 +2,6 @@ package database.system.core.structures;
 
 import database.system.core.constraints.ConstraintFactory;
 import database.system.core.constraints.Constraint;
-import database.system.core.constraints.DefaultConstraint;
 import database.system.core.types.DataType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -1,5 +1,6 @@
-package database.system.core.managers;
+package database.system.core.serializers;
 
+import database.monitor.Config;
 import database.system.core.structures.Database;
 import lombok.Data;
 
@@ -8,7 +9,7 @@ import java.io.IOException;
 
 @Data
 public abstract class Serializer {
-    protected String databaseDirPath = "db-core/src/main/resources/root/db";
+    protected String databaseDirPath = Config.ROOT_DATABASE_PATH;
     protected String databaseName;
 
     Serializer(){}
@@ -27,7 +28,7 @@ public abstract class Serializer {
         return file.createNewFile();
     }
 
-    abstract void saveInstance(Database database) throws IOException;
+    abstract void saveDatabaseInstance(Database database) throws IOException;
     abstract void createDatabaseDirectoryAndFile(String filePath);
-    abstract Database read(String filePath, String databaseName) throws IOException, ClassNotFoundException;
+    abstract Database readInstanceFromFile(String filePath, String databaseName) throws IOException, ClassNotFoundException;
 }
