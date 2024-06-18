@@ -8,6 +8,7 @@ import database.system.core.structures.Database;
 import lombok.Data;
 
 import java.io.*;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -30,8 +31,10 @@ public class TCLManager {
      */
     public TCLManager(Database database) {
         this.database = database;
-        this.transactionFile = database.getFilePath();
-        this.transactionActive = false;
+        if (Objects.nonNull(database)){
+            this.transactionFile = database.getFilePath();
+            this.transactionActive = false;
+        }
     }
 
     /**

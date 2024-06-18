@@ -1,6 +1,7 @@
 package database.api;
 
 import database.api.utils.OUTPUT_TYPE;
+import database.monitor.Config;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,8 +24,17 @@ public class DatabaseAPIExample {
         // Создаем базу данных
         databaseAPI.create("test_database", Optional.empty());
 
+        databaseAPI.create("new_test_database", Optional.empty());
+
+        databaseAPI.create("empty_test_database", Optional.empty());
+
+        databaseAPI.show(Optional.of(Config.ROOT_DATABASE_PATH));
+
+        databaseAPI.open("test_database", Optional.empty());
         // Создаем таблицу
         databaseAPI.create("test_table", List.of("id INTEGER", "name STRING", "age INTEGER"));
+        databaseAPI.create("employee", List.of("id INTEGER", "name STRING", "age INTEGER"));
+        databaseAPI.create("floor", List.of("id INTEGER", "name STRING", "age INTEGER"));
 
         // Вставляем записи
         databaseAPI.insert("test_table",
@@ -116,10 +126,16 @@ public class DatabaseAPIExample {
         databaseAPI.select("renamed_table");
         databaseAPI.print(OUTPUT_TYPE.FILE, Optional.of("output.txt"));
 
-        // Удаляем таблицу
-//        databaseAPI.drop("renamed_table", false);
+        databaseAPI.show(Optional.empty());
+//         Удаляем таблицу
+        databaseAPI.drop("renamed_table", false);
 
-        // Удаляем базу данных
-//        databaseAPI.drop("test_database", true);
+//         Удаляем базу данных
+        databaseAPI.drop("test_database", true);
+
+        databaseAPI.drop("new_test_database", true);
+        databaseAPI.drop("empty_test_database", true);
+        databaseAPI.show(Optional.empty());
+//        databaseAPI.help(Optional.empty());
     }
 }

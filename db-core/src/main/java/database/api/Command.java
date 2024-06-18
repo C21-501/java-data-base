@@ -6,6 +6,7 @@ import lombok.ToString;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 /**
@@ -34,12 +35,14 @@ public abstract class Command {
      * Saves the current database state as a backup.
      */
     public void saveBackup() {
-        backup = new TreeMap<>();
-        for (Map.Entry<String, Table> entry : databaseEditor.getDatabase().getTables().entrySet()) {
-            String key = entry.getKey();
-            Table originalTable = entry.getValue();
-            Table copiedTable = new Table(originalTable);
-            backup.put(key, copiedTable);
+        if (Objects.nonNull(databaseEditor.getDatabase())){
+            backup = new TreeMap<>();
+            for (Map.Entry<String, Table> entry : databaseEditor.getDatabase().getTables().entrySet()) {
+                String key = entry.getKey();
+                Table originalTable = entry.getValue();
+                Table copiedTable = new Table(originalTable);
+                backup.put(key, copiedTable);
+            }
         }
     }
 

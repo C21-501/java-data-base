@@ -36,23 +36,27 @@ public class DatabaseEditor {
 
     public DatabaseEditor() {
         this.database = Database.getInstance();
-        this.setUpManagers();
+        this.setUpManagers(database);
     }
 
     public void createDatabase(String databaseName) {
+        resetDatabaseInstance();
         if (databaseName.isEmpty()) {
             throw new EmptyParameterException(EmptyParameterError.DATABASE_NAME_NULL);
         }
         this.databaseName = databaseName;
         this.database = Database.getInstance();
         this.database.setFilePath(Config.getDatabaseFilePath(databasePath, databaseName));
-        this.databaseSerializer = DatabaseSerializer.getCompleteSerializerInstance(database, databaseName, databasePath);
-        databaseSerializer.createDatabaseDirectoryAndFile(databasePath);
+        DatabaseSerializer databaseSerializer = DatabaseSerializer.getInstance();
+        databaseSerializer.setDatabaseName(databaseName);
+        databaseSerializer.setDatabaseDirPath(databasePath);
+        databaseSerializer.createDatabaseDirectoryAndFile(databasePath, databaseName);
         databaseSerializer.saveDatabaseInstance(database);
-        this.setUpManagers();
+        this.setUpManagers(database);
     }
 
     public void createDatabase(String databaseName, String path) {
+        resetDatabaseInstance();
         if (databaseName.isEmpty() || path.isEmpty()) {
             throw new EmptyParameterException(EmptyParameterError.DATABASE_NAME_OR_PATH_NULL);
         }
@@ -60,13 +64,15 @@ public class DatabaseEditor {
         this.databasePath = path;
         this.database = Database.getInstance();
         this.database.setFilePath(Config.getDatabaseFilePath(databasePath, databaseName));
-        this.databaseSerializer = DatabaseSerializer.getCompleteSerializerInstance(database, databaseName, path);
-        databaseSerializer.createDatabaseDirectoryAndFile(path);
+        DatabaseSerializer databaseSerializer = DatabaseSerializer.getInstance();
+        databaseSerializer.setDatabaseName(databaseName);
+        databaseSerializer.setDatabaseDirPath(databasePath);
+        databaseSerializer.createDatabaseDirectoryAndFile(path, databaseName);
         databaseSerializer.saveDatabaseInstance(database);
-        this.setUpManagers();
+        this.setUpManagers(database);
     }
 
-    private void setUpManagers() {
+    private void setUpManagers(Database database) {
         this.ddlManager = new DDLManager(database);
         this.dmlManager = new DMLManager(database);
         this.tclManager = new TCLManager(database);
@@ -101,6 +107,8 @@ public class DatabaseEditor {
 
     public void dropDatabase(String name) {
         dropDatabase(name, databasePath);
+        database = null;
+        setUpManagers(null);
     }
 
     public void dropDatabase(String name, String path) {
@@ -184,5 +192,30 @@ public class DatabaseEditor {
 
     public void collectCommands(Command command) {
         tclManager.addCommand(command);
+    }
+
+    public void openDatabase(String databaseName) {
+        openDatabase(databaseName, this.databasePath);
+    }
+
+    public void openDatabase(String databaseName, String path) {
+        if (databaseName.isEmpty() || path.isEmpty()) {
+            throw new IllegalArgumentException("Error while opening database: database name or path is null");
+        }
+        this.databasePath = path;
+        this.database.setFilePath(String.format("%s/%s/%s.instance", path, databaseName, databaseName));
+        this.databaseSerializer = DatabaseSerializer.getInstance();
+        databaseSerializer.setDatabaseName(databaseName);
+        databaseSerializer.setDatabaseDirPath(databasePath);
+        try {
+            Database tmpDatabase = databaseSerializer.readInstanceFromFile(path, databaseName);
+            if (tmpDatabase == null) {
+                throw new RuntimeException("Error while opening database: database instance is null");
+            }
+            this.database = tmpDatabase;
+        } catch (DatabaseIOException e) {
+            e.printStackTrace(System.err);
+            throw new RuntimeException(String.format("Error while opening database: %s%n", e.getMessage()));
+        }
     }
 }

@@ -1,12 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <commands>
     <command>
+        <name>SHOW</name>
+        <description>
+            The SHOW command is used to display a list of all available databases or tables in last opened database.
+            It helps users to view the structure of the database system, making it easier to manage and access the desired data.
+        </description>
+        <example>
+            SHOW DATABASES;
+            SHOW TABLES;
+        </example>
+    </command>
+    <command>
+        <name>OPEN</name>
+        <description>
+            The OPEN command is used to open a specified database, allowing the user to perform various operations such as querying,
+            updating, and managing the data within that database. It requires the name of the database to open and an optional path
+            if the database is located in a non-default directory.
+        </description>
+        <example>
+            OPEN DATABASE db_1;
+            OPEN DATABASE db_1 WITH PATH "/path/to/database";
+        </example>
+    </command>
+    <command>
         <name>CREATE</name>
         <description>
             Commands to create tables. Input includes table name, column descriptions (names and data types),
             and constraints (PRIMARY KEY, FOREIGN KEY, UNIQUE, NOT NULL, CHECK).
         </description>
         <example>
+            CREATE DATABASE db_1;
             CREATE TABLE students (
                 id INTEGER PRIMARY KEY,
                 name STRING NOT NULL,
@@ -120,5 +144,8 @@
 
             by default all constraints have name like 'constraint_name_column_constraint'
         </description>
+        <example>
+            ALTER TABLE employee ALTER COLUMN name ADD CONSTRAINT UNIQUE;
+        </example>
     </command>
 </commands>

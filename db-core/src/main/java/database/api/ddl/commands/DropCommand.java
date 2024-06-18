@@ -45,7 +45,7 @@ public final class DropCommand extends Command {
             return false;
         } else {
             databaseEditor.getDdlManager().drop(name);
+            return true;
         }
-        return true;
     }
 }
