@@ -3,6 +3,7 @@ package database.api.dml.commands;
 import database.api.Command;
 import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
+import database.system.core.exceptions.DatabaseIOException;
 
 import java.io.IOException;
 import java.util.List;
@@ -46,7 +47,7 @@ public final class InsertCommand extends Command {
      * @throws IOException if an I/O error occurs during the operation
      */
     @Override
-    public boolean execute() throws IOException {
+    public boolean execute() throws DatabaseIOException {
         saveBackup();
         databaseEditor
                 .getDmlManager()

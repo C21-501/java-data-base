@@ -3,6 +3,7 @@ package database.api.tcl.commands;
 import database.api.Command;
 import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
+import database.system.core.exceptions.DatabaseIOException;
 
 /**
  * The RollBackCommand class represents a command to rollback a transaction in the database.
@@ -29,7 +30,7 @@ public final class RollBackCommand extends Command {
      * @return true if the command changes state of database successfully
      */
     @Override
-    public boolean execute() {
+    public boolean execute() throws DatabaseIOException {
         saveBackup();
         databaseEditor.getTclManager().rollback();
         databaseEditor.saveDatabaseState();

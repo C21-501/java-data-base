@@ -3,6 +3,7 @@ package database.api.ddl.commands;
 import database.api.Command;
 import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
+import database.system.core.exceptions.DatabaseIOException;
 
 import java.util.List;
 import java.util.Optional;
@@ -69,10 +70,16 @@ public final class CreateCommand extends Command {
      * @return true if the command changes the state of the database successfully
      */
     @Override
-    public boolean execute() {
+    public boolean execute() throws DatabaseIOException {
         saveBackup();
         if (databaseName != null && columns == null && tableName == null) {
-            databasePath.ifPresent(path -> databaseEditor.createDatabase(databaseName, path));
+            databasePath.ifPresent(path -> {
+                try {
+                    databaseEditor.createDatabase(databaseName, path);
+                } catch (DatabaseIOException e) {
+                    throw new RuntimeException("Error: can't create database instance: %s%n".formatted(e.getMessage()));
+                }
+            });
             if (databasePath.isEmpty()) {
                 databaseEditor.createDatabase(databaseName);
             }

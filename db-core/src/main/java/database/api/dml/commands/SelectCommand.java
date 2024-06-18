@@ -3,6 +3,7 @@ package database.api.dml.commands;
 import database.api.Command;
 import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
+import database.system.core.exceptions.DatabaseIOException;
 
 import java.util.List;
 import java.util.Optional;
@@ -86,7 +87,7 @@ public final class SelectCommand extends Command {
      * @return false if the command don't change state of database
      */
     @Override
-    public boolean execute() {
+    public boolean execute() throws DatabaseIOException {
         if (columns.isEmpty() && condition.isEmpty()) {
             databaseAPI.setLastSelectResponse(databaseEditor.getDmlManager().select(tableName));
         } else if (condition.isEmpty()) {

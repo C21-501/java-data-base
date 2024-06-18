@@ -3,6 +3,7 @@ package database.api.tcl.commands;
 import database.api.Command;
 import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
+import database.system.core.exceptions.DatabaseIOException;
 
 /**
  * The BeginCommand class represents a command to begin a transaction in the database.
@@ -30,7 +31,7 @@ public final class BeginCommand extends Command {
      * @return true if the command changes state of database successfully
      */
     @Override
-    public boolean execute() {
+    public boolean execute() throws DatabaseIOException {
         databaseEditor.saveDatabaseState();
         databaseEditor.getTclManager().begin();
         return false;

@@ -3,8 +3,8 @@ package database.api.ddl.commands;
 import database.api.Command;
 import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
+import database.system.core.exceptions.DatabaseIOException;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -58,7 +58,7 @@ public final class AlterCommand extends Command {
      * @return true if the command changes state of database successfully
      */
     @Override
-    public boolean execute() throws IOException {
+    public boolean execute() throws DatabaseIOException {
         saveBackup();
         if (this.newName==null)
             databaseEditor.getDdlManager().alter(name, alterColumns);

@@ -3,6 +3,7 @@ package database.api.dml.commands;
 import database.api.Command;
 import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
+import database.system.core.exceptions.DatabaseIOException;
 
 import java.util.List;
 
@@ -44,7 +45,7 @@ public final class UpdateCommand extends Command {
      * @return true if the command changes state of database successfully
      */
     @Override
-    public boolean execute() {
+    public boolean execute() throws DatabaseIOException {
         saveBackup();
         databaseEditor.getDmlManager().update(tableName, values, condition);
         return true;

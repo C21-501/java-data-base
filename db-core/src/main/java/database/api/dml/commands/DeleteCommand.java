@@ -3,6 +3,7 @@ package database.api.dml.commands;
 import database.api.Command;
 import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
+import database.system.core.exceptions.DatabaseIOException;
 
 /**
  * The DeleteCommand class represents a command to delete records from a table in the database.
@@ -38,7 +39,7 @@ public final class DeleteCommand extends Command {
      * @return true if the command changes state of database successfully
      */
     @Override
-    public boolean execute() {
+    public boolean execute() throws DatabaseIOException {
         saveBackup();
         databaseEditor
                 .getDmlManager()
