@@ -17,23 +17,6 @@ public class DatabaseSerializer extends Serializer {
 
     private DatabaseSerializer() {}
 
-    private DatabaseSerializer(Database instance, String dirName, String path) {
-        if (dirName.isEmpty() || instance == null)
-            throw new NullPointerException("Error: null parameters in constructor");
-        super(dirName, path);
-    }
-
-    public static DatabaseSerializer getCompleteSerializerInstance(Database database, String dirName, String path) {
-        if (instance == null) {
-            synchronized (DatabaseSerializer.class) {
-                if (instance == null) {
-                    instance = new DatabaseSerializer(database, dirName, path);
-                }
-            }
-        }
-        return instance;
-    }
-
     public static DatabaseSerializer getInstance() {
         if (instance == null) {
             synchronized (DatabaseSerializer.class) {
@@ -56,7 +39,7 @@ public class DatabaseSerializer extends Serializer {
     }
 
     @Override
-    public void createDatabaseDirectoryAndFile(String filePath) {
+    public void createDatabaseDirectoryAndFile(String filePath, String databaseName) {
         String path = String.format("%s/%s", filePath, databaseName);
         Path directory = Paths.get(path);
         try {
@@ -83,7 +66,7 @@ public class DatabaseSerializer extends Serializer {
     }
 
     private static Database readFromFile(String filePath, String databaseName) throws IOException, ClassNotFoundException {
-        String fileName = String.format("/%s/%s/%s.instance", filePath, databaseName, databaseName);
+        String fileName = String.format("%s/%s/%s.instance", filePath, databaseName, databaseName);
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))) {
             return (Database) ois.readObject();
         }

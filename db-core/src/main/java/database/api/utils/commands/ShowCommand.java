@@ -29,19 +29,19 @@ public class ShowCommand  extends Command {
 
     @Override
     public boolean execute() throws IOException {
-        if (databasePath.isPresent())
-            databaseEditor.getUtilManager()
-                    .showAvailableDatabases(
-                            databasePath.orElse(Config.ROOT_DATABASE_PATH),
-                            Config.CURRENT_OUTPUT_TYPE,
-                            Config.CURRENT_OUTPUT_PATH
-                    );
-        else
-            databaseEditor.getUtilManager()
-                    .showAvailableTables(
-                            Config.CURRENT_OUTPUT_TYPE,
-                            Config.CURRENT_OUTPUT_PATH
-                    );
+        databasePath.ifPresentOrElse(
+                string -> databaseEditor.getUtilManager()
+                        .showAvailableDatabases(
+                                string,
+                                Config.CURRENT_OUTPUT_TYPE,
+                                Config.CURRENT_OUTPUT_PATH
+                        ),
+                () -> databaseEditor.getUtilManager()
+                        .showAvailableTables(
+                                Config.CURRENT_OUTPUT_TYPE,
+                                Config.CURRENT_OUTPUT_PATH
+                        )
+        );
         return false;
     }
 }

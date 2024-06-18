@@ -30,9 +30,9 @@ public class OpenCommand extends Command {
     @Override
     public boolean execute() throws IOException {
         if (databasePath.isPresent())
-            databaseEditor.getUtilManager().openDatabase(databaseName, databasePath.get());
+            databaseEditor.openDatabase(databaseName, databasePath.get());
         else
-            databaseEditor.getUtilManager().openDatabase(databaseName);
+            databaseEditor.openDatabase(databaseName);
         return false;
     }
 }

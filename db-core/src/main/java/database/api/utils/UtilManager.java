@@ -1,9 +1,8 @@
 package database.api.utils;
 
 import database.monitor.Config;
-import database.system.core.exceptions.DatabaseIOException;
-import database.system.core.serializers.DatabaseSerializer;
 import database.system.core.structures.Database;
+import lombok.Data;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -18,9 +17,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.stream.Stream;
 
+@Data
 public class UtilManager {
+    public static final String X = "=================================";
     private final Document document;
     private Database database;
     private String databasePath = Config.ROOT_DATABASE_PATH;  // Using default path from Config
@@ -47,6 +49,7 @@ public class UtilManager {
         PrintStream out = getOutputStream(outputType, filePath);
 
         NodeList commands = document.getElementsByTagName("command");
+        boolean commandFound = false;
         for (int i = 0; i < commands.getLength(); i++) {
             Node node = commands.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE) {
@@ -56,17 +59,20 @@ public class UtilManager {
                     String description = getTextContent(element, "description");
                     String example = getTextContent(element, "example");
 
-                    out.printf("Command: %s%n", name);
+                    out.printf("========== Command: %s ==========%n", name);
                     out.println("Description:");
                     printFormattedText(out, description);
                     out.println("Example:");
                     printFormattedText(out, example);
-                    closeOutputStream(out);
-                    return;
+                    out.println(X);
+                    commandFound = true;
+                    break;
                 }
             }
         }
-        out.printf("Command '%s' not found.%n", command);
+        if (!commandFound) {
+            out.printf("Command '%s' not found.%n", command);
+        }
         closeOutputStream(out);
     }
 
@@ -75,6 +81,7 @@ public class UtilManager {
 
         NodeList commands = document.getElementsByTagName("command");
         out.println("Available Commands:");
+        out.println("===================");
         for (int i = 0; i < commands.getLength(); i++) {
             Node node = commands.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE) {
@@ -88,7 +95,7 @@ public class UtilManager {
                 printFormattedText(out, description);
                 out.println("Example:");
                 printFormattedText(out, example);
-                out.println(); // Separate commands with an empty line
+                out.println("--------------------");
             }
         }
         closeOutputStream(out);
@@ -109,7 +116,7 @@ public class UtilManager {
 
         String[] lines = text.split("\n");
         for (String line : lines) {
-            out.printf("%s%n", line);
+            out.printf("    %s%n", line);
         }
     }
 
@@ -135,30 +142,6 @@ public class UtilManager {
         }
     }
 
-    public void openDatabase(String databaseName) {
-        openDatabase(databaseName, this.databasePath);
-    }
-
-    public void openDatabase(String databaseName, String path) {
-        if (databaseName.isEmpty() || path.isEmpty()) {
-            throw new IllegalArgumentException("Error while opening database: database name or path is null");
-        }
-        this.databasePath = path;
-        this.database = Database.getInstance();
-        this.database.setFilePath(String.format("%s/%s/%s.instance", path, databaseName, databaseName));
-        DatabaseSerializer databaseSerializer = DatabaseSerializer.getCompleteSerializerInstance(database, databaseName, path);
-
-        try {
-            Database tmpDatabase = databaseSerializer.readInstanceFromFile(path, databaseName);
-            if (tmpDatabase == null) {
-                throw new RuntimeException("Error while opening database: database instance is null");
-            }
-            this.database = tmpDatabase;
-        } catch (DatabaseIOException e) {
-            throw new RuntimeException(String.format("Error while opening database: %s%n", e.getMessage()));
-        }
-    }
-
     public void showAvailableDatabases(String databasePath, OUTPUT_TYPE outputType, String filePath) {
         PrintStream out = getOutputStream(outputType, filePath);
 
@@ -168,9 +151,12 @@ public class UtilManager {
         }
 
         try (Stream<Path> paths = Files.walk(path, 1)) {
+            out.printf("%nAvailable Databases:%n");
+            out.println(X);
             paths.filter(Files::isDirectory)
                     .filter(p -> !p.equals(path))
-                    .forEach(p -> out.println(p.getFileName().toString()));
+                    .forEach(p -> out.printf("\t%s%n", p.getFileName().toString()));
+            out.printf("%s%n%n", X);
         } catch (IOException e) {
             throw new RuntimeException(String.format("Error while listing databases: %s%n", e.getMessage()));
         }
@@ -180,7 +166,19 @@ public class UtilManager {
 
     public void showAvailableTables(OUTPUT_TYPE outputType, String filePath) {
         PrintStream out = getOutputStream(outputType, filePath);
-        database.getTables().keySet().forEach(out::println);
+
+        out.printf("%nAvailable Tables:%n");
+        out.printf("%s%n", X);
+        if (Objects.isNull(database))
+            out.println("    No tables available.");
+        else if (database.getTables().isEmpty()) {
+            out.println("    No tables available.");
+        } else {
+            database.getTables()
+                    .keySet()
+                    .forEach(table -> out.printf("    %s%n", table));
+        }
+        out.printf("%s%n%n", X);
         closeOutputStream(out);
     }
 }

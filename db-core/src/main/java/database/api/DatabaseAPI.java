@@ -12,6 +12,8 @@ import database.api.tcl.commands.BeginCommand;
 import database.api.tcl.commands.CommitCommand;
 import database.api.tcl.commands.RollBackCommand;
 import database.api.utils.OUTPUT_TYPE;
+import database.api.utils.commands.OpenCommand;
+import database.api.utils.commands.ShowCommand;
 import database.system.core.structures.Response;
 import database.system.core.structures.interfaces.Printable;
 import lombok.Data;
@@ -71,6 +73,31 @@ public class DatabaseAPI implements Printable {
     final public void help(@SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> command) throws IOException {
         executeCommand(new HelpCommand(this, activeEditor, command));
     }
+
+    /**
+     * Opens the specified database with the given name.
+     *
+     * @param databaseName The name of the database to open.
+     * @param databasePath Optional path to the directory where the database is located.
+     *                    If not provided, assumes the database is located in the default directory.
+     * @throws IOException If there is an error while opening the database.
+     */
+    final public void open(String databaseName, @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> databasePath) throws IOException {
+        executeCommand(new OpenCommand(this, activeEditor, databaseName, databasePath));
+    }
+
+
+    /**
+     * Shows information about the database located at the specified path.
+     *
+     * @param databasePath Optional path to the directory where the database is located.
+     *                    If not provided, assumes the database is located in the default directory.
+     * @throws IOException If there is an error while showing information about the database.
+     */
+    final public void show(@SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> databasePath) throws IOException {
+        executeCommand(new ShowCommand(this, activeEditor, databasePath));
+    }
+
 
     /**
      * Creates a new database by executing the CreateCommand.
