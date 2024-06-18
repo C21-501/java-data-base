@@ -1,16 +1,17 @@
-package database.api.help.commands;
+package database.api.utils.commands;
 
 import database.api.Command;
 import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
-import database.api.help.HELPManager;
+import database.api.utils.UtilManager;
+import database.monitor.Config;
 
 import java.io.IOException;
 import java.util.Optional;
 
 /**
  * This class represents a help command that provides descriptions and examples of available commands.
- * The help information is retrieved from the {@link HELPManager}.
+ * The help information is retrieved from the {@link UtilManager}.
  */
 @SuppressWarnings("ALL")
 public class HelpCommand extends Command {
@@ -39,9 +40,13 @@ public class HelpCommand extends Command {
     @Override
     public boolean execute() throws IOException {
         if (command.isPresent())
-            databaseEditor.getHelpManager().printCommandHelp(command.get().toUpperCase());
+            databaseEditor.getUtilManager()
+                    .printCommandHelp(
+                    command.get().toUpperCase(), Config.CURRENT_OUTPUT_TYPE, Config.CURRENT_OUTPUT_PATH
+            );
         else
-            databaseEditor.getHelpManager().printAllCommandsHelp();
+            databaseEditor.getUtilManager()
+                    .printAllCommandsHelp(Config.CURRENT_OUTPUT_TYPE, Config.CURRENT_OUTPUT_PATH);
         return false;
     }
 }

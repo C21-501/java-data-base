@@ -43,7 +43,12 @@ public class DDLManager {
         database.alter(tableName, alterColumns);
     }
 
-
+    /**
+     * Alters an existing table in the database.
+     *
+     * @param name   the name of the table to be renamed
+     * @param newName the new name of the table
+     */
     public void alter(String name, String newName) {
         database.alter(name, newName);
     }
