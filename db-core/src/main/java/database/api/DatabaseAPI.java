@@ -81,6 +81,11 @@ public class DatabaseAPI implements Printable {
      * @param databasePath Optional path to the directory where the database is located.
      *                    If not provided, assumes the database is located in the default directory.
      * @throws IOException If there is an error while opening the database.
+     *
+     * <p>Example:</p>
+     * <pre>{@code
+     * dbApi.open("test_database", Optional.empty());;
+     * }</pre>
      */
     final public void open(String databaseName, @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> databasePath) throws IOException {
         executeCommand(new OpenCommand(this, activeEditor, databaseName, databasePath));
@@ -96,6 +101,15 @@ public class DatabaseAPI implements Printable {
      */
     final public void show(@SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> databasePath) throws IOException {
         executeCommand(new ShowCommand(this, activeEditor, databasePath));
+    }
+
+    /**
+     * Shows information about the tables in opened database.
+     *
+     * @throws IOException If there is an error while showing information about the database.
+     */
+    final public void show() throws IOException {
+        executeCommand(new ShowCommand(this, activeEditor));
     }
 
 

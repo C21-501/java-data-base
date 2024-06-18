@@ -1,5 +1,6 @@
 package database.api;
 
+import database.system.core.exceptions.DatabaseIOException;
 import database.system.core.structures.Table;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -51,7 +52,11 @@ public abstract class Command {
      *
      */
     public void undo() {
-        databaseEditor.restoreDatabaseStateFromBackup(backup);
+        try {
+            databaseEditor.restoreDatabaseStateFromBackup(backup);
+        } catch (DatabaseIOException e) {
+            throw new RuntimeException("Error: can't restore database instance: %s%n".formatted(e.getMessage()));
+        }
     }
 
     /**
@@ -60,5 +65,5 @@ public abstract class Command {
      * @return true if the command executes successfully
      * @throws IOException if an I/O error occurs during the execution
      */
-    public abstract boolean execute() throws IOException;
+    public abstract boolean execute() throws DatabaseIOException;
 }

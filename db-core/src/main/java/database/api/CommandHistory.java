@@ -1,5 +1,7 @@
 package database.api;
 
+import database.system.core.exceptions.DatabaseIOException;
+
 import java.util.Stack;
 
 /**
@@ -47,7 +49,11 @@ public class CommandHistory {
     private void overwriteStack() {
         while (history.size() > MAX_SIZE) {
             Command removedCommand = history.removeFirst();
-            removedCommand.databaseEditor.saveDatabaseState();
+            try {
+                removedCommand.databaseEditor.saveDatabaseState();
+            } catch (DatabaseIOException e){
+                throw new RuntimeException("Error: can't restore database instance: %s%n".formatted(e.getMessage()));
+            }
         }
     }
 }

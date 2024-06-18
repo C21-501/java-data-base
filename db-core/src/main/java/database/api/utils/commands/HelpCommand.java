@@ -5,6 +5,7 @@ import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
 import database.api.utils.UtilManager;
 import database.monitor.Config;
+import database.system.core.exceptions.DatabaseIOException;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -38,7 +39,7 @@ public class HelpCommand extends Command {
      * @throws IOException if an I/O error occurs while accessing help information
      */
     @Override
-    public boolean execute() throws IOException {
+    public boolean execute() throws DatabaseIOException {
         if (command.isPresent())
             databaseEditor.getUtilManager()
                     .printCommandHelp(

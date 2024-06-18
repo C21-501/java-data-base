@@ -29,7 +29,7 @@ public class DatabaseSerializer extends Serializer {
     }
 
     @Override
-    public void saveDatabaseInstance(Database database) {
+    public void saveDatabaseInstance(Database database) throws DatabaseIOException {
         try {
             writeInstanceToFile(database.getFilePath(), database);
         } catch (IOException e) {
@@ -39,7 +39,7 @@ public class DatabaseSerializer extends Serializer {
     }
 
     @Override
-    public void createDatabaseDirectoryAndFile(String filePath, String databaseName) {
+    public void createDatabaseDirectoryAndFile(String filePath, String databaseName) throws DatabaseIOException {
         String path = String.format("%s/%s", filePath, databaseName);
         Path directory = Paths.get(path);
         try {
@@ -51,7 +51,7 @@ public class DatabaseSerializer extends Serializer {
     }
 
     @Override
-    public Database readInstanceFromFile(String filePath, String databaseName) {
+    public Database readInstanceFromFile(String filePath, String databaseName) throws DatabaseIOException {
         try {
             return readFromFile(filePath, databaseName);
         } catch (IOException | ClassNotFoundException e) {

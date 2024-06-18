@@ -39,7 +39,7 @@ public class DatabaseEditor {
         this.setUpManagers(database);
     }
 
-    public void createDatabase(String databaseName) {
+    public void createDatabase(String databaseName) throws DatabaseIOException {
         resetDatabaseInstance();
         if (databaseName.isEmpty()) {
             throw new EmptyParameterException(EmptyParameterError.DATABASE_NAME_NULL);
@@ -55,7 +55,7 @@ public class DatabaseEditor {
         this.setUpManagers(database);
     }
 
-    public void createDatabase(String databaseName, String path) {
+    public void createDatabase(String databaseName, String path) throws DatabaseIOException {
         resetDatabaseInstance();
         if (databaseName.isEmpty() || path.isEmpty()) {
             throw new EmptyParameterException(EmptyParameterError.DATABASE_NAME_OR_PATH_NULL);
@@ -79,7 +79,7 @@ public class DatabaseEditor {
         this.utilManager = new UtilManager(database);
     }
 
-    public void saveDatabaseState() {
+    public void saveDatabaseState() throws DatabaseIOException {
         databaseSerializer.saveDatabaseInstance(database);
     }
 
@@ -134,7 +134,7 @@ public class DatabaseEditor {
         }
     }
 
-    public void restoreDatabaseStateFromBackup(Map<String, Table> backup) {
+    public void restoreDatabaseStateFromBackup(Map<String, Table> backup) throws DatabaseIOException {
         String path = database.getFilePath();
         resetDatabaseInstance();
         database = Database.getInstance();
@@ -143,7 +143,7 @@ public class DatabaseEditor {
         saveDatabaseState();
     }
 
-    public void renameDatabase(String name, String newName) throws IOException {
+    public void renameDatabase(String name, String newName) throws DatabaseIOException {
         if (name.isEmpty() || newName.isEmpty()) {
             throw new EmptyParameterException(EmptyParameterError.DATABASE_NAME_OR_NEW_NAME_EMPTY);
         }
@@ -203,6 +203,7 @@ public class DatabaseEditor {
             throw new IllegalArgumentException("Error while opening database: database name or path is null");
         }
         this.databasePath = path;
+        this.database = Database.getInstance();
         this.database.setFilePath(String.format("%s/%s/%s.instance", path, databaseName, databaseName));
         this.databaseSerializer = DatabaseSerializer.getInstance();
         databaseSerializer.setDatabaseName(databaseName);

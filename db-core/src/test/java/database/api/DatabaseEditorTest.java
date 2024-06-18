@@ -1,6 +1,7 @@
 package database.api;
 
 import database.api.utils.OUTPUT_TYPE;
+import database.system.core.exceptions.DatabaseIOException;
 import database.system.core.structures.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +24,7 @@ public class DatabaseEditorTest {
     static String path = "C:\\Users\\Евгений\\IdeaProjects\\java-data-base\\db-core\\src\\test\\resources";
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws DatabaseIOException {
         editor = new DatabaseEditor();
         editor.createDatabase("test_db", path);
     }
@@ -42,7 +43,7 @@ public class DatabaseEditorTest {
 
     // Saving the current state of the database
     @Test
-    public void test_save_database_state() {
+    public void test_save_database_state() throws DatabaseIOException {
         editor.saveDatabaseState();
         File file = new File("%s/test_db/test_db.instance".formatted(editor.getDatabaseSerializer().getDatabaseDirPath()));
         assertTrue(file.exists());
@@ -50,7 +51,7 @@ public class DatabaseEditorTest {
 
     // Restoring the database state from a saved file
     @Test
-    public void test_restore_database_state() {
+    public void test_restore_database_state() throws DatabaseIOException {
         editor.saveDatabaseState();
         System.out.println(editor.getDatabase());
         editor.getDatabase().create("new_table");
@@ -105,7 +106,7 @@ public class DatabaseEditorTest {
 
     // Saving the database state when no changes have been made
     @Test
-    public void test_save_database_state_no_changes() {
+    public void test_save_database_state_no_changes() throws DatabaseIOException {
         editor.saveDatabaseState();
         File file = new File("%s/test_db/test_db.instance".formatted(editor.getDatabaseSerializer().getDatabaseDirPath()));
         assertTrue(file.exists());
@@ -189,7 +190,7 @@ public class DatabaseEditorTest {
     }
         // Ensuring proper cleanup of temporary transaction files
     @Test
-    public void test_ensuring_proper_cleanup_of_temporary_transaction_files() {
+    public void test_ensuring_proper_cleanup_of_temporary_transaction_files() throws DatabaseIOException {
         editor.saveDatabaseState();
         editor.getTclManager().begin();
         editor.getTclManager().commit();
@@ -199,7 +200,7 @@ public class DatabaseEditorTest {
 
     // Validating the integrity of data after multiple transactions
     @Test
-    public void test_validating_data_integrity_after_transactions() {
+    public void test_validating_data_integrity_after_transactions() throws DatabaseIOException {
         editor.saveDatabaseState();
 
         List<Object[]> values = List.of(
@@ -224,7 +225,7 @@ public class DatabaseEditorTest {
     }
 
     @Test
-    public void test_successfully_drops_existing_database_directory() {
+    public void test_successfully_drops_existing_database_directory() throws DatabaseIOException {
         String databaseName = "testDb";
         editor.createDatabase(databaseName);
         editor.dropDatabase(databaseName);

@@ -1,6 +1,7 @@
 package database.system.core.serializers;
 
 import database.monitor.Config;
+import database.system.core.exceptions.DatabaseIOException;
 import database.system.core.structures.Database;
 import lombok.Data;
 
@@ -29,6 +30,6 @@ public abstract class Serializer {
     }
 
     abstract void saveDatabaseInstance(Database database) throws IOException;
-    abstract void createDatabaseDirectoryAndFile(String filePath, String databaseName);
+    abstract void createDatabaseDirectoryAndFile(String filePath, String databaseName) throws DatabaseIOException;
     abstract Database readInstanceFromFile(String filePath, String databaseName) throws IOException, ClassNotFoundException;
 }

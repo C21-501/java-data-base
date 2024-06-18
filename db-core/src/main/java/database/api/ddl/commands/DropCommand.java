@@ -3,6 +3,7 @@ package database.api.ddl.commands;
 import database.api.Command;
 import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
+import database.system.core.exceptions.DatabaseIOException;
 
 /**
  * The DropCommand class represents a command to drop (delete) a table from the database.
@@ -38,7 +39,7 @@ public final class DropCommand extends Command {
      * @return true if the command changes state of database successfully
      */
     @Override
-    public boolean execute() {
+    public boolean execute() throws DatabaseIOException {
         saveBackup();
         if (isDatabase){
             databaseEditor.dropDatabase(name);

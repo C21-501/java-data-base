@@ -3,8 +3,8 @@ package database.api.utils.commands;
 import database.api.Command;
 import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
+import database.system.core.exceptions.DatabaseIOException;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -28,7 +28,7 @@ public class OpenCommand extends Command {
     }
 
     @Override
-    public boolean execute() throws IOException {
+    public boolean execute() throws DatabaseIOException {
         if (databasePath.isPresent())
             databaseEditor.openDatabase(databaseName, databasePath.get());
         else

@@ -126,7 +126,7 @@ public class DatabaseAPIExample {
         databaseAPI.select("renamed_table");
         databaseAPI.print(OUTPUT_TYPE.FILE, Optional.of("output.txt"));
 
-        databaseAPI.show(Optional.empty());
+        databaseAPI.show();
 //         Удаляем таблицу
         databaseAPI.drop("renamed_table", false);
 
@@ -135,6 +135,7 @@ public class DatabaseAPIExample {
 
         databaseAPI.drop("new_test_database", true);
         databaseAPI.drop("empty_test_database", true);
+
         databaseAPI.show(Optional.empty());
 //        databaseAPI.help(Optional.empty());
     }

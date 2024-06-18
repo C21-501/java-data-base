@@ -4,13 +4,14 @@ import database.api.Command;
 import database.api.DatabaseAPI;
 import database.api.DatabaseEditor;
 import database.monitor.Config;
+import database.system.core.exceptions.DatabaseIOException;
 
-import java.io.IOException;
 import java.util.Optional;
 
 public class ShowCommand  extends Command {
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private Optional<String> databasePath;
+    private Optional<String> databasePath = Optional.empty();
+    private final boolean isDatabase;
 
     /**
      * Constructs a new Command instance.
@@ -20,28 +21,38 @@ public class ShowCommand  extends Command {
      */
     public ShowCommand(DatabaseAPI databaseAPI, DatabaseEditor databaseEditor) {
         super(databaseAPI, databaseEditor);
+        this.isDatabase = false;
     }
 
     public ShowCommand(DatabaseAPI databaseAPI, DatabaseEditor databaseEditor, @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> databasePath) {
         super(databaseAPI, databaseEditor);
         this.databasePath = databasePath;
+        isDatabase = true;
     }
 
     @Override
-    public boolean execute() throws IOException {
-        databasePath.ifPresentOrElse(
-                string -> databaseEditor.getUtilManager()
-                        .showAvailableDatabases(
-                                string,
-                                Config.CURRENT_OUTPUT_TYPE,
-                                Config.CURRENT_OUTPUT_PATH
-                        ),
-                () -> databaseEditor.getUtilManager()
-                        .showAvailableTables(
-                                Config.CURRENT_OUTPUT_TYPE,
-                                Config.CURRENT_OUTPUT_PATH
-                        )
-        );
+    public boolean execute() throws DatabaseIOException {
+        if (isDatabase)
+            databasePath.ifPresentOrElse(
+                    string -> databaseEditor.getUtilManager()
+                            .showAvailableDatabases(
+                                    string,
+                                    Config.CURRENT_OUTPUT_TYPE,
+                                    Config.CURRENT_OUTPUT_PATH
+                            ),
+                    () -> databaseEditor.getUtilManager()
+                            .showAvailableDatabases(
+                                    Config.ROOT_DATABASE_PATH,
+                                    Config.CURRENT_OUTPUT_TYPE,
+                                    Config.CURRENT_OUTPUT_PATH
+                            )
+            );
+        else
+            databaseEditor.getUtilManager()
+                    .showAvailableTables(
+                            Config.CURRENT_OUTPUT_TYPE,
+                            Config.CURRENT_OUTPUT_PATH
+                    );
         return false;
     }
 }

@@ -1,6 +1,7 @@
 package database.api;
 
 import database.api.utils.OUTPUT_TYPE;
+import database.system.core.exceptions.DatabaseIOException;
 import database.system.core.structures.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +17,7 @@ public class DatabaseAPITest {
     DatabaseAPI databaseAPI;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws DatabaseIOException {
         databaseAPI = new DatabaseAPI();
         databaseAPI.setActiveEditor(new DatabaseEditor());
         databaseAPI.setHistory(new CommandHistory());

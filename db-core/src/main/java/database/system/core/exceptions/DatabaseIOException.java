@@ -1,6 +1,8 @@
 package database.system.core.exceptions;
 
-public class DatabaseIOException extends RuntimeException {
+import java.io.IOException;
+
+public class DatabaseIOException extends IOException {
     public DatabaseIOException(String message, Throwable cause) {
         super(message, cause);
     }

@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -153,9 +154,13 @@ public class UtilManager {
         try (Stream<Path> paths = Files.walk(path, 1)) {
             out.printf("%nAvailable Databases:%n");
             out.println(X);
-            paths.filter(Files::isDirectory)
+            List<Path> databases = paths.filter(Files::isDirectory)
                     .filter(p -> !p.equals(path))
-                    .forEach(p -> out.printf("\t%s%n", p.getFileName().toString()));
+                    .toList();
+            if (databases.isEmpty())
+                out.println("\tNo databases available.");
+            else
+                databases.forEach(p -> out.printf("\t%s%n", p.getFileName().toString()));
             out.printf("%s%n%n", X);
         } catch (IOException e) {
             throw new RuntimeException(String.format("Error while listing databases: %s%n", e.getMessage()));
