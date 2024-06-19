@@ -37,6 +37,7 @@ public class Scanner {
         SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
 
         parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
+        lexer.removeErrorListeners();
 
         parser.addParseListener(new SQLListener(databaseAPI, OUTPUT_TYPE.FILE, Optional.of("result.txt")));
 
@@ -65,6 +66,7 @@ public class Scanner {
         SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
 
         parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
+        lexer.removeErrorListeners();
 
         parser.addParseListener(new SQLListener(databaseAPI, OUTPUT_TYPE.FILE, Optional.of("result.txt")));
 

@@ -248,6 +248,46 @@ public interface SQLGrammarListener extends ParseTreeListener {
 	 */
 	void exitCommandName(SQLGrammarParser.CommandNameContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link SQLGrammarParser#showCommand}.
+	 * @param ctx the parse tree
+	 */
+	void enterShowCommand(SQLGrammarParser.ShowCommandContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SQLGrammarParser#showCommand}.
+	 * @param ctx the parse tree
+	 */
+	void exitShowCommand(SQLGrammarParser.ShowCommandContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SQLGrammarParser#showDatabases}.
+	 * @param ctx the parse tree
+	 */
+	void enterShowDatabases(SQLGrammarParser.ShowDatabasesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SQLGrammarParser#showDatabases}.
+	 * @param ctx the parse tree
+	 */
+	void exitShowDatabases(SQLGrammarParser.ShowDatabasesContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SQLGrammarParser#showTables}.
+	 * @param ctx the parse tree
+	 */
+	void enterShowTables(SQLGrammarParser.ShowTablesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SQLGrammarParser#showTables}.
+	 * @param ctx the parse tree
+	 */
+	void exitShowTables(SQLGrammarParser.ShowTablesContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SQLGrammarParser#openCommand}.
+	 * @param ctx the parse tree
+	 */
+	void enterOpenCommand(SQLGrammarParser.OpenCommandContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SQLGrammarParser#openCommand}.
+	 * @param ctx the parse tree
+	 */
+	void exitOpenCommand(SQLGrammarParser.OpenCommandContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link SQLGrammarParser#selectElements}.
 	 * @param ctx the parse tree
 	 */

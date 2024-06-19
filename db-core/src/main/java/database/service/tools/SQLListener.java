@@ -391,4 +391,42 @@ public class SQLListener extends SQLGrammarBaseListener {
             logger.error(e.getMessage());
         }
     }
+
+    @Override
+    public void exitShowDatabases(SQLGrammarParser.ShowDatabasesContext ctx) {
+        logger.info("Starting SHOW DATABASES command ...");
+        try{
+            databaseAPI.show(Optional.empty());
+            logger.info("Success SHOW DATABASES command");
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
+    }
+
+    @Override
+    public void exitShowTables(SQLGrammarParser.ShowTablesContext ctx) {
+        logger.info("Starting SHOW TABLES command ...");
+        try{
+            databaseAPI.show();
+            logger.info("Success SHOW TABLES command");
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
+    }
+
+    @Override
+    public void exitOpenCommand(SQLGrammarParser.OpenCommandContext ctx) {
+        logger.info("Starting OPEN DATABASE command ...");
+        try{
+            String databaseName = ctx.dbName.getText();
+            Optional<String> path = Optional.empty();
+            if(ctx.path != null){
+                path = Optional.of(ctx.path.getText());
+            }
+            databaseAPI.open(databaseName,path);
+            logger.info("Success OPEN DATABASE command");
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
+    }
 }

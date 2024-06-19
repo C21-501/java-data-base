@@ -6,7 +6,7 @@ grammar SQLGrammar;
 start: sqlCommands EOF;
 
 // Правила для одиночной команды
-sqlCommand: ddlCommand | dmlCommand | tclCommand | helpCommand;
+sqlCommand: ddlCommand | dmlCommand | tclCommand | helpCommand | showCommand | openCommand;
 
 // Правила для последовательности команд, разделенных ';'
 sqlCommands: sqlCommand (';' sqlCommand)* ';'?;
@@ -43,7 +43,15 @@ rollbackCommand: 'ROLLBACK';
 
 // Правила для HELP команды
 helpCommand : 'HELP' (commandName)?;
-commandName : 'CREATE'|'ALTER'|'DROP'|'SELECT'|'INSERT'|'UPDATE'|'DELETE'|'BEGIN'|'COMMIT'|'ROLLBACK'|'CONSTRAINTS';
+commandName : 'CREATE'|'ALTER'|'DROP'|'SELECT'|'INSERT'|'UPDATE'|'DELETE'|'BEGIN'|'COMMIT'|'ROLLBACK'|'CONSTRAINTS'|'SHOW'|'OPEN';
+
+//Правила для SHOW команды
+showCommand : showDatabases | showTables;
+showDatabases : 'SHOW DATABASES';
+showTables : 'SHOW TABLES';
+
+//Правила для OPEN команды
+openCommand : 'OPEN DATABASE' dbName=IDENTIFIER ('WITH PATH' '"'path=PATH'"')?;
 
 // Правила для элементов запроса SELECT
 selectElements: ('*' | selectElement (',' selectElement)*);
@@ -65,6 +73,7 @@ literal: INTEGER | STRING | REAL | 'TRUE' | 'FALSE' | 'NULL';
 
 // Идентификаторы
 IDENTIFIER: [a-zA-Z_] [a-zA-Z0-9_]*;
+PATH : [a-zA-Z/_] [a-zA-Z0-9/_]*;
 
 // Терминалы
 INTEGER: '-'? NON_ZERO_DIGIT DIGIT* | '0';
