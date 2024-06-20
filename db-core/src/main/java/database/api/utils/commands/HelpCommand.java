@@ -43,11 +43,11 @@ public class HelpCommand extends Command {
         if (command.isPresent())
             databaseEditor.getUtilManager()
                     .printCommandHelp(
-                    command.get().toUpperCase(), Config.CURRENT_OUTPUT_TYPE, Config.CURRENT_OUTPUT_PATH
+                    command.get().toUpperCase(), Config.DEFAULT_OUTPUT_TYPE, Config.CURRENT_OUTPUT_PATH
             );
         else
             databaseEditor.getUtilManager()
-                    .printAllCommandsHelp(Config.CURRENT_OUTPUT_TYPE, Config.CURRENT_OUTPUT_PATH);
+                    .printAllCommandsHelp(Config.DEFAULT_OUTPUT_TYPE, Config.CURRENT_OUTPUT_PATH);
         return false;
     }
 }
