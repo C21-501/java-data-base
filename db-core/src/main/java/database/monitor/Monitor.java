@@ -27,6 +27,12 @@ public class Monitor {
     private static Optional<String> inputFilePath = Optional.empty(); // Начальное состояние - ввод с консоли
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private static Optional<String> outputFilePath = Optional.empty(); // Начальное состояние - вывод в консоль
+    private static MonitorState monitorState = MonitorState.CLI; // Начальное состояние - CLI
+
+    public enum MonitorState {
+        CLI,
+        FS
+    }
 
     public static void readCommandsFromFile(String fileName, DatabaseAPI databaseAPI, OUTPUT_TYPE outputType, @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> filePath) {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
@@ -45,46 +51,52 @@ public class Monitor {
             parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
             lexer.removeErrorListeners();
             parser.addParseListener(new SQLListener(databaseAPI, outputType, filePath));
-            parser.start();
-
+            try {
+                parser.start();
+            } catch (Exception e) {
+                System.out.printf("Error in parser: %s", e.getMessage());
+            }
         } catch (Exception e) {
             logger.error("Error reading commands from file: %s".formatted(e.getMessage()));
         }
     }
 
     public static void readCommandsFromCommandLine(DatabaseAPI databaseAPI, OUTPUT_TYPE outputType, @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> filePath) {
-        System.out.println("Please enter your commands. Type ':q' to quit.");
-        StringBuilder commands = new StringBuilder();
-        String line = in.nextLine();
-        while (!line.equals(":q")) {
+        System.out.println("Please enter your commands. Type ':q' to quit, 'change mod' to change mode.");
+        while (true) {
+            StringBuilder commands = new StringBuilder();
+            String line = in.nextLine();
+            if (line.equalsIgnoreCase("exit") || line.equalsIgnoreCase(":q")) {
+                System.out.println("Exiting the program. Goodbye!");
+                System.exit(0);
+            } else if (line.equalsIgnoreCase("change mod")) {
+                changeMode();
+                return;
+            }
             commands.append(line).append(" ");
-            line = in.nextLine();
-        }
 
-        CharStream stream = CharStreams.fromString(commands.toString());
-        SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
-        SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
-        parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-        lexer.removeErrorListeners();
-        parser.addParseListener(new SQLListener(databaseAPI, outputType, filePath));
+            CharStream stream = CharStreams.fromString(commands.toString());
+            SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
+            SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
+            parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
+            lexer.removeErrorListeners();
+            parser.addParseListener(new SQLListener(databaseAPI, outputType, filePath));
 
-        try {
-            parser.start();
-        } catch (Exception e) {
-            logger.error("Error parsing commands: %s".formatted(e.getMessage()));
+            try {
+                parser.start();
+            } catch (Exception e) {
+                logger.error("Error parsing commands: %s".formatted(e.getMessage()));
+            }
         }
     }
 
     public static void handleCommandLine(DatabaseAPI databaseAPI) {
         System.out.println("You have selected Command Line Interface mode.");
-        try {
-            readCommandsFromCommandLine(databaseAPI, outputType, outputFilePath);
-        } catch (Exception e) {
-            System.out.println("Error while command handling, try again");
-        }
+        readCommandsFromCommandLine(databaseAPI, outputType, outputFilePath);
     }
 
     public static void handleFileSystem(DatabaseAPI databaseAPI) {
+        System.out.println("You have selected File System Interface mode.");
         if (inputFilePath.isPresent()) {
             readCommandsFromFile(inputFilePath.get(), databaseAPI, outputType, outputFilePath);
         } else {
@@ -106,10 +118,12 @@ public class Monitor {
         String mode = in.nextLine();
         if (mode.equalsIgnoreCase("CLI")) {
             inputFilePath = Optional.empty();
+            monitorState = MonitorState.CLI;
         } else if (mode.equalsIgnoreCase("FS")) {
             System.out.println("Please enter the input file path:");
             String filePath = in.nextLine();
             inputFilePath = Optional.of(filePath);
+            monitorState = MonitorState.FS;
         } else {
             System.out.println("Invalid input mode specified.");
         }
@@ -134,22 +148,24 @@ public class Monitor {
         databaseAPI.setActiveEditor(new DatabaseEditor());
         databaseAPI.setHistory(new CommandHistory());
         System.out.println("Welcome to the database monitor!");
-        System.out.println("Please choose the working mode: Command Line Interface (CLI) or File System (FS), or type HELP for available commands.");
-        System.out.println("You can use CHANGE MODE command to change the output destination");
+        System.out.printf("Current working mode: %s%n", monitorState);
         try {
             while (true) {
-                String input = in.nextLine();
-                if (input.equalsIgnoreCase("CLI")) {
+                if (monitorState == MonitorState.CLI) {
                     handleCommandLine(databaseAPI);
-                } else if (input.equalsIgnoreCase("FS")) {
+                } else if (monitorState == MonitorState.FS) {
                     handleFileSystem(databaseAPI);
-                } else if (input.equalsIgnoreCase("HELP")) {
-                    displayHelpCommands();
-                } else if (input.equalsIgnoreCase("change mod")) {
+                }
+                System.out.println("Enter 'HELP' for available commands, 'change mod' to change mode, or 'exit' to quit:");
+                String input = in.nextLine();
+                if (input.equalsIgnoreCase("change mod")) {
                     changeMode();
+                    System.out.printf("Mode changed to: %s%n", monitorState);
                 } else if (input.equalsIgnoreCase("exit")) {
                     System.out.println("Exiting the program. Goodbye!");
                     break;
+                } else if (input.equalsIgnoreCase("HELP")) {
+                    displayHelpCommands();
                 } else {
                     System.out.println("Invalid command. Please enter a valid option.");
                 }
