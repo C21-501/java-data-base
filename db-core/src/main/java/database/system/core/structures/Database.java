@@ -1,5 +1,7 @@
 package database.system.core.structures;
 
+import database.system.core.exceptions.DatabaseRuntimeException;
+import database.system.core.exceptions.enums.RuntimeError;
 import database.system.core.types.DataType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -203,6 +205,8 @@ public class Database extends DatabaseStructure {
 
     public void create(String tableName, List<String> columns) {
         validateTableName(tableName);
+        if (tables.containsKey(tableName))
+            throw new DatabaseRuntimeException(RuntimeError.TABLE_ALREADY_EXIST, tableName);
         validateColumnNames(columns);
         Table table = new Table();
         processCreateNewColumns(columns, table);

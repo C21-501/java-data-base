@@ -2,6 +2,8 @@ package database.system.core.structures;
 
 import database.system.core.constraints.ConstraintFactory;
 import database.system.core.constraints.Constraint;
+import database.system.core.exceptions.DatabaseRuntimeException;
+import database.system.core.exceptions.enums.RuntimeError;
 import database.system.core.types.DataType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -50,6 +52,8 @@ public class Table extends DatabaseStructure {
 
     public void create(String columnName, String columnType) {
         validateNonNull(columnName);
+        if (columns.containsKey(columnName))
+            throw new DatabaseRuntimeException(RuntimeError.COLUMN_ALREADY_EXIST, columnName);
         validateNonNull(columnType);
         if (DataType.validate(columnType)) {
             columns.put(columnName, new Column(DataType.valueOf(columnType)));
@@ -60,6 +64,8 @@ public class Table extends DatabaseStructure {
 
     public void create(String columnName, String columnType, String[] constraints) {
         validateNonNull(columnName);
+        if (columns.containsKey(columnName))
+            throw new DatabaseRuntimeException(RuntimeError.COLUMN_ALREADY_EXIST, columnName);
         validateNonNull(columnType);
         if (DataType.validate(columnType)) {
             Column column = new Column(DataType.valueOf(columnType));
