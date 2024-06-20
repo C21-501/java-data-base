@@ -77,7 +77,11 @@ public class Monitor {
 
     public static void handleCommandLine(DatabaseAPI databaseAPI) {
         System.out.println("You have selected Command Line Interface mode.");
-        readCommandsFromCommandLine(databaseAPI, outputType, outputFilePath);
+        try {
+            readCommandsFromCommandLine(databaseAPI, outputType, outputFilePath);
+        } catch (Exception e) {
+            System.out.println("Error while command handling, try again");
+        }
     }
 
     public static void handleFileSystem(DatabaseAPI databaseAPI) {
@@ -130,6 +134,7 @@ public class Monitor {
         databaseAPI.setActiveEditor(new DatabaseEditor());
         databaseAPI.setHistory(new CommandHistory());
         System.out.println("Welcome to the database monitor!");
+        //TODO ADD MODE DESCRIPTION MESSAGE + THAT U CAN CHANGE MODES
         System.out.println("Please choose the working mode: Command Line Interface (CLI) or File System (FS), or type HELP for available commands.");
         try {
             while (true) {
