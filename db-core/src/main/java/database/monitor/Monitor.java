@@ -13,6 +13,8 @@ import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -23,18 +25,26 @@ public class Monitor {
      * Reads SQL commands from a file and parses them.
      *
      * @param fileName the name of the file containing SQL commands.
-     * @throws IOException if an I/O error occurs when reading the file.
      */
-    public static void readCommandsFromFile(String fileName, DatabaseAPI databaseAPI, OUTPUT_TYPE outputType, Optional<String> filePath) throws IOException {
-        CharStream stream = CharStreams.fromFileName(fileName);
-        SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
-        SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
-        parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-        lexer.removeErrorListeners();
-        parser.addParseListener(new SQLListener(databaseAPI,outputType,filePath));
+    public static void readCommandsFromFile(String fileName, DatabaseAPI databaseAPI, OUTPUT_TYPE outputType, Optional<String> filePath) {
+        try(BufferedReader reader = new BufferedReader(new FileReader(fileName))){
+            StringBuilder commands = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if(!line.startsWith("//")){
+                    commands.append(line).append('\n');
+                }
+            }
 
-        try{
+            CharStream stream = CharStreams.fromString(commands.toString());
+            SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
+            SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
+
+            parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
+            lexer.removeErrorListeners();
+            parser.addParseListener(new SQLListener(databaseAPI,outputType,filePath));
             parser.start();
+
         } catch (Exception e){
             logger.error(e.getMessage());
         }

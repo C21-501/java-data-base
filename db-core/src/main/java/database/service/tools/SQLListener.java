@@ -21,6 +21,7 @@ import static database.api.utils.Utils.parseValue;
  */
 public class SQLListener extends SQLGrammarBaseListener {
     private final Logger logger = LogManager.getLogger(SQLListener.class);
+    private final Logger fileLogger = LogManager.getLogger("FileOnlyLogger");
     private final DatabaseAPI databaseAPI;
     private final OUTPUT_TYPE outputType;
     private final Optional<String> filePath;
@@ -55,7 +56,7 @@ public class SQLListener extends SQLGrammarBaseListener {
         String dbName = ctx.dbName.getText();
         String newDbName = ctx.alterDatabaseStatement().newName.getText();
 
-        logger.info("Starting ALTER DB command...");
+        fileLogger.info(STR."Starting ALTER DB command (dbName = \"\{dbName}\", newDbName = \"\{newDbName}\")");
         try{
             databaseAPI.alter(dbName, newDbName, true);
             logger.info("Success ALTER DB command");
@@ -68,7 +69,7 @@ public class SQLListener extends SQLGrammarBaseListener {
     public void exitCreateDbCommand(SQLGrammarParser.CreateDbCommandContext ctx) {
         String dbName = ctx.dbName.getText();
 
-        logger.info("Starting CREATE DB command...");
+        fileLogger.info(STR."Starting CREATE DB command (dbName = \"\{dbName}\")");
         try{
             databaseAPI.create(dbName, Optional.empty());
             logger.info("Success CREATE DB command");
@@ -81,7 +82,7 @@ public class SQLListener extends SQLGrammarBaseListener {
     public void exitDropDbCommand(SQLGrammarParser.DropDbCommandContext ctx) {
         String dbName = ctx.dbName.getText();
 
-        logger.info("Starting DROP DB command...");
+        fileLogger.info(STR."Starting DROP DB command (dbName = \"\{dbName}\")");
         try{
             databaseAPI.drop(dbName, true);
             logger.info("Success DROP DB command");
@@ -98,7 +99,7 @@ public class SQLListener extends SQLGrammarBaseListener {
         if(alterCtx.renameTableStatement() != null){
             String newTableName = alterCtx.renameTableStatement().newName.getText();
 
-            logger.info("Starting RENAME TABLE command...");
+            fileLogger.info(STR."Starting RENAME TABLE command (tableName = \"\{tableName}\", newTableName = \"\{newTableName}\")");
             try{
                 databaseAPI.alter(tableName, newTableName, false);
                 logger.info("Success RENAME TABLE command");
@@ -131,7 +132,7 @@ public class SQLListener extends SQLGrammarBaseListener {
                 column = STR."\{alterCtx.addColumnStatement().columnDefinition().columnName.getText()} \{alterCtx.addColumnStatement().columnDefinition().dataType().getText()}";
             }
 
-            logger.info("Starting ADD COLUMN command...");
+            fileLogger.info(STR."Starting ADD COLUMN command (tableName = \"\{tableName}\", column = \"\{column}\")");
             try{
                 List<String> alterColumns = List.of(column);
                 databaseAPI.alter(tableName, alterColumns);
@@ -143,7 +144,7 @@ public class SQLListener extends SQLGrammarBaseListener {
         } else if(alterCtx.dropColumnStatement() != null){
             String columnName = alterCtx.dropColumnStatement().columnName.getText();
 
-            logger.info("Starting DROP COLUMN command...");
+            fileLogger.info(STR."Starting DROP COLUMN command (tableName = \"\{tableName}\", columnName = \"\{columnName}\")");
             try{
                 List<String> alterColumns = List.of(columnName);
                 databaseAPI.alter(tableName, null, null, alterColumns);
@@ -187,7 +188,7 @@ public class SQLListener extends SQLGrammarBaseListener {
             columnsToAdd.add(column);
         }
 
-        logger.info("Starting CREATE TABLE command...");
+        fileLogger.info(STR."Starting CREATE TABLE command (tableName = \"\{tableName}\", columnsToAdd = \{columnsToAdd})");
         try{
             databaseAPI.create(tableName, columnsToAdd);
             logger.info("Success CREATE TABLE command");
@@ -200,7 +201,7 @@ public class SQLListener extends SQLGrammarBaseListener {
     @Override
     public void exitDropTableCommand(SQLGrammarParser.DropTableCommandContext ctx) {
         String tableName = ctx.tableName.getText();
-        logger.info("Starting DROP TABLE command...");
+        fileLogger.info(STR."Starting DROP TABLE command (tableName = \"\{tableName}\")");
         try{
             databaseAPI.drop(tableName, false);
             logger.info("Success DROP TABLE command");
@@ -223,7 +224,7 @@ public class SQLListener extends SQLGrammarBaseListener {
             valuesToAdd.add(parseValue(i.getText()));
         }
 
-        logger.info("Starting INSERT command ...");
+        fileLogger.info(STR."Starting INSERT command (tableName = \"\{tableName}\", columnsToAdd = \{columnsToAdd}, values = \{valuesToAdd})");
         try{
             List<Object[]> values = new LinkedList<>();
             values.add(valuesToAdd.toArray());
@@ -254,7 +255,7 @@ public class SQLListener extends SQLGrammarBaseListener {
             condition = STR."\{i.columnName.getText()} \{i.comparisonOperator().getText()} \{i.value.getText()}";
         }
 
-        logger.info("Starting DELETE command ...");
+        fileLogger.info(STR."Starting DELETE command (tableName = \"\{tableName}\", condition = \"\{condition}\")");
         try{
             databaseAPI.delete(tableName, condition);
             logger.info("Success DELETE command");
@@ -289,13 +290,15 @@ public class SQLListener extends SQLGrammarBaseListener {
             condition = STR."\{i.columnName.getText()} \{i.comparisonOperator().getText()} \{i.value.getText()}";
         }
 
-        logger.info("Starting SELECT command ...");
         try{
             if(columnsToSelect.isEmpty()) {
+                fileLogger.info(STR."Starting SELECT command (tableName = \"\{tableName}\")");
                 databaseAPI.select(tableName);
             } else if(condition.isEmpty()){
+                fileLogger.info(STR."Starting SELECT command (tableName = \"\{tableName}\", columnsToSelect = \{columnsToSelect})");
                 databaseAPI.select(tableName, columnsToSelect);
             } else {
+                fileLogger.info(STR."Starting SELECT command (tableName = \"\{tableName}\", columnsToSelect = \{columnsToSelect}, condition = \"\{condition}\")");
                 databaseAPI.select(tableName, columnsToSelect, condition);
             }
             databaseAPI.print(outputType, filePath);
@@ -332,7 +335,7 @@ public class SQLListener extends SQLGrammarBaseListener {
             condition = STR."\{i.columnName.getText()} \{i.comparisonOperator().getText()} \{i.value.getText()}";
         }
 
-        logger.info("Starting UPDATE command ...");
+        fileLogger.info(STR."Starting UPDATE command (tableName = \"\{tableName}\", values = \{values}, condition = \"\{condition}\")");
         try{
             databaseAPI.update(tableName, values, condition);
             logger.info("Success UPDATE command");
@@ -346,7 +349,7 @@ public class SQLListener extends SQLGrammarBaseListener {
 
     @Override
     public void exitBeginCommand(SQLGrammarParser.BeginCommandContext ctx) {
-        logger.info("Starting BEGIN command ...");
+        fileLogger.info("Starting BEGIN command ...");
         try{
             databaseAPI.begin();
             logger.info("Success BEGIN command");
@@ -357,7 +360,7 @@ public class SQLListener extends SQLGrammarBaseListener {
 
     @Override
     public void exitCommitCommand(SQLGrammarParser.CommitCommandContext ctx) {
-        logger.info("Starting COMMIT command ...");
+        fileLogger.info("Starting COMMIT command ...");
         try{
             databaseAPI.commit();
             logger.info("Success COMMIT command");
@@ -368,7 +371,7 @@ public class SQLListener extends SQLGrammarBaseListener {
 
     @Override
     public void exitRollbackCommand(SQLGrammarParser.RollbackCommandContext ctx) {
-        logger.info("Starting ROLLBACK command ...");
+        fileLogger.info("Starting ROLLBACK command ...");
         try{
             databaseAPI.rollback();
             logger.info("Success ROLLBACK command");
@@ -379,11 +382,13 @@ public class SQLListener extends SQLGrammarBaseListener {
 
     @Override
     public void exitHelpCommand(SQLGrammarParser.HelpCommandContext ctx) {
-        logger.info("Starting HELP command ...");
         try{
             Optional<String> commandName = Optional.empty();
             if(ctx.commandName() != null){
                 commandName = Optional.of(ctx.commandName().getText());
+                fileLogger.info(STR."Starting HELP command (commandName = \"\{commandName}\")");
+            } else {
+                fileLogger.info("Starting HELP command");
             }
             databaseAPI.help(commandName);
             logger.info("Success HELP command");
@@ -394,7 +399,7 @@ public class SQLListener extends SQLGrammarBaseListener {
 
     @Override
     public void exitShowDatabases(SQLGrammarParser.ShowDatabasesContext ctx) {
-        logger.info("Starting SHOW DATABASES command ...");
+        fileLogger.info("Starting SHOW DATABASES command ...");
         try{
             databaseAPI.show(Optional.empty());
             logger.info("Success SHOW DATABASES command");
@@ -405,7 +410,7 @@ public class SQLListener extends SQLGrammarBaseListener {
 
     @Override
     public void exitShowTables(SQLGrammarParser.ShowTablesContext ctx) {
-        logger.info("Starting SHOW TABLES command ...");
+        fileLogger.info("Starting SHOW TABLES command ...");
         try{
             databaseAPI.show();
             logger.info("Success SHOW TABLES command");
@@ -416,12 +421,14 @@ public class SQLListener extends SQLGrammarBaseListener {
 
     @Override
     public void exitOpenCommand(SQLGrammarParser.OpenCommandContext ctx) {
-        logger.info("Starting OPEN DATABASE command ...");
         try{
             String databaseName = ctx.dbName.getText();
             Optional<String> path = Optional.empty();
             if(ctx.path != null){
                 path = Optional.of(ctx.path.getText());
+                fileLogger.info(STR."Starting OPEN DATABASE command (databaseName = \"\{databaseName}\", path = \"\{path}\")");
+            } else {
+                fileLogger.info(STR."Starting OPEN DATABASE command (databaseName = \"\{databaseName}\")");
             }
             databaseAPI.open(databaseName,path);
             logger.info("Success OPEN DATABASE command");

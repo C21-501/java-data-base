@@ -13,7 +13,8 @@ import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.Optional;
 
 /**
@@ -29,20 +30,26 @@ public class Scanner {
      * Reads SQL commands from a file and parses them.
      *
      * @param fileName the name of the file containing SQL commands.
-     * @throws IOException if an I/O error occurs when reading the file.
      */
-    public static void readCommandsFromFile(String fileName, DatabaseAPI databaseAPI) throws IOException {
-        CharStream stream = CharStreams.fromFileName(fileName);
-        SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
-        SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
+    public static void readCommandsFromFile(String fileName, DatabaseAPI databaseAPI) {
+        try(BufferedReader reader = new BufferedReader(new FileReader(fileName))){
+            StringBuilder commands = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if(!line.startsWith("//")){
+                    commands.append(line).append('\n');
+                }
+            }
 
-        parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-        lexer.removeErrorListeners();
+            CharStream stream = CharStreams.fromString(commands.toString());
+            SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
+            SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
 
-        parser.addParseListener(new SQLListener(databaseAPI, OUTPUT_TYPE.FILE, Optional.of("result.txt")));
-
-        try{
+            parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
+            lexer.removeErrorListeners();
+            parser.addParseListener(new SQLListener(databaseAPI, OUTPUT_TYPE.FILE, Optional.of("result.txt")));
             parser.start();
+
         } catch (Exception e){
             logger.error(e.getMessage());
         }
@@ -61,7 +68,6 @@ public class Scanner {
         }
 
         CharStream stream = CharStreams.fromString(commands.toString());
-        //CharStream stream = CharStreams.fromStream(System.in);
         SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
         SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
 
@@ -77,7 +83,7 @@ public class Scanner {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         DatabaseAPI databaseAPI;
         databaseAPI = new DatabaseAPI();
         databaseAPI.setActiveEditor(new DatabaseEditor());

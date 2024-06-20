@@ -18,5 +18,10 @@
             <AppenderRef ref="ConsoleAppender" />
             <AppenderRef ref="FileAppender" />
         </Root>
+
+        <Logger name="FileOnlyLogger" level="info" additivity="false">
+            <AppenderRef ref="FileAppender"/>
+        </Logger>
+
     </Loggers>
 </Configuration>
