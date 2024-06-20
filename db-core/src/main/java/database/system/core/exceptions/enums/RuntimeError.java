@@ -8,7 +8,8 @@ public enum RuntimeError {
     DATABASE_DOES_NOT_EXIST("Database %s does not exist."),
     RENAMING_DATABASE_EXISTS("Error while renaming database: %s already exists"),
     RENAMING_FILE("Error while renaming file: %s"),
-    RENAMING_DATABASE("Error while renaming database: %s");
+    RENAMING_DATABASE("Error while renaming database: %s"),
+    DATABASE_ALREADY_EXIST("Error: database with name %s already exists.");
 
     private final String messageTemplate;
 

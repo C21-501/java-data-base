@@ -40,31 +40,26 @@ public class DatabaseEditor {
     }
 
     public void createDatabase(String databaseName) throws DatabaseIOException {
-        resetDatabaseInstance();
         if (databaseName.isEmpty()) {
             throw new EmptyParameterException(EmptyParameterError.DATABASE_NAME_NULL);
         }
-        this.databaseName = databaseName;
-        this.database = Database.getInstance();
-        this.database.setFilePath(Config.getDatabaseFilePath(databasePath, databaseName));
-        DatabaseSerializer databaseSerializer = DatabaseSerializer.getInstance();
-        databaseSerializer.setDatabaseName(databaseName);
-        databaseSerializer.setDatabaseDirPath(databasePath);
-        databaseSerializer.createDatabaseDirectoryAndFile(databasePath, databaseName);
-        databaseSerializer.saveDatabaseInstance(database);
-        this.setUpManagers(database);
+        createDatabase(databaseName, databasePath);
     }
 
     public void createDatabase(String databaseName, String path) throws DatabaseIOException {
         resetDatabaseInstance();
-        if (databaseName.isEmpty() || path.isEmpty()) {
-            throw new EmptyParameterException(EmptyParameterError.DATABASE_NAME_OR_PATH_NULL);
+        if (exists(databaseName, path)) {
+            throw new DatabaseRuntimeException(RuntimeError.DATABASE_ALREADY_EXIST, databaseName);
         }
+        if (databaseName.isEmpty() || path.isEmpty()) {
+            throw new EmptyParameterException(EmptyParameterError.DATABASE_PATH_NULL);
+        }
+
         this.databaseName = databaseName;
         this.databasePath = path;
         this.database = Database.getInstance();
         this.database.setFilePath(Config.getDatabaseFilePath(databasePath, databaseName));
-        DatabaseSerializer databaseSerializer = DatabaseSerializer.getInstance();
+        this.databaseSerializer = DatabaseSerializer.getInstance();
         databaseSerializer.setDatabaseName(databaseName);
         databaseSerializer.setDatabaseDirPath(databasePath);
         databaseSerializer.createDatabaseDirectoryAndFile(path, databaseName);
@@ -107,16 +102,13 @@ public class DatabaseEditor {
 
     public void dropDatabase(String name) {
         dropDatabase(name, databasePath);
-        database = null;
-        setUpManagers(null);
     }
 
     public void dropDatabase(String name, String path) {
-        Path databaseDir;
-        if (path.equals(name))
-            databaseDir = Paths.get(name);
-        else
-            databaseDir = Paths.get(path, name);
+        if (!exists(name, path)) {
+            throw new DatabaseRuntimeException(RuntimeError.DATABASE_DOES_NOT_EXIST, name);
+        }
+        Path databaseDir = (path.equals(name)) ? Paths.get(name) : Paths.get(path, name);
         if (Files.exists(databaseDir)) {
             try {
                 Files.walk(databaseDir)
@@ -129,8 +121,6 @@ public class DatabaseEditor {
                 resetDatabaseInstance();
                 this.databaseName = "";
             }
-        } else {
-            throw new DatabaseRuntimeException(RuntimeError.DATABASE_DOES_NOT_EXIST, name);
         }
     }
 
@@ -146,6 +136,12 @@ public class DatabaseEditor {
     public void renameDatabase(String name, String newName) throws DatabaseIOException {
         if (name.isEmpty() || newName.isEmpty()) {
             throw new EmptyParameterException(EmptyParameterError.DATABASE_NAME_OR_NEW_NAME_EMPTY);
+        }
+        if (!exists(name, databasePath)) {
+            throw new DatabaseRuntimeException(RuntimeError.DATABASE_DOES_NOT_EXIST, name);
+        }
+        if (exists(newName, databasePath)) {
+            throw new DatabaseRuntimeException(RuntimeError.DATABASE_ALREADY_EXIST, newName);
         }
 
         Path oldDatabaseDir = Paths.get(databasePath, name);
@@ -181,8 +177,6 @@ public class DatabaseEditor {
             } catch (IOException e) {
                 throw new DatabaseRuntimeException(RuntimeError.RENAMING_DATABASE, e.getMessage());
             }
-        } else {
-            throw new DatabaseRuntimeException(RuntimeError.DATABASE_DOES_NOT_EXIST, name);
         }
     }
 
@@ -200,23 +194,29 @@ public class DatabaseEditor {
 
     public void openDatabase(String databaseName, String path) {
         if (databaseName.isEmpty() || path.isEmpty()) {
-            throw new IllegalArgumentException("Error while opening database: database name or path is null");
+            throw new EmptyParameterException(EmptyParameterError.DATABASE_PATH_NULL);
         }
+
         this.databasePath = path;
-        this.database = Database.getInstance();
-        this.database.setFilePath(String.format("%s/%s/%s.instance", path, databaseName, databaseName));
         this.databaseSerializer = DatabaseSerializer.getInstance();
         databaseSerializer.setDatabaseName(databaseName);
         databaseSerializer.setDatabaseDirPath(databasePath);
+
         try {
             Database tmpDatabase = databaseSerializer.readInstanceFromFile(path, databaseName);
             if (tmpDatabase == null) {
-                throw new RuntimeException("Error while opening database: database instance is null");
+                throw new InvalidParameterException(InvalidParameterError.DATABASE_INSTANCE_NULL);
             }
             this.database = tmpDatabase;
+            this.databaseName = databaseName;
+            this.database.setFilePath(String.format("%s/%s/%s.instance", path, databaseName, databaseName));
         } catch (DatabaseIOException e) {
-            e.printStackTrace(System.err);
-            throw new RuntimeException(String.format("Error while opening database: %s%n", e.getMessage()));
+            throw new DatabaseRuntimeException(RuntimeError.DROPPING_DATABASE, e.getMessage());
         }
+    }
+
+    public boolean exists(String databaseName, String path) {
+        Path databaseDir = Paths.get(path, databaseName);
+        return Files.exists(databaseDir);
     }
 }
