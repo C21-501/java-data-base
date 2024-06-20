@@ -134,8 +134,8 @@ public class Monitor {
         databaseAPI.setActiveEditor(new DatabaseEditor());
         databaseAPI.setHistory(new CommandHistory());
         System.out.println("Welcome to the database monitor!");
-        //TODO ADD MODE DESCRIPTION MESSAGE + THAT U CAN CHANGE MODES
         System.out.println("Please choose the working mode: Command Line Interface (CLI) or File System (FS), or type HELP for available commands.");
+        System.out.println("You can use CHANGE MODE command to change the output destination");
         try {
             while (true) {
                 String input = in.nextLine();
