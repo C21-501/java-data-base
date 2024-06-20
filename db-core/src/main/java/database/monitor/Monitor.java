@@ -44,17 +44,23 @@ public class Monitor {
                 }
             }
 
-            CharStream stream = CharStreams.fromString(commands.toString());
-            SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
-            SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
+            String[] commandsList = commands.toString().split(";");
+            for(String cmd : commandsList){
+                if(!cmd.equals("\n")){
+                    CharStream stream = CharStreams.fromString(cmd);
+                    SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
+                    SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
 
-            parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-            lexer.removeErrorListeners();
-            parser.addParseListener(new SQLListener(databaseAPI, outputType, filePath));
-            try {
-                parser.start();
-            } catch (Exception e) {
-                System.out.printf("Error in parser: %s", e.getMessage());
+                    parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
+                    lexer.removeErrorListeners();
+                    parser.addParseListener(new SQLListener(databaseAPI, outputType, filePath));
+                    try {
+                        parser.start();
+                    } catch (Exception e) {
+                        //System.out.printf("Error in parser: %s", e.getMessage());
+                        logger.error(STR."Error in parser: \{e.getMessage()}");
+                    }
+                }
             }
         } catch (Exception e) {
             logger.error("Error reading commands from file: %s".formatted(e.getMessage()));
