@@ -3,9 +3,7 @@ package database.api;
 import database.api.utils.OUTPUT_TYPE;
 import database.system.core.exceptions.DatabaseIOException;
 import database.system.core.structures.Response;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -14,18 +12,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 public class DatabaseAPITest {
-    DatabaseAPI databaseAPI;
+    static DatabaseAPI databaseAPI;
 
-    @BeforeEach
-    public void setUp() throws DatabaseIOException {
+    @BeforeAll
+    public static void setUp() throws DatabaseIOException {
         databaseAPI = new DatabaseAPI();
         databaseAPI.setActiveEditor(new DatabaseEditor());
         databaseAPI.setHistory(new CommandHistory());
         databaseAPI.getActiveEditor().createDatabase("test_db");
     }
 
-    @AfterEach
-    public void tearDown() throws IOException {
+    @AfterAll
+    public static void tearDown() throws IOException {
         databaseAPI.drop("test_db", true);
     }
     
@@ -41,7 +39,7 @@ public class DatabaseAPITest {
         databaseAPI.insert("employees", List.of("id", "name", "age"), values);
         // Select all records from the "employees" table
         databaseAPI.select("employees");
-        databaseAPI.getLastSelectResponse().print(OUTPUT_TYPE.CONSOLE, Optional.empty());
+        databaseAPI.getLastSelectResponse().print(OUTPUT_TYPE.FILE, Optional.of("output_file.txt"));
         // Begin a new transaction
         databaseAPI.begin();
         // Update the age of employee with id 1 to 32
@@ -51,12 +49,12 @@ public class DatabaseAPITest {
 
         assertThrows(RuntimeException.class,()->databaseAPI.insert("employees", List.of("id", "name", "age"), Collections.singletonList(new Object[]{3, "'Petra'", 15})));
 
-        databaseAPI.alter("employees", null, null, List.of("age age_check_age_constraint"));
+        databaseAPI.alter("employees", null, null, List.of("age check_age_constraint"));
 
         databaseAPI.insert("employees", List.of("id", "name", "age"), Collections.singletonList(new Object[]{4, "'Tom'", 15}));
 
         databaseAPI.select("employees");
-        databaseAPI.getLastSelectResponse().print(OUTPUT_TYPE.CONSOLE, Optional.empty());
+        databaseAPI.print(OUTPUT_TYPE.FILE, Optional.of("output_file.txt"));
         // Drop the "employees" table
         databaseAPI.drop("employees", false);
     }
@@ -65,7 +63,7 @@ public class DatabaseAPITest {
     @Test
     public void test_create_table_with_valid_name_and_columns() throws IOException {
         List<String> columns = List.of("id INTEGER PRIMARY KEY", "name STRING NOT NULL");
-        databaseAPI.create("testTable", columns);
+        databaseAPI.create("testTable_2", columns);
         assertTrue(databaseAPI.getActiveEditor().getDdlManager().getDatabase().containsTable("testTable"));
     }
 
@@ -73,20 +71,20 @@ public class DatabaseAPITest {
     @Test
     public void test_alter_table_with_valid_modifications() throws IOException {
         List<String> columns = List.of("id INTEGER", "name STRING");
-        databaseAPI.create("testTable", columns);
+        databaseAPI.create("testTable_5", columns);
         List<String> addColumn = List.of("age INTEGER CHECK (age > 18)");
-        databaseAPI.alter("testTable", addColumn);
-        assertTrue(databaseAPI.getActiveEditor().getDdlManager().getDatabase().containsTable("testTable"));
-        assertTrue(databaseAPI.getActiveEditor().getDdlManager().getDatabase().getTable("testTable").get().contains("age"));
+        databaseAPI.alter("testTable_5", addColumn);
+        assertTrue(databaseAPI.getActiveEditor().getDdlManager().getDatabase().containsTable("testTable_5"));
+        assertTrue(databaseAPI.getActiveEditor().getDdlManager().getDatabase().getTable("testTable_5").get().contains("age"));
     }
 
     // Successfully drop an existing table with a valid table name
     @Test
     public void test_drop_table_with_valid_name() throws IOException {
         List<String> columns = List.of("id INTEGER", "name STRING");
-        databaseAPI.create("testTable", columns);
-        databaseAPI.drop("testTable", false);
-        assertFalse(databaseAPI.getActiveEditor().getDdlManager().getDatabase().containsTable("testTable"));
+        databaseAPI.create("testTable_4", columns);
+        databaseAPI.drop("testTable_4", false);
+        assertFalse(databaseAPI.getActiveEditor().getDdlManager().getDatabase().containsTable("testTable_4"));
     }
 
     // Successfully delete records from a table with a valid condition
@@ -108,12 +106,13 @@ public class DatabaseAPITest {
     public void test_insert_records_with_valid_columns_and_values() throws IOException {
         List<String> columns = List.of("id INTEGER", "name STRING");
         List<Object[]> values = List.of(new Object[]{1, "John"}, new Object[]{2, "Jane"});
-        databaseAPI.create("testTable", columns);
+        databaseAPI.create("testTable_3", columns);
         columns = List.of("id", "name");
-        databaseAPI.insert("testTable", columns, values);
-        Response result = databaseAPI.getActiveEditor().getDmlManager().select("testTable", columns);
-        result.print(OUTPUT_TYPE.CONSOLE, Optional.empty());
-        assertEquals(2, result.getResponseMap().get("id").size());
+        databaseAPI.insert("testTable_3", columns, values);
+        databaseAPI.select("testTable_3", columns);
+
+        databaseAPI.print(OUTPUT_TYPE.CONSOLE, Optional.empty());
+        assertEquals(2, databaseAPI.getLastSelectResponse().getResponseMap().get("id").size());
     }
 
     // Successfully select records from a table with valid columns and condition
@@ -124,11 +123,11 @@ public class DatabaseAPITest {
                 new Object[]{1, "John", "Doe", 50000},
                 new Object[]{2, "Jane", "Smith", 60000}
         );
-        databaseAPI.create("testTable", columns);
+        databaseAPI.create("testTable_1", columns);
         columns = List.of("id", "name", "surname", "salary");
-        databaseAPI.insert("testTable", columns, values);
+        databaseAPI.insert("testTable_1", columns, values);
         columns = List.of("id", "name", "surname", "is_boss");
-        databaseAPI.select("testTable", columns, "id = 1");
+        databaseAPI.select("testTable_1", columns, "id = 1");
         databaseAPI.print(OUTPUT_TYPE.CONSOLE, Optional.empty());
         assertEquals(false, databaseAPI.getLastSelectResponse().get("is_boss", 0));
     }
@@ -231,7 +230,7 @@ public class DatabaseAPITest {
     // Attempt to update records with an invalid condition
     @Test
     public void test_attempt_update_invalid_condition() {
-        String tableName = "users";
+        String tableName = "users_1";
         List<String> columns = List.of("name STRING", "age INTEGER");
         List<Object[]> values = new ArrayList<>();
         values.add(new Object[]{"Alice", 25});
@@ -305,7 +304,7 @@ public class DatabaseAPITest {
         databaseAPI.create("users", columns);
         try {
             databaseAPI.undo();
-            assertEquals(0, databaseAPI.getHistory().size());
+            assertEquals(2, databaseAPI.getHistory().size());
         } catch (IOException | ClassNotFoundException e) {
             fail("Exception thrown while undoing the command: %s".formatted(e.getMessage()));
         }

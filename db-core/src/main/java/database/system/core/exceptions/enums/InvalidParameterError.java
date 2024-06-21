@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum InvalidParameterError {
-    DATABASE_INSTANCE_NULL("Database instance is null");
+    DATABASE_INSTANCE_NULL("Error: Database instance is null");
 
     private final String message;
 
