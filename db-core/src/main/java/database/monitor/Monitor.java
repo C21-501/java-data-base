@@ -31,7 +31,8 @@ public class Monitor {
 
     public enum MonitorState {
         CLI,
-        FS
+        FS,
+        RESET
     }
 
     public static void readCommandsFromFile(String fileName, DatabaseAPI databaseAPI, OUTPUT_TYPE outputType, @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> filePath) {
@@ -57,24 +58,22 @@ public class Monitor {
                     try {
                         parser.start();
                     } catch (Exception e) {
-                        //System.out.printf("Error in parser: %s", e.getMessage());
-                        logger.error(STR."Error in parser: \{e.getMessage()}");
+                        logger.error("Error in parser: {}", e.getMessage());
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("Error reading commands from file: %s".formatted(e.getMessage()));
+            logger.error("Error reading commands from file: {}", e.getMessage());
         }
     }
 
     public static void readCommandsFromCommandLine(DatabaseAPI databaseAPI, OUTPUT_TYPE outputType, @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> filePath) {
-        System.out.println("Please enter your commands. Type ':q' to quit, 'change mod' to change mode.");
+        System.out.println("Please enter your commands. Type ':q' to quit CLI mode or 'change mod' to change mode.");
         while (true) {
             StringBuilder commands = new StringBuilder();
             String line = in.nextLine();
-            if (line.equalsIgnoreCase("exit") || line.equalsIgnoreCase(":q")) {
-                System.out.println("Exiting the program. Goodbye!");
-                System.exit(0);
+            if (line.equalsIgnoreCase(":q")) {
+                break;
             } else if (line.equalsIgnoreCase("change mod")) {
                 changeMode();
                 return;
@@ -91,7 +90,7 @@ public class Monitor {
             try {
                 parser.start();
             } catch (Exception e) {
-                logger.error("Error parsing commands: %s".formatted(e.getMessage()));
+                logger.error("Error parsing commands: {}", e.getMessage());
             }
         }
     }
@@ -121,6 +120,7 @@ public class Monitor {
 
     public static void changeMode() {
         System.out.println("Please specify the input mode: CLI or FS");
+        monitorState = MonitorState.RESET;
         String mode = in.nextLine();
         if (mode.equalsIgnoreCase("CLI")) {
             inputFilePath = Optional.empty();
