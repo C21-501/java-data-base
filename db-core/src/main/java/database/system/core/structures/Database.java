@@ -14,6 +14,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static database.system.core.structures.Database.DatabaseState.CREATED;
+import static database.system.core.structures.Database.DatabaseState.IN_WORK;
+
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -21,6 +24,15 @@ public class Database extends DatabaseStructure {
     private String filePath;
     private static volatile Database instance;
     private Map<String, Table> tables = new TreeMap<>();
+    private DatabaseState state = DatabaseState.IDLE;
+
+    public enum DatabaseState {
+        IDLE,
+        RESET,
+        CREATED,
+        IN_WORK,
+        DROPPED
+    };
 
     private Database() {
     }
@@ -48,10 +60,21 @@ public class Database extends DatabaseStructure {
     public Table create(String tableName) {
         validateTableName(tableName);
         if (tables.containsKey(tableName))
-            throw new IllegalArgumentException(String.format("Table already exists with name: %s", tableName));
-        Table table = new Table();
-        tables.put(tableName, table);
-        return table;
+            throw new DatabaseRuntimeException(RuntimeError.TABLE_ALREADY_EXIST, tableName);
+        return switch (state){
+            case IDLE, DROPPED, RESET -> throw new DatabaseRuntimeException(RuntimeError.INVALID_DATABASE_STATE, state.name());
+            case CREATED -> {
+                state = IN_WORK;
+                Table table = new Table();
+                tables.put(tableName, table);
+                yield  table;
+            }
+            case IN_WORK -> {
+                Table table = new Table();
+                tables.put(tableName, table);
+                yield  table;
+            }
+        };
     }
 
     public void drop(String tableName) {

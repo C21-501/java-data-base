@@ -59,6 +59,7 @@ public class DatabaseEditor {
         this.databasePath = path;
         this.database = Database.getInstance();
         this.database.setFilePath(Config.getDatabaseFilePath(databasePath, databaseName));
+        this.database.setState(Database.DatabaseState.CREATED);
         this.databaseSerializer = DatabaseSerializer.getInstance();
         databaseSerializer.setDatabaseName(databaseName);
         databaseSerializer.setDatabaseDirPath(databasePath);
@@ -120,6 +121,7 @@ public class DatabaseEditor {
             } finally {
                 resetDatabaseInstance();
                 this.databaseName = "";
+                this.database = null;
             }
         }
     }

@@ -11,7 +11,8 @@ public enum RuntimeError {
     RENAMING_DATABASE("Error while renaming database: %s"),
     DATABASE_ALREADY_EXIST("Error: database with name %s already exists."),
     TABLE_ALREADY_EXIST("Error: table with name %s already exists."),
-    COLUMN_ALREADY_EXIST("Error: column with name %s already exists.");
+    COLUMN_ALREADY_EXIST("Error: column with name %s already exists."),
+    INVALID_DATABASE_STATE("Error: invalid database state %s.");
     private final String messageTemplate;
 
     RuntimeError(String messageTemplate) {
