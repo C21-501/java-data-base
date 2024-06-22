@@ -35,7 +35,12 @@ public class Monitor {
         RESET,
     }
 
-    public static void readCommandsFromFile(String fileName, DatabaseAPI databaseAPI, OUTPUT_TYPE outputType, @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> filePath) {
+    public static void readCommandsFromFile(
+            String fileName,
+            DatabaseAPI databaseAPI,
+            OUTPUT_TYPE outputType,
+            @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> filePath
+    ) {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             StringBuilder commands = new StringBuilder();
             String line;
@@ -47,7 +52,7 @@ public class Monitor {
 
             String[] commandsList = commands.toString().split(";");
             for (String cmd : commandsList) {
-                if (!cmd.equals("\n")) {
+                if (!cmd.trim().isEmpty()) {
                     CharStream stream = CharStreams.fromString(cmd);
                     SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
                     SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
@@ -67,8 +72,12 @@ public class Monitor {
         }
     }
 
-    public static void readCommandsFromCommandLine(DatabaseAPI databaseAPI, OUTPUT_TYPE outputType, @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> filePath) {
-        System.out.println("\u001B[34m" + "Please enter your commands. Type ':r' to run commands ':q' to quit CLI mode or 'change mod' to change mode." + "\u001B[0m");
+    public static void readCommandsFromCommandLine(
+            DatabaseAPI databaseAPI,
+            OUTPUT_TYPE outputType,
+            @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> filePath
+    ) {
+        System.out.printf("%sPlease enter your commands. Type ':r' to run commands, ':q' to quit CLI mode, or 'change mod' to change mode.%s%n", Config.COLOR.ANSI_BLUE, Config.COLOR.ANSI_RESET);
         StringBuilder commands = new StringBuilder();
         String line = in.nextLine();
         while (!line.equalsIgnoreCase(":q")) {
@@ -87,7 +96,7 @@ public class Monitor {
         if (!commands.isEmpty()) {
             runSQLCommands(databaseAPI, outputType, filePath, commands);
         }
-        System.out.println("\u001B[32m" + "Exiting CLI mode." + "\u001B[0m");
+        System.out.printf("%sExiting CLI mode.%s%n", Config.COLOR.ANSI_GREEN, Config.COLOR.ANSI_RESET);
     }
 
     private static void runSQLCommands(
@@ -99,75 +108,73 @@ public class Monitor {
         String[] commandList = commands.toString().split(";");
         for (String command : commandList) {
             command = command.trim();
-            if (command.isEmpty()) {
-                continue;
-            }
-            CharStream stream = CharStreams.fromString(command);
-            SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
-            SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
-            parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-            lexer.removeErrorListeners();
-            parser.addParseListener(new SQLListener(databaseAPI, outputType, filePath));
-            try {
-                parser.start();
-            } catch (Exception e) {
-                logger.error("Error parsing command: {}", e.getMessage());
+            if (!command.isEmpty()) {
+                CharStream stream = CharStreams.fromString(command);
+                SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
+                SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
+                parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
+                lexer.removeErrorListeners();
+                parser.addParseListener(new SQLListener(databaseAPI, outputType, filePath));
+                try {
+                    parser.start();
+                } catch (Exception e) {
+                    logger.error("Error parsing command: {}", e.getMessage());
+                }
             }
         }
     }
 
-
     public static void handleCommandLine(DatabaseAPI databaseAPI) {
-        System.out.println("\u001B[36m" + "You have selected Command Line Interface mode." + "\u001B[0m");
+        System.out.printf("%sYou have selected Command Line Interface mode.%s%n", Config.COLOR.ANSI_CYAN, Config.COLOR.ANSI_RESET);
         readCommandsFromCommandLine(databaseAPI, outputType, outputFilePath);
     }
 
     public static void handleFileSystem(DatabaseAPI databaseAPI) {
-        System.out.println("\u001B[36m" + "You have selected File System Interface mode." + "\u001B[0m");
+        System.out.printf("%sYou have selected File System Interface mode.%s%n", Config.COLOR.ANSI_CYAN, Config.COLOR.ANSI_RESET);
         if (inputFilePath.isPresent()) {
             readCommandsFromFile(inputFilePath.get(), databaseAPI, outputType, outputFilePath);
         } else {
-            System.out.println("\u001B[31m" + "Input file not specified. Please set the input file path using 'change mod' command." + "\u001B[0m");
+            System.out.printf("%sInput file not specified. Please set the input file path using 'change mod' command.%s%n", Config.COLOR.ANSI_RED, Config.COLOR.ANSI_RESET);
         }
     }
 
     public static void displayHelpCommands() {
-        System.out.println("\u001B[33m" + "Available commands:" + "\u001B[0m");
-        System.out.println("  \u001B[33m" + "CLI" + "\u001B[0m" + " - Switch to Command Line Interface mode.");
-        System.out.println("  \u001B[33m" + "FS" + "\u001B[0m" + " - Switch to File System mode.");
-        System.out.println("  \u001B[33m" + "HELP" + "\u001B[0m" + " - Display available commands.");
-        System.out.println("  \u001B[33m" + "change mod" + "\u001B[0m" + " - Change input/output mode and specify file paths.");
-        System.out.println("  \u001B[33m" + "exit" + "\u001B[0m" + " - Exit the program.");
+        System.out.printf("%sAvailable commands:%s%n", Config.COLOR.ANSI_YELLOW, Config.COLOR.ANSI_RESET);
+        System.out.printf("  %sCLI%s - Switch to Command Line Interface mode.%n", Config.COLOR.ANSI_YELLOW, Config.COLOR.ANSI_RESET);
+        System.out.printf("  %sFS%s - Switch to File System mode.%n", Config.COLOR.ANSI_YELLOW, Config.COLOR.ANSI_RESET);
+        System.out.printf("  %sHELP%s - Display available commands.%n", Config.COLOR.ANSI_YELLOW, Config.COLOR.ANSI_RESET);
+        System.out.printf("  %schange mod%s - Change input/output mode and specify file paths.%n", Config.COLOR.ANSI_YELLOW, Config.COLOR.ANSI_RESET);
+        System.out.printf("  %sexit%s - Exit the program.%n", Config.COLOR.ANSI_YELLOW, Config.COLOR.ANSI_RESET);
     }
 
     public static void changeMode() {
-        System.out.println("\u001B[35m" + "Please specify the input mode: CLI or FS" + "\u001B[0m");
+        System.out.printf("%sPlease specify the input mode: CLI or FS%s%n", Config.COLOR.ANSI_PURPLE, Config.COLOR.ANSI_RESET);
         monitorState = MonitorState.RESET;
         String mode = in.nextLine();
         if (mode.equalsIgnoreCase("CLI")) {
             inputFilePath = Optional.empty();
             monitorState = MonitorState.CLI;
         } else if (mode.equalsIgnoreCase("FS")) {
-            System.out.println("\u001B[35m" + "Please enter the input file path:" + "\u001B[0m");
+            System.out.printf("%sPlease enter the input file path:%s%n", Config.COLOR.ANSI_PURPLE, Config.COLOR.ANSI_RESET);
             String filePath = in.nextLine();
             inputFilePath = Optional.of(filePath);
             monitorState = MonitorState.FS;
         } else {
-            System.out.println("\u001B[31m" + "Invalid input mode specified." + "\u001B[0m");
+            System.out.printf("%sInvalid input mode specified.%s%n", Config.COLOR.ANSI_RED, Config.COLOR.ANSI_RESET);
         }
 
-        System.out.println("\u001B[35m" + "Please specify the output mode: Console (C) or File (F)" + "\u001B[0m");
+        System.out.printf("%sPlease specify the output mode: Console (C) or File (F)%s%n", Config.COLOR.ANSI_PURPLE, Config.COLOR.ANSI_RESET);
         String outputMode = in.nextLine();
         if (outputMode.equalsIgnoreCase("C")) {
             outputType = OUTPUT_TYPE.CONSOLE;
             outputFilePath = Optional.empty();
         } else if (outputMode.equalsIgnoreCase("F")) {
-            System.out.println("\u001B[35m" + "Please enter the output file path:" + "\u001B[0m");
+            System.out.printf("%sPlease enter the output file path:%s%n", Config.COLOR.ANSI_PURPLE, Config.COLOR.ANSI_RESET);
             String filePath = in.nextLine();
             outputType = OUTPUT_TYPE.FILE;
             outputFilePath = Optional.of(filePath);
         } else {
-            System.out.println("\u001B[31m" + "Invalid output mode specified." + "\u001B[0m");
+            System.out.printf("%sInvalid output mode specified.%s%n", Config.COLOR.ANSI_RED, Config.COLOR.ANSI_RESET);
         }
     }
 
@@ -175,8 +182,8 @@ public class Monitor {
         DatabaseAPI databaseAPI = new DatabaseAPI();
         databaseAPI.setActiveEditor(new DatabaseEditor());
         databaseAPI.setHistory(new CommandHistory());
-        System.out.println("\u001B[32m" + "Welcome to the database monitor!" + "\u001B[0m");
-        System.out.printf("\u001B[32m" + "Current working mode: %s%n" + "\u001B[0m", monitorState);
+        System.out.printf("%sWelcome to the database monitor!%s%n", Config.COLOR.ANSI_GREEN, Config.COLOR.ANSI_RESET);
+        System.out.printf("%sCurrent working mode: %%s%%n%s".formatted(Config.COLOR.ANSI_GREEN, Config.COLOR.ANSI_RESET), monitorState);
         try {
             while (true) {
                 if (monitorState == MonitorState.CLI) {
@@ -184,22 +191,22 @@ public class Monitor {
                 } else if (monitorState == MonitorState.FS) {
                     handleFileSystem(databaseAPI);
                 }
-                System.out.println("\u001B[33m" + "Enter 'HELP' for available commands, 'change mod' to change mode, or 'exit' to quit:" + "\u001B[0m");
+                System.out.printf("%sEnter 'HELP' for available commands, 'change mod' to change mode, or 'exit' to quit:%s%n", Config.COLOR.ANSI_YELLOW, Config.COLOR.ANSI_RESET);
                 String input = in.nextLine();
                 if (input.equalsIgnoreCase("change mod")) {
                     changeMode();
-                    System.out.printf("\u001B[32m" + "Mode changed to: %s%n" + "\u001B[0m", monitorState);
+                    System.out.printf("%sMode changed to: %%s%%n%s".formatted(Config.COLOR.ANSI_GREEN, Config.COLOR.ANSI_RESET), monitorState);
                 } else if (input.equalsIgnoreCase("exit")) {
-                    System.out.println("\u001B[32m" + "Exiting the program. Goodbye!" + "\u001B[0m");
+                    System.out.printf("%sExiting the program. Goodbye!%s%n", Config.COLOR.ANSI_GREEN, Config.COLOR.ANSI_RESET);
                     break;
                 } else if (input.equalsIgnoreCase("HELP")) {
                     displayHelpCommands();
                 } else {
-                    System.out.println("\u001B[31m" + "Invalid command. Please enter a valid option." + "\u001B[0m");
+                    System.out.printf("%sInvalid command. Please enter a valid option.%s%n", Config.COLOR.ANSI_RED, Config.COLOR.ANSI_RESET);
                 }
             }
         } finally {
-            System.out.println("\u001B[32m" + "Program terminated." + "\u001B[0m");
+            System.out.printf("%sProgram terminated.%s%n", Config.COLOR.ANSI_GREEN, Config.COLOR.ANSI_RESET);
         }
     }
 }
