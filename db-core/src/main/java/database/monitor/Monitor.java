@@ -108,6 +108,8 @@ public class Monitor {
         String[] commandList = commands.toString().split(";");
         for (String command : commandList) {
             command = command.trim();
+            if (command.startsWith("//"))
+                continue;
             if (!command.isEmpty()) {
                 CharStream stream = CharStreams.fromString(command);
                 SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
