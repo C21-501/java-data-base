@@ -18,6 +18,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Monitor {
     private static final Scanner in = new Scanner(System.in);
@@ -33,6 +35,13 @@ public class Monitor {
         CLI,
         FS,
         RESET,
+    }
+
+    public static boolean containsUnwantedCharacters(String s) {
+        String pattern = "[^A-Za-z0-9 (),\n\"'/_]";
+        Pattern compiledPattern = Pattern.compile(pattern);
+        Matcher matcher = compiledPattern.matcher(s);
+        return matcher.find();
     }
 
     public static void readCommandsFromFile(
@@ -53,14 +62,18 @@ public class Monitor {
             String[] commandsList = commands.toString().split(";");
             for (String cmd : commandsList) {
                 if (!cmd.trim().isEmpty()) {
-                    CharStream stream = CharStreams.fromString(cmd);
-                    SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
-                    SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
-
-                    parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-                    lexer.removeErrorListeners();
-                    parser.addParseListener(new SQLListener(databaseAPI, outputType, filePath));
                     try {
+                        if(containsUnwantedCharacters(cmd)){
+                            throw new RuntimeException("Syntax Error");
+                        }
+
+                        CharStream stream = CharStreams.fromString(cmd);
+                        SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
+                        SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
+
+                        parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
+                        lexer.removeErrorListeners();
+                        parser.addParseListener(new SQLListener(databaseAPI, outputType, filePath));
                         parser.start();
                     } catch (Exception e) {
                         logger.error("Error in parser: {}", e.getMessage());
@@ -111,13 +124,16 @@ public class Monitor {
             if (command.startsWith("//"))
                 continue;
             if (!command.isEmpty()) {
-                CharStream stream = CharStreams.fromString(command);
-                SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
-                SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
-                parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-                lexer.removeErrorListeners();
-                parser.addParseListener(new SQLListener(databaseAPI, outputType, filePath));
                 try {
+                    if(containsUnwantedCharacters(command)){
+                        throw new RuntimeException("Syntax Error");
+                    }
+                    CharStream stream = CharStreams.fromString(command);
+                    SQLGrammarLexer lexer = new SQLGrammarLexer(stream);
+                    SQLGrammarParser parser = new SQLGrammarParser(new CommonTokenStream(lexer));
+                    parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
+                    lexer.removeErrorListeners();
+                    parser.addParseListener(new SQLListener(databaseAPI, outputType, filePath));
                     parser.start();
                 } catch (Exception e) {
                     logger.error("Error parsing command: {}", e.getMessage());
