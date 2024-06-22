@@ -35,8 +35,7 @@ public class DatabaseEditor {
     private DatabaseSerializer databaseSerializer;
 
     public DatabaseEditor() {
-        this.database = Database.getInstance();
-        this.setUpManagers(database);
+        setUpManagers(null);
     }
 
     public void createDatabase(String databaseName) throws DatabaseIOException {
@@ -107,7 +106,7 @@ public class DatabaseEditor {
 
     public void dropDatabase(String name, String path) {
         if (!exists(name, path)) {
-            throw new DatabaseRuntimeException(RuntimeError.DATABASE_DOES_NOT_EXIST, name);
+            throw new DatabaseRuntimeException(RuntimeError.DATABASE_WITH_NAME_DOES_NOT_EXIST, name);
         }
         Path databaseDir = (path.equals(name)) ? Paths.get(name) : Paths.get(path, name);
         if (Files.exists(databaseDir)) {
@@ -140,7 +139,7 @@ public class DatabaseEditor {
             throw new EmptyParameterException(EmptyParameterError.DATABASE_NAME_OR_NEW_NAME_EMPTY);
         }
         if (!exists(name, databasePath)) {
-            throw new DatabaseRuntimeException(RuntimeError.DATABASE_DOES_NOT_EXIST, name);
+            throw new DatabaseRuntimeException(RuntimeError.DATABASE_WITH_NAME_DOES_NOT_EXIST, name);
         }
         if (exists(newName, databasePath)) {
             throw new DatabaseRuntimeException(RuntimeError.DATABASE_ALREADY_EXIST, newName);

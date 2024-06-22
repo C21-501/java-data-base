@@ -1,8 +1,11 @@
 package database.api.utils;
 
+import database.api.ddl.AbstractManager;
 import database.monitor.Config;
 import database.system.core.structures.Database;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -21,15 +24,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-@Data
-public class UtilManager {
+@EqualsAndHashCode(callSuper = true)
+@Setter
+@Getter
+public class UtilManager extends AbstractManager {
     public static final String X = "=================================";
     private final Document document;
     private Database database;
     private String databasePath = Config.ROOT_DATABASE_PATH;  // Using default path from Config
 
     public UtilManager(Database database) {
-        this.database = database;
+        super(database);
         this.document = loadXMLDocument();
     }
 

@@ -1,7 +1,9 @@
 package database.api.ddl;
 
 import database.system.core.structures.Database;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -9,17 +11,17 @@ import java.util.List;
  * The DDLManager class manages Data Definition Language (DDL) operations on the database.
  * It provides methods to create, alter, and drop tables in the database.
  */
-@Data
-public class DDLManager {
-    private Database database;
-
+@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+public class DDLManager extends AbstractManager {
     /**
      * Constructs a new DDLManager instance.
      *
      * @param database the database instance on which DDL operations will be performed
      */
     public DDLManager(Database database) {
-        this.database = database;
+        super(database);
     }
 
     /**
@@ -29,6 +31,7 @@ public class DDLManager {
      * @param columns   the columns to be included in the new table, represented as a list of strings
      */
     public void create(String tableName, List<String> columns) {
+        validateDatabaseState();
         database.create(tableName, columns);
     }
 
@@ -40,6 +43,7 @@ public class DDLManager {
      */
     @SafeVarargs
     public final void alter(String tableName, List<String>... alterColumns) {
+        validateDatabaseState();
         database.alter(tableName, alterColumns);
     }
 
@@ -50,6 +54,7 @@ public class DDLManager {
      * @param newName the new name of the table
      */
     public void alter(String name, String newName) {
+        validateDatabaseState();
         database.alter(name, newName);
     }
 
@@ -59,6 +64,7 @@ public class DDLManager {
      * @param tableName the name of the table to be dropped
      */
     public void drop(String tableName) {
+        validateDatabaseState();
         database.drop(tableName);
     }
 }

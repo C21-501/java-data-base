@@ -1,8 +1,11 @@
 package database.api.dml;
 
+import database.api.ddl.AbstractManager;
 import database.system.core.structures.Database;
 import database.system.core.structures.Response;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -10,17 +13,18 @@ import java.util.List;
  * The DMLManager class manages Data Manipulation Language (DML) operations on the database.
  * It provides methods to insert, update, delete, and select records in the database.
  */
-@Data
-public class DMLManager {
-    private Database database;
+@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+public class DMLManager extends AbstractManager {
 
     /**
      * Constructs a new DMLManager instance.
      *
      * @param database the database instance on which DML operations will be performed
      */
-    public DMLManager(Database database) {
-        this.database = database;
+    public DMLManager(Database database)  {
+        super(database);
     }
 
     /**
@@ -31,6 +35,7 @@ public class DMLManager {
      * @param values    the values to be inserted, represented as a list of object arrays
      */
     public void insert(String tableName, List<String> columns, List<Object[]> values) {
+        validateDatabaseState();
         database.insert(tableName, columns, values);
     }
 
@@ -42,7 +47,7 @@ public class DMLManager {
      * @param condition the condition to determine which records to update
      */
     public void update(String tableName, List<String> values, String condition) {
-        // Logic for updating records
+        validateDatabaseState();
         database.update(tableName, values, condition);
     }
 
@@ -53,7 +58,7 @@ public class DMLManager {
      * @param condition the condition to determine which records to delete
      */
     public void delete(String tableName, String condition) {
-        // Logic for deleting records
+        validateDatabaseState();
         database.delete(tableName, condition);
     }
 
@@ -66,7 +71,7 @@ public class DMLManager {
      * @return a Response object containing the selected records
      */
     public Response select(String tableName, List<String> columns, String condition) {
-        // Logic for selecting records with a condition
+        validateDatabaseState();
         return database.select(tableName, columns, condition);
     }
 
@@ -78,7 +83,7 @@ public class DMLManager {
      * @return a Response object containing the selected records
      */
     public Response select(String tableName, List<String> columns) {
-        // Logic for selecting records without a condition
+        validateDatabaseState();
         return database.select(tableName, columns);
     }
 
@@ -89,7 +94,7 @@ public class DMLManager {
      * @return a Response object containing the selected records
      */
     public Response select(String tableName) {
-        // Logic for selecting records without a condition
+        validateDatabaseState();
         return database.select(tableName);
     }
 }

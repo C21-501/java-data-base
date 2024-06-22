@@ -1,11 +1,14 @@
 package database.api.tcl;
 
 import database.api.Command;
+import database.api.ddl.AbstractManager;
 import database.api.tcl.commands.BeginCommand;
 import database.api.tcl.commands.CommitCommand;
 import database.api.tcl.commands.RollBackCommand;
 import database.system.core.structures.Database;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.*;
 import java.util.Objects;
@@ -16,9 +19,10 @@ import java.util.concurrent.LinkedBlockingQueue;
  * The TCLManager class manages Transaction Control Language (TCL) operations on the database.
  * It provides methods to begin, commit, and rollback transactions, and add commands to a transaction.
  */
-@Data
-public class TCLManager {
-    private Database database;
+@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+public class TCLManager extends AbstractManager {
     private String transactionFile;
     private boolean transactionActive;
     private static Queue<Command> commandQueue = new LinkedBlockingQueue<>();
@@ -30,7 +34,7 @@ public class TCLManager {
      *
      */
     public TCLManager(Database database) {
-        this.database = database;
+        super(database);
         if (Objects.nonNull(database)){
             this.transactionFile = database.getFilePath();
             this.transactionActive = false;
@@ -43,6 +47,7 @@ public class TCLManager {
      * @throws RuntimeException if a transaction is already in progress or an error occurs while starting the transaction
      */
     public void begin() {
+        validateDatabaseState();
         if (transactionActive) {
             throw new RuntimeException("Error: Transaction already in progress.");
         }
@@ -62,6 +67,7 @@ public class TCLManager {
      * @throws RuntimeException if no active transaction is found or an error occurs while committing the transaction
      */
     public void commit() {
+        validateDatabaseState();
         if (!transactionActive) {
             throw new RuntimeException("Error: No active transaction to commit.");
         }
@@ -89,6 +95,7 @@ public class TCLManager {
      * @throws RuntimeException if no active transaction is found or an error occurs while rolling back the transaction
      */
     public void rollback() {
+        validateDatabaseState();
         if (!transactionActive) {
             throw new RuntimeException("Error: No active transaction to roll back.");
         }
