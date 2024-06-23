@@ -1,5 +1,7 @@
 package database.system.core.structures.bodies;
 
+import database.system.core.exceptions.DatabaseRuntimeException;
+import database.system.core.exceptions.enums.RuntimeError;
 import database.system.core.structures.Value;
 import database.system.core.structures.schemes.ColumnScheme;
 import lombok.Data;
@@ -27,7 +29,7 @@ public class FieldBody implements Body {
             objectList.add(value);
     }
 
-    public boolean validate(ColumnScheme columnScheme){
+    public boolean validateAlreadyInsertedObjects(ColumnScheme columnScheme){
         for (Value value: objectList){
             if (!columnScheme.validate(value.getObject()))
                 return false;
@@ -43,13 +45,17 @@ public class FieldBody implements Body {
         return objectList.get(index);
     }
 
-    public void updateById(Object updatedValue, List<Integer> valueIds) {
-        objectList.replaceAll(obj -> {
-            if (valueIds.contains(obj.getId())) {
-                obj.setObject(updatedValue);
-            }
-            return obj;
-        });
+    public void updateById(ColumnScheme scheme, Object updatedValue, List<Integer> valueIds) {
+        if (scheme.validate(updatedValue)){
+            objectList.replaceAll(obj -> {
+                if (valueIds.contains(obj.getId())) {
+                    obj.setObject(updatedValue);
+                }
+                return obj;
+            });
+        } else {
+            throw new DatabaseRuntimeException(RuntimeError.VALUE_VALIDATION_ERROR, updatedValue.toString());
+        }
     }
 
     public void removeValuesIf(Predicate<Object> filter) {

@@ -24,6 +24,8 @@ public class Table extends DatabaseStructure {
     public Table(){}
 
     public Table(Table other) {
+        if (Objects.isNull(other))
+            throw new NoSuchElementException("Error: table copy constructor parameter is null.");
         if (!this.equals(other)){
             // Deep copy columns
             for (Map.Entry<String, Column> entry : other.columns.entrySet()) {

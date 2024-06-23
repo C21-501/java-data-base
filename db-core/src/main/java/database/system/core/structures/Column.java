@@ -1,7 +1,6 @@
 package database.system.core.structures;
 
 import database.system.core.constraints.Constraint;
-import database.system.core.constraints.DefaultConstraint;
 import database.system.core.structures.bodies.FieldBody;
 import database.system.core.structures.schemes.ColumnScheme;
 import database.system.core.types.DataType;
@@ -40,7 +39,7 @@ public class Column extends DatabaseStructure {
 
     public Column addConstraint(Constraint constraint){
         columnScheme.addConstraint(constraint);
-        fieldBody.validate(columnScheme);
+        fieldBody.validateAlreadyInsertedObjects(columnScheme);
         return this;
     }
 
@@ -62,7 +61,7 @@ public class Column extends DatabaseStructure {
     }
 
     public void update(Object value, List<Integer> valueIds) {
-        fieldBody.updateById(value, valueIds);
+        fieldBody.updateById(columnScheme, value, valueIds);
     }
 
     public List<Value> select(Predicate<Object> filter) {
