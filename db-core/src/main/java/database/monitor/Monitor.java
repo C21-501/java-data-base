@@ -30,12 +30,20 @@ public class Monitor {
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private static Optional<String> outputFilePath = Optional.empty(); // Начальное состояние - вывод в консоль
     private static MonitorState monitorState = MonitorState.CLI; // Начальное состояние - CLI
+    private final DatabaseAPI databaseAPI;
+
+    {
+        databaseAPI = new DatabaseAPI();
+        databaseAPI.setActiveEditor(new DatabaseEditor());
+        databaseAPI.setHistory(new CommandHistory());
+    }
 
     public enum MonitorState {
         CLI,
         FS,
         RESET,
     }
+
 
     public static boolean containsUnwantedCharacters(String s) {
         String pattern = "[^A-Za-z0-9 (),\n\"'/_=*]";
@@ -44,9 +52,8 @@ public class Monitor {
         return matcher.find();
     }
 
-    public static void readCommandsFromFile(
+    public void readCommandsFromFile(
             String fileName,
-            DatabaseAPI databaseAPI,
             OUTPUT_TYPE outputType,
             @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> filePath
     ) {
@@ -73,7 +80,7 @@ public class Monitor {
 
                         parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
                         lexer.removeErrorListeners();
-                        parser.addParseListener(new SQLListener(databaseAPI, outputType, filePath));
+                        parser.addParseListener(new SQLListener(this.databaseAPI, outputType, filePath));
                         parser.start();
                     } catch (Exception e) {
                         logger.error("Error in parser: {}", e.getMessage());
@@ -85,8 +92,7 @@ public class Monitor {
         }
     }
 
-    public static void readCommandsFromCommandLine(
-            DatabaseAPI databaseAPI,
+    public void readCommandsFromCommandLine(
             OUTPUT_TYPE outputType,
             @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> filePath
     ) {
@@ -142,15 +148,15 @@ public class Monitor {
         }
     }
 
-    public static void handleCommandLine(DatabaseAPI databaseAPI) {
+    public void handleCommandLine() {
         System.out.printf("%sYou have selected Command Line Interface mode.%s%n", Config.COLOR.ANSI_CYAN, Config.COLOR.ANSI_RESET);
-        readCommandsFromCommandLine(databaseAPI, outputType, outputFilePath);
+        readCommandsFromCommandLine(outputType, outputFilePath);
     }
 
-    public static void handleFileSystem(DatabaseAPI databaseAPI) {
+    public void handleFileSystem() {
         System.out.printf("%sYou have selected File System Interface mode.%s%n", Config.COLOR.ANSI_CYAN, Config.COLOR.ANSI_RESET);
         if (inputFilePath.isPresent()) {
-            readCommandsFromFile(inputFilePath.get(), databaseAPI, outputType, outputFilePath);
+            readCommandsFromFile(inputFilePath.get(), outputType, outputFilePath);
         } else {
             System.out.printf("%sInput file not specified. Please set the input file path using 'change mod' command.%s%n", Config.COLOR.ANSI_RED, Config.COLOR.ANSI_RESET);
         }
@@ -196,18 +202,16 @@ public class Monitor {
         }
     }
 
-    public static void main(String[] ignoredArgs) {
-        DatabaseAPI databaseAPI = new DatabaseAPI();
-        databaseAPI.setActiveEditor(new DatabaseEditor());
-        databaseAPI.setHistory(new CommandHistory());
+
+    public void main(String[] ignoredArgs) {
         System.out.printf("%sWelcome to the database monitor!%s%n", Config.COLOR.ANSI_GREEN, Config.COLOR.ANSI_RESET);
         System.out.printf("%sCurrent working mode: %%s%%n%s".formatted(Config.COLOR.ANSI_GREEN, Config.COLOR.ANSI_RESET), monitorState);
         try {
             while (true) {
                 if (monitorState == MonitorState.CLI) {
-                    handleCommandLine(databaseAPI);
+                    handleCommandLine();
                 } else if (monitorState == MonitorState.FS) {
-                    handleFileSystem(databaseAPI);
+                    handleFileSystem();
                 }
                 System.out.printf("%sEnter 'HELP' for available commands, 'change mod' to change mode, or 'exit' to quit:%s%n", Config.COLOR.ANSI_YELLOW, Config.COLOR.ANSI_RESET);
                 String input = in.nextLine();

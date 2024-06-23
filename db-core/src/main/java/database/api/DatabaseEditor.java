@@ -32,7 +32,7 @@ public class DatabaseEditor {
     private Database database;
     private String databaseName;
     private String databasePath = Config.ROOT_DATABASE_PATH; // Using default path from Config
-    private DatabaseSerializer databaseSerializer;
+    private DatabaseSerializer databaseSerializer = DatabaseSerializer.getInstance();
 
     public DatabaseEditor() {
         setUpManagers(null);
@@ -59,7 +59,6 @@ public class DatabaseEditor {
         this.database = Database.getInstance();
         this.database.setFilePath(Config.getDatabaseFilePath(databasePath, databaseName));
         this.database.setState(Database.DatabaseState.CREATED);
-        this.databaseSerializer = DatabaseSerializer.getInstance();
         databaseSerializer.setDatabaseName(databaseName);
         databaseSerializer.setDatabaseDirPath(databasePath);
         databaseSerializer.createDatabaseDirectoryAndFile(path, databaseName);
