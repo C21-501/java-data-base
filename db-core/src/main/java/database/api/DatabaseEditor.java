@@ -211,6 +211,7 @@ public class DatabaseEditor {
             this.database = tmpDatabase;
             this.databaseName = databaseName;
             this.database.setFilePath(String.format("%s/%s/%s.instance", path, databaseName, databaseName));
+            setUpManagers(database);
         } catch (DatabaseIOException e) {
             throw new DatabaseRuntimeException(RuntimeError.DROPPING_DATABASE, e.getMessage());
         }

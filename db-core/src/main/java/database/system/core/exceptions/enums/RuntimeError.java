@@ -16,7 +16,8 @@ public enum RuntimeError {
     INVALID_DATABASE_STATE("Error: invalid database state '%s'."),
     TABLE_DOES_NOT_EXIST("Error: table with name '%s' does not exists."),
     CANT_SAVE_INSTANCE_TO_FILE_WITH_MESSAGE("Error: can't save instance to file '%s' with message: %s."),
-    VALUE_VALIDATION_ERROR("Error: can't update column, because value '%s' is incorrect.");
+    VALUE_VALIDATION_ERROR("Error: can't update column, because value '%s' is incorrect."),
+    CANT_REMOVE_VALUES("Error: can't remove values, because of invalid condition.");
     private final String messageTemplate;
 
     RuntimeError(String messageTemplate) {

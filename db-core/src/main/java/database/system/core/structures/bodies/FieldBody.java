@@ -59,6 +59,9 @@ public class FieldBody implements Body {
     }
 
     public void removeValuesIf(Predicate<Object> filter) {
+        if (objectList.stream().noneMatch(value -> filter.test(value.getObject()))) {
+            throw new DatabaseRuntimeException(RuntimeError.CANT_REMOVE_VALUES);
+        }
         objectList.removeIf(value -> filter.test(value.getObject()));
     }
 
