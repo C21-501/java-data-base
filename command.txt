@@ -1,0 +1,30 @@
+ALTER DATABASE db RENAME TO db_renamed;
+CREATE DATABASE db;
+DROP DATABASE db;
+
+ALTER TABLE test_table RENAME TO test_table_renamed;
+ALTER TABLE test_table ADD COLUMN added_col STRING;
+ALTER TABLE test_table DROP COLUMN added_col;
+
+CREATE TABLE test_table (
+    col1 STRING NOT NULL,
+    col2 INTEGER PRIMARY KEY,
+    col3 REAL
+);
+
+DROP TABLE test_table;
+
+DELETE FROM test_table WHERE col1 = 'string1';
+
+INSERT INTO test_table (col1,col2,col3) VALUES ('string1',4,5.0);
+
+SELECT * FROM test_table;
+SELECT col1,col2 FROM test_table;
+SELECT col1,col2 FROM test_table WHERE col3 = 5.0;
+
+UPDATE test_table SET col1 = 'updated_string', col2 = 5 WHERE col3 = 5.0;
+
+BEGIN;
+COMMIT;
+ROLLBACK;
+
