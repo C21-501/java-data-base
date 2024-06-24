@@ -46,7 +46,7 @@ public class Monitor {
 
 
     public static boolean containsUnwantedCharacters(String s) {
-        String pattern = "[^A-Za-z0-9 (),\n\"'/_=*]";
+        String pattern = "[^A-Za-z0-9 (),\n\"'/_=*!.<>-]";
         Pattern compiledPattern = Pattern.compile(pattern);
         Matcher matcher = compiledPattern.matcher(s);
         return matcher.find();
